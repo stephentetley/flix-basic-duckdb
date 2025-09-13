@@ -17,6 +17,8 @@
 
 mod BasicDuckDB {
 
+    use BasicJDBC.StructHandle
+
     pub eff RowReader {
         def getStringByIndex(ix: Int32): String
         def getStringByName(name: String): String
@@ -37,7 +39,7 @@ mod BasicDuckDB {
         def getFloat64ByName(name: String): Float64
         def getBigDecimalByIndex(ix: Int32): BigDecimal
         def getBigDecimalByName(name: String): BigDecimal
-        
+        def getStructByIndex(ix: Int32): StructHandle
     }
 
 }
@@ -47,6 +49,8 @@ mod BasicDuckDB.RowReader {
     use BasicDuckDB.DuckDBResultSetHandle
     use BasicDuckDB.DuckDBResultSetHandle.DuckDBResultSetHandle
     use BasicDuckDB.RowReader
+    use BasicJDBC.StructHandle
+    use BasicJDBC.StructHandle.StructHandle
     use IoError.ErrorKind
     use IoError.IoError
 
@@ -188,6 +192,13 @@ mod BasicDuckDB.RowReader {
 
                 def getBigDecimalByName(name, k) = try {
                     let ans = jresults.getBigDecimal(name);
+                    k(ans)
+                } catch {
+                    case ex: SQLException => Err(IoError(ErrorKind.Other, ex.getMessage()))
+                }
+
+                def getStructByIndex(ix, k) = try {
+                    let ans = StructHandle(jresults.getStruct(ix));
                     k(ans)
                 } catch {
                     case ex: SQLException => Err(IoError(ErrorKind.Other, ex.getMessage()))
