@@ -43,7 +43,7 @@ mod BasicDuckDB {
 
 }
 
-mod BasicDuckDb.DuckDBConnection {
+mod BasicDuckDB.DuckDBConnection {
 
     use BasicDuckDB.DuckDBConnectionHandle
     use BasicDuckDB.DuckDBConnectionHandle.DuckDBConnectionHandle
