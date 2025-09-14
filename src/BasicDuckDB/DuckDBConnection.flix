@@ -47,6 +47,7 @@ mod BasicDuckDB.DuckDBConnection {
 
     use BasicDuckDB.DuckDBConnectionHandle
     use BasicDuckDB.DuckDBConnectionHandle.DuckDBConnectionHandle
+    use BasicDuckDB.DuckDBPreparedStatement
     use BasicDuckDB.DuckDBPreparedStatementHandle
     use BasicDuckDB.DuckDBPreparedStatementHandle.DuckDBPreparedStatementHandle
     use BasicDuckDB.JDBC.Statement
@@ -199,6 +200,13 @@ mod BasicDuckDB.DuckDBConnection {
         } with Statement.runWithIO(stmt);
         ans
 
-
+    pub def execDuckDBPreparedStatement(sql: String, f: Unit -> a \ ef): Result[IoError, a] \ (ef - DuckDBPreparedStatement + DuckDBConnection) + {IO} = 
+        let stmt = DuckDBConnection.prepareStatement(sql);
+        let ans = run {
+            let ans1 = f();
+            DuckDBPreparedStatement.close();
+            ans1
+        } with DuckDBPreparedStatement.runWithIO(stmt);
+        ans
 
 }

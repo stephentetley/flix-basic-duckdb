@@ -10,6 +10,8 @@ mod Test02 {
 
     use BasicDuckDB.DuckDBDriver
     use BasicDuckDB.DuckDBConnection
+    use BasicDuckDB.DuckDBPreparedStatement
+    use BasicDuckDB.PreparedStatementSetter
     use BasicDuckDB.JDBC.Statement
 
     @test
@@ -18,16 +20,26 @@ mod Test02 {
             let dir = FileWrite.mkTempDir("flix");
             let url = "jdbc:duckdb:${dir}/test-db-12345.duckdb";
             let _ = DuckDBDriver.execDuckDBConnection(url, () -> {
-                DuckDBConnection.execStatement(() -> {
+                let _ = DuckDBConnection.execStatement(() -> {
                     Statement.executeUpdate("CREATE SCHEMA IF NOT EXISTS facts;");
                     Statement.executeUpdate("CREATE TABLE IF NOT EXISTS facts.databases (name VARCHAR NOT NULL, year INTEGER, PRIMARY KEY(name));")
+                });
+                DuckDBConnection.execDuckDBPreparedStatement("INSERT INTO facts.databases (name, year) VALUES (?,?);", () -> {
+                    let _ = DuckDBPreparedStatement.execPreparedStatementSetter(dbSetter("SQLite", 2000));
+                    DuckDBPreparedStatement.addBatch();
+                    let _ = DuckDBPreparedStatement.execPreparedStatementSetter(dbSetter("DuckDB", 2019));
+                    DuckDBPreparedStatement.addBatch();
+                    DuckDBPreparedStatement.executeBatch()
                 })
             });
             true
         } with DuckDBDriver.runWithIO 
           with FileWrite.runWithIO) == Ok(true)
 
-
+     def dbSetter(name: String, year: Int32): Unit -> Unit \ PreparedStatementSetter = () -> {
+        PreparedStatementSetter.setString(0, name);
+        PreparedStatementSetter.setInt32(1, year)
+     }
 }
 
     

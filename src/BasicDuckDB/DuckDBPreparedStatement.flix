@@ -19,6 +19,9 @@ mod BasicDuckDB {
 
 
     pub eff DuckDBPreparedStatement {
+        // `askDuckDBPreparedStatementHandle` should not be used in user code
+        // It is a hack until we can run local effects polymorphically
+        def askDuckDBPreparedStatementHandle(): DuckDBPreparedStatementHandle
         def close(): Unit
         def execute(): Bool
         def addBatch(): Unit
@@ -37,6 +40,7 @@ mod BasicDuckDB.DuckDBPreparedStatement {
     use BasicDuckDB.DuckDBResultSetHandle
     use BasicDuckDB.DuckDBResultSetHandle.DuckDBResultSetHandle
     use BasicDuckDB.DuckDBPreparedStatement
+    use BasicDuckDB.PreparedStatementSetter
     use IoError.ErrorKind
     use IoError.IoError
 
@@ -49,7 +53,9 @@ mod BasicDuckDB.DuckDBPreparedStatement {
             run {
                 Ok(f(x))
             } with handler DuckDBPreparedStatement {
-            
+                        
+                def askDuckDBPreparedStatementHandle(k) = k(stmt)
+
                 def close(k) = try {                    
                     jstmt.close();
                     k()
@@ -105,5 +111,13 @@ mod BasicDuckDB.DuckDBPreparedStatement {
        }
 
     pub def runWithIO(stmt: DuckDBPreparedStatementHandle, f: Unit -> a \ ef): Result[IoError, a] \ (ef - DuckDBPreparedStatement) + {IO} =
-        handle(stmt, f)()       
+        handle(stmt, f)() 
+
+    pub def execPreparedStatementSetter(f: Unit -> a \ ef): Result[IoError, a] \ (ef - PreparedStatementSetter + DuckDBPreparedStatement) + {IO} = 
+        let stmt = DuckDBPreparedStatement.askDuckDBPreparedStatementHandle();
+        let ans = run {
+            f()
+        } with PreparedStatementSetter.runWithIO(stmt);
+        ans
+
 }

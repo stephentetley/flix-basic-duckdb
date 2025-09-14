@@ -36,7 +36,7 @@ mod BasicDuckDB {
 
 }
 
-mod BasicDb.PreparedStatementSetter {
+mod BasicDuckDB.PreparedStatementSetter {
     
     use BasicDuckDB.DuckDBPreparedStatementHandle
     use BasicDuckDB.DuckDBPreparedStatementHandle.DuckDBPreparedStatementHandle
