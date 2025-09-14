@@ -11,7 +11,7 @@ mod Test02 {
     use BasicDuckDB.DuckDBDriver
     use BasicDuckDB.DuckDBConnection
     use BasicDuckDB.DuckDBPreparedStatement
-    use BasicDuckDB.PreparedStatementSetter
+    use BasicDuckDB.DuckDBAppender
     use BasicDuckDB.RowReader
     use BasicDuckDB.JDBC.Statement
 
@@ -25,25 +25,18 @@ mod Test02 {
                     Statement.executeUpdate("CREATE SCHEMA IF NOT EXISTS facts;");
                     Statement.executeUpdate("CREATE TABLE IF NOT EXISTS facts.databases (name VARCHAR NOT NULL, year INTEGER, PRIMARY KEY(name));")
                 });
-                let _ = DuckDBConnection.execDuckDBPreparedStatement("INSERT INTO facts.databases (name, year) VALUES (?,?);", () -> {
-                    let _ = DuckDBPreparedStatement.execPreparedStatementSetter(dbSetter("SQLite", 2000));
-                    DuckDBPreparedStatement.addBatch();
-                    let _ = DuckDBPreparedStatement.execPreparedStatementSetter(dbSetter("DuckDB", 2019));
-                    DuckDBPreparedStatement.addBatch();
-                    DuckDBPreparedStatement.executeBatch()
-                });
+                let _ = DuckDBConnection.execAppender("facts", "databases", match (name, year) -> {
+                    DuckDBAppender.appendString(name);
+                    DuckDBAppender.appendInt32(year)
+                }, List#{("DuckDB", 2019), ("SQLite", 2000)});
                 DuckDBConnection.queryForEach("SELECT * FROM facts.databases;", dbReader())
             });
             true
         } with DuckDBDriver.runWithIO 
           with FileWrite.runWithIO) == Ok(true)
 
-     def dbSetter(name: String, year: Int32): Unit -> Unit \ PreparedStatementSetter = () -> {
-        PreparedStatementSetter.setString(0, name);
-        PreparedStatementSetter.setInt32(1, year)
-     }
 
-     def dbReader(): Unit -> Unit \ RowReader  + IO = () -> {
+     def dbReader(): Unit -> Unit \ RowReader + IO = () -> {
         let name = RowReader.getStringByName("name");
         let year = RowReader.getInt32ByName("year");
         println("Database: ${name}, Year: ${year}")

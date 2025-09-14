@@ -17,13 +17,14 @@
 
 mod BasicDuckDB {
 
-    
+    use BasicDuckDB.DuckDBAppenderHandle
     use BasicDuckDB.DuckDBPreparedStatementHandle
     use BasicDuckDB.JDBC.StatementHandle
 
     pub eff DuckDBConnection {
         def createStatement(): StatementHandle
         def prepareStatement(sql: String): DuckDBPreparedStatementHandle
+        def createAppender(schemaName: String, tableName: String): DuckDBAppenderHandle
         def nativeSQL(sql: String): String
         def setAutoCommit(autoCommit: Bool): Unit
         def getAutoCommit(): Bool
@@ -47,6 +48,8 @@ mod BasicDuckDB.DuckDBConnection {
 
     use BasicDuckDB.DuckDBConnectionHandle
     use BasicDuckDB.DuckDBConnectionHandle.DuckDBConnectionHandle
+    use BasicDuckDB.DuckDBAppender
+    use BasicDuckDB.DuckDBAppenderHandle.DuckDBAppenderHandle
     use BasicDuckDB.DuckDBPreparedStatement
     use BasicDuckDB.DuckDBPreparedStatementHandle
     use BasicDuckDB.DuckDBPreparedStatementHandle.DuckDBPreparedStatementHandle
@@ -82,6 +85,13 @@ mod BasicDuckDB.DuckDBConnection {
                     let ans = jconn.prepareStatement(sql);
                     let ans1 = unchecked_cast(ans as JDuckDBPreparedStatement);
                     let ans2 = DuckDBPreparedStatementHandle(ans1);
+                    k(ans2)
+                } catch {
+                    case ex: SQLException => Err(IoError(ErrorKind.Other, ex.getMessage()))
+                }
+
+                def createAppender(schema, table, k) = try {
+                    let ans2 = DuckDBAppenderHandle(jconn.createAppender(schema, table));
                     k(ans2)
                 } catch {
                     case ex: SQLException => Err(IoError(ErrorKind.Other, ex.getMessage()))
@@ -232,6 +242,17 @@ mod BasicDuckDB.DuckDBConnection {
             Statement.close();
             ()
         } with Statement.runWithIO(stmt)
+
+    pub def execAppender(schema: String, table: String, f: a -> Unit \ ef, t: t): Result[IoError, Unit] \ (ef + ForEach.Aef[t] + DuckDBConnection) &(~DuckDBAppender)+ {IO} with ForEach[t] where ForEach.Elm[t] ~ a = 
+        let appn = DuckDBConnection.createAppender(schema, table);
+        run { 
+            ForEach.forEach(a -> {
+                DuckDBAppender.beginRow();
+                f(a);
+                DuckDBAppender.endRow()
+                }, t);
+                DuckDBAppender.close()
+        } with DuckDBAppender.runWithIO(appn)
 
 
 }
