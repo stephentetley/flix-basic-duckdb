@@ -17,7 +17,7 @@
 
 mod BasicDuckDB.JDBC {
 
-    // use BasicDb.ResultSetHandle
+    use BasicDuckDB.JDBC.ResultSetHandle
 
     pub eff Statement {
         def close(): Unit
@@ -27,7 +27,7 @@ mod BasicDuckDB.JDBC {
         def execute(sql: String): Bool
         def executeUpdate(sql: String): Int32
         def executeLargeUpdate(sql: String): Int64
-        // def executeQuery(sql: String): ResultSetHandle
+        def executeQuery(sql: String): ResultSetHandle
         // def getResultSet(): ResultSetHandle
         def enquoteLiteral(sql: String): String
         def isClosed(): Bool
@@ -41,6 +41,7 @@ mod BasicDuckDB.JDBC.Statement {
     use BasicDuckDB.JDBC.StatementHandle
     use BasicDuckDB.JDBC.StatementHandle.StatementHandle
     use BasicDuckDB.JDBC.Statement
+    use BasicDuckDB.JDBC.ResultSetHandle.ResultSetHandle
     use IoError.ErrorKind
     use IoError.IoError
 
@@ -102,12 +103,12 @@ mod BasicDuckDB.JDBC.Statement {
                     case ex: SQLException => Err(IoError(ErrorKind.Other, ex.getMessage()))
                 }
                 
-                // def executeQuery(sql, k) = try {
-                //     let ans = ResultSetHandle(jstmt.executeQuery(sql));
-                //     k(ans)
-                // } catch {
-                //     case ex: SQLException => Err(IoError(ErrorKind.Other, ex.getMessage()))
-                // }
+                def executeQuery(sql, k) = try {
+                    let ans = ResultSetHandle(jstmt.executeQuery(sql));
+                    k(ans)
+                } catch {
+                    case ex: SQLException => Err(IoError(ErrorKind.Other, ex.getMessage()))
+                }
 
                 // def getResultSet(k) = try {
                 //     let ans = ResultSetHandle(jstmt.getResultSet());

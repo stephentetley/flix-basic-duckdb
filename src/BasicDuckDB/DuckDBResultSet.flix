@@ -17,7 +17,12 @@
 
 mod BasicDuckDB {
 
+    use BasicDuckDB.DuckDBResultSetHandle
+
     pub eff DuckDBResultSet {
+        // `askDuckDBResultSetHandle` should not be used in user code
+        // It is a hack until we can run local effects polymorphically
+        def askDuckDBResultSetHandle(): DuckDBResultSetHandle
         def close(): Unit
         def next(): Bool
         def wasNull(): Bool
@@ -38,12 +43,13 @@ mod BasicDuckDB {
 
 }
 
-mod BasicDuckDb.DuckDBResultSet {
+mod BasicDuckDB.DuckDBResultSet {
 
 
     use BasicDuckDB.DuckDBResultSetHandle
     use BasicDuckDB.DuckDBResultSetHandle.DuckDBResultSetHandle
     use BasicDuckDB.DuckDBResultSet
+    use BasicDuckDB.RowReader
     use IoError.ErrorKind
     use IoError.IoError
     
@@ -59,6 +65,7 @@ mod BasicDuckDb.DuckDBResultSet {
                 Ok(f(x))
             } with handler DuckDBResultSet {
             
+                def askDuckDBResultSetHandle(k) = k(results)
 
                 def close(k) = try {
                     jresults.close();
@@ -172,6 +179,13 @@ mod BasicDuckDb.DuckDBResultSet {
     
     pub def runWithIO(results: DuckDBResultSetHandle, f: Unit -> a \ ef): Result[IoError, a] \ (ef - DuckDBResultSet) + {IO} =
         handle(results, f)()
+
+
+    pub def execRowReader(f: Unit -> a \ ef): Result[IoError, a] \ (ef - RowReader + DuckDBResultSet) + {IO} = 
+        let results = DuckDBResultSet.askDuckDBResultSetHandle();
+        run {
+            f()
+        } with RowReader.runWithIO(results)
 
 
 }

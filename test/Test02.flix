@@ -12,6 +12,7 @@ mod Test02 {
     use BasicDuckDB.DuckDBConnection
     use BasicDuckDB.DuckDBPreparedStatement
     use BasicDuckDB.PreparedStatementSetter
+    use BasicDuckDB.RowReader
     use BasicDuckDB.JDBC.Statement
 
     @test
@@ -24,13 +25,14 @@ mod Test02 {
                     Statement.executeUpdate("CREATE SCHEMA IF NOT EXISTS facts;");
                     Statement.executeUpdate("CREATE TABLE IF NOT EXISTS facts.databases (name VARCHAR NOT NULL, year INTEGER, PRIMARY KEY(name));")
                 });
-                DuckDBConnection.execDuckDBPreparedStatement("INSERT INTO facts.databases (name, year) VALUES (?,?);", () -> {
+                let _ = DuckDBConnection.execDuckDBPreparedStatement("INSERT INTO facts.databases (name, year) VALUES (?,?);", () -> {
                     let _ = DuckDBPreparedStatement.execPreparedStatementSetter(dbSetter("SQLite", 2000));
                     DuckDBPreparedStatement.addBatch();
                     let _ = DuckDBPreparedStatement.execPreparedStatementSetter(dbSetter("DuckDB", 2019));
                     DuckDBPreparedStatement.addBatch();
                     DuckDBPreparedStatement.executeBatch()
-                })
+                });
+                DuckDBConnection.queryForEach("SELECT * FROM facts.databases;", dbReader())
             });
             true
         } with DuckDBDriver.runWithIO 
@@ -40,6 +42,14 @@ mod Test02 {
         PreparedStatementSetter.setString(0, name);
         PreparedStatementSetter.setInt32(1, year)
      }
+
+     def dbReader(): Unit -> Unit \ RowReader  + IO = () -> {
+        let name = RowReader.getStringByName("name");
+        let year = RowReader.getInt32ByName("year");
+        println("Database: ${name}, Year: ${year}")
+     }
+
 }
+
 
     

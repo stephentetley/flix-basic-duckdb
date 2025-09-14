@@ -115,9 +115,8 @@ mod BasicDuckDB.DuckDBPreparedStatement {
 
     pub def execPreparedStatementSetter(f: Unit -> a \ ef): Result[IoError, a] \ (ef - PreparedStatementSetter + DuckDBPreparedStatement) + {IO} = 
         let stmt = DuckDBPreparedStatement.askDuckDBPreparedStatementHandle();
-        let ans = run {
+        run {
             f()
-        } with PreparedStatementSetter.runWithIO(stmt);
-        ans
+        } with PreparedStatementSetter.runWithIO(stmt)
 
 }

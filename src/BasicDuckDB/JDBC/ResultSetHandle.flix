@@ -15,25 +15,10 @@
  */
 
 
-mod BasicDuckDB {
+mod BasicDuckDB.JDBC {
 
-    import org.duckdb.{DuckDBResultSet => JDuckDBResultSet}
+    import java.sql.{ResultSet => JResultSet}
     
-    pub enum DuckDBResultSetHandle (JDuckDBResultSet)
-
-}
-
-mod BasicDuckDB.DuckDBResultSetHandle {
-
-    use BasicDuckDB.JDBC.ResultSetHandle
-    use BasicDuckDB.JDBC.ResultSetHandle.ResultSetHandle
-
-    import org.duckdb.{DuckDBResultSet => JDuckDBResultSet}
-    
-    pub def castResultSetHandle(results: ResultSetHandle): DuckDBResultSetHandle = 
-        let ResultSetHandle(results1) = results;
-        let results2 = unchecked_cast(results1 as JDuckDBResultSet);
-        DuckDBResultSetHandle(results2)
-        
+    pub enum ResultSetHandle (JResultSet)
 
 }

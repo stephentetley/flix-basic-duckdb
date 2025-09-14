@@ -50,10 +50,12 @@ mod BasicDuckDB.DuckDBConnection {
     use BasicDuckDB.DuckDBPreparedStatement
     use BasicDuckDB.DuckDBPreparedStatementHandle
     use BasicDuckDB.DuckDBPreparedStatementHandle.DuckDBPreparedStatementHandle
+    use BasicDuckDB.DuckDBResultSet
     use BasicDuckDB.JDBC.Statement
     use BasicDuckDB.JDBC.StatementHandle
     use BasicDuckDB.JDBC.StatementHandle.StatementHandle
     use BasicDuckDB.DuckDBConnection
+    use BasicDuckDB.RowReader
     use IoError.ErrorKind
     use IoError.IoError
     
@@ -193,20 +195,43 @@ mod BasicDuckDB.DuckDBConnection {
     
     pub def execStatement(f: Unit -> a \ ef): Result[IoError, a] \ (ef - Statement + DuckDBConnection) + {IO} = 
         let stmt = DuckDBConnection.createStatement();
-        let ans = run {
-            let ans1 = f();
+        run {
+            let ans = f();
             Statement.close();
-            ans1
-        } with Statement.runWithIO(stmt);
-        ans
+            ans
+        } with Statement.runWithIO(stmt)
 
     pub def execDuckDBPreparedStatement(sql: String, f: Unit -> a \ ef): Result[IoError, a] \ (ef - DuckDBPreparedStatement + DuckDBConnection) + {IO} = 
         let stmt = DuckDBConnection.prepareStatement(sql);
-        let ans = run {
-            let ans1 = f();
+        run {
+            let ans = f();
             DuckDBPreparedStatement.close();
-            ans1
-        } with DuckDBPreparedStatement.runWithIO(stmt);
-        ans
+            ans
+        } with DuckDBPreparedStatement.runWithIO(stmt)
+        
+
+    
+    pub def queryForEach(sql: String, f: Unit -> Unit \ ef): Result[IoError, Unit] \ (ef - Statement - DuckDBResultSet - RowReader + DuckDBConnection) + {IO} = 
+        let stmt = DuckDBConnection.createStatement();
+        run {
+            let results = Statement.executeQuery(sql);
+            let results1 = BasicDuckDB.DuckDBResultSetHandle.castResultSetHandle(results);
+            let _ = run {
+                // CPS convert?
+                def loop() = {
+                    let more = DuckDBResultSet.next();
+                    if (more) {
+                        match DuckDBResultSet.execRowReader(f) {
+                            case Ok(()) => loop()
+                            case Err(_) => ()
+                        }
+                    } else ()
+                };
+                loop()
+            } with DuckDBResultSet.runWithIO(results1);
+            Statement.close();
+            ()
+        } with Statement.runWithIO(stmt)
+
 
 }
