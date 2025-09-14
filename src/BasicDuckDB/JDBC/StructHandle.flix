@@ -15,7 +15,7 @@
  */
 
 
-mod BasicJDBC {
+mod BasicDuckDB.JDBC {
 
     import java.sql.{Struct => JStruct}
     
@@ -23,10 +23,10 @@ mod BasicJDBC {
 
 }
 
-mod BasicJDBC.StructHandle {
+mod BasicDuckDB.JDBC.StructHandle {
 
-    use BasicJDBC.StructHandle
-    use BasicJDBC.StructHandle.StructHandle
+    use BasicDuckDB.JDBC.StructHandle
+    use BasicDuckDB.JDBC.StructHandle.StructHandle
 
     pub def getSQLTypeName(s: StructHandle): String = 
         let StructHandle(s1) = s;

@@ -17,7 +17,7 @@
 
 mod BasicDuckDB {
 
-    use BasicJDBC.StructHandle
+    use BasicDuckDB.JDBC.StructHandle
 
     pub eff RowReader {
         def getStringByIndex(ix: Int32): String
@@ -49,8 +49,8 @@ mod BasicDuckDB.RowReader {
     use BasicDuckDB.DuckDBResultSetHandle
     use BasicDuckDB.DuckDBResultSetHandle.DuckDBResultSetHandle
     use BasicDuckDB.RowReader
-    use BasicJDBC.StructHandle
-    use BasicJDBC.StructHandle.StructHandle
+    use BasicDuckDB.JDBC.StructHandle
+    use BasicDuckDB.JDBC.StructHandle.StructHandle
     use IoError.ErrorKind
     use IoError.IoError
 

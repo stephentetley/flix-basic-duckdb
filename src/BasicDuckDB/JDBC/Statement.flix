@@ -15,7 +15,7 @@
  */
 
 
-mod BasicJDBC {
+mod BasicDuckDB.JDBC {
 
     // use BasicDb.ResultSetHandle
 
@@ -36,13 +36,11 @@ mod BasicJDBC {
 
 }
 
-mod BasicJDBC.DbStatement {
+mod BasicDuckDB.JDBC.Statement {
     
-    use BasicJDBC.StatementHandle
-    use BasicJDBC.StatementHandle.StatementHandle
-    // use BasicDb.ResultSetHandle
-    // use BasicDb.ResultSetHandle.ResultSetHandle
-    use BasicJDBC.Statement
+    use BasicDuckDB.JDBC.StatementHandle
+    use BasicDuckDB.JDBC.StatementHandle.StatementHandle
+    use BasicDuckDB.JDBC.Statement
     use IoError.ErrorKind
     use IoError.IoError
 

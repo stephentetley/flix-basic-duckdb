@@ -19,7 +19,7 @@ mod BasicDuckDB {
 
     
     use BasicDuckDB.DuckDBPreparedStatementHandle
-    use BasicJDBC.StatementHandle
+    use BasicDuckDB.JDBC.StatementHandle
 
     pub eff DuckDBConnection {
         def createStatement(): StatementHandle
@@ -49,8 +49,8 @@ mod BasicDuckDB.DuckDBConnection {
     use BasicDuckDB.DuckDBConnectionHandle.DuckDBConnectionHandle
     use BasicDuckDB.DuckDBPreparedStatementHandle
     use BasicDuckDB.DuckDBPreparedStatementHandle.DuckDBPreparedStatementHandle
-    use BasicJDBC.StatementHandle
-    use BasicJDBC.StatementHandle.StatementHandle
+    use BasicDuckDB.JDBC.StatementHandle
+    use BasicDuckDB.JDBC.StatementHandle.StatementHandle
     use BasicDuckDB.DuckDBConnection
     use IoError.ErrorKind
     use IoError.IoError

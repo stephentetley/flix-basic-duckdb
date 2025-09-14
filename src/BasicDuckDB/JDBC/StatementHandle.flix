@@ -15,19 +15,10 @@
  */
 
 
-mod BasicJDBC {
+mod BasicDuckDB.JDBC {
 
-    import java.sql.{Timestamp => JTimestamp}
+    import java.sql.{Statement => JStatement}
     
-    pub enum Timestamp (JTimestamp)
-
-}
-
-mod BasicJDBC.Timestamp {
-
-    use BasicJDBC.Timestamp
-    use BasicJDBC.Timestamp.Timestamp
-
-    // pub def getDay()
+    pub enum StatementHandle (JStatement)
 
 }
