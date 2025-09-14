@@ -17,16 +17,12 @@ mod Test02 {
         Result.flatten(run {
             let dir = FileWrite.mkTempDir("flix");
             let url = "jdbc:duckdb:${dir}/test-db-12345.duckdb";
-            let conn = DuckDBDriver.connect(url);
-            let _ = 
-                run {
-                    let stmt = DuckDBConnection.createStatement();
-                    let _ = run {
-                        Statement.executeUpdate("CREATE SCHEMA IF NOT EXISTS facts;");
-                        Statement.executeUpdate("CREATE TABLE IF NOT EXISTS facts.databases (name VARCHAR NOT NULL, year INTEGER, PRIMARY KEY(name));")
-                    } with Statement.runWithIO(stmt);
-                    DuckDBConnection.close()
-                } with DuckDBConnection.runWithIO(conn);
+            let _ = DuckDBDriver.execDuckDBConnection(url, () -> {
+                DuckDBConnection.execStatement(() -> {
+                    Statement.executeUpdate("CREATE SCHEMA IF NOT EXISTS facts;");
+                    Statement.executeUpdate("CREATE TABLE IF NOT EXISTS facts.databases (name VARCHAR NOT NULL, year INTEGER, PRIMARY KEY(name));")
+                })
+            });
             true
         } with DuckDBDriver.runWithIO 
           with FileWrite.runWithIO) == Ok(true)
