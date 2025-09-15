@@ -1,2 +1,2 @@
 ### v0.1.0
-   New project, code extracted from `flix-basicdb`
+   First release - should be considered a "preview". APIs will change.
