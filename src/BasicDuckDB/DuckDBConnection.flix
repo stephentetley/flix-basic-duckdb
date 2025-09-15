@@ -220,24 +220,44 @@ mod BasicDuckDB.DuckDBConnection {
         } with DuckDBPreparedStatement.runWithIO(stmt)
         
 
-    
-    pub def queryForEach(sql: String, f: Unit -> Unit \ ef): Result[IoError, Unit] \ (ef - Statement - DuckDBResultSet - RowReader + DuckDBConnection) + {IO} = 
+    pub def queryFold(f: a -> a \ ef, s: a, sql: String): Result[IoError, a] \ (ef - Statement - DuckDBResultSet - RowReader + DuckDBConnection) + {IO} = 
+        let stmt = DuckDBConnection.createStatement();
+        Result.flatten(run {
+            let results = Statement.executeQuery(sql);
+            let results1 = BasicDuckDB.DuckDBResultSetHandle.castResultSetHandle(results);
+            let ans = Result.flatten(run {
+                def loop(acc, fk, sk) = {
+                    let more = DuckDBResultSet.next();
+                    if (more) {
+                        match DuckDBResultSet.execRowReader(() -> f(acc)) {
+                            case Ok(s1) => loop(s1, fk, sk)
+                            case Err(err) => fk(err)
+                        }
+                    } else sk(acc)
+                };
+                loop(s, e -> Err(e), a -> Ok(a))
+            } with DuckDBResultSet.runWithIO(results1));
+            Statement.close();
+            ans
+        } with Statement.runWithIO(stmt))
+
+
+    pub def queryForEach(f: Unit -> Unit \ ef, sql: String): Result[IoError, Unit] \ (ef - Statement - DuckDBResultSet - RowReader + DuckDBConnection) + {IO} = 
         let stmt = DuckDBConnection.createStatement();
         run {
             let results = Statement.executeQuery(sql);
             let results1 = BasicDuckDB.DuckDBResultSetHandle.castResultSetHandle(results);
             let _ = run {
-                // CPS convert?
-                def loop() = {
+                def loop(fk, sk) = {
                     let more = DuckDBResultSet.next();
                     if (more) {
                         match DuckDBResultSet.execRowReader(f) {
-                            case Ok(()) => loop()
-                            case Err(_) => ()
+                            case Ok(()) => loop(fk, sk)
+                            case Err(err) => fk(err)
                         }
-                    } else ()
+                    } else sk()
                 };
-                loop()
+                loop(e -> Err(e), a -> Ok(a))
             } with DuckDBResultSet.runWithIO(results1);
             Statement.close();
             ()

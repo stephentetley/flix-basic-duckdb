@@ -6,7 +6,7 @@
 // > java --enable-native-access=ALL-UNNAMED -jar ../bin/flix-0.62.0.jar test
 
 
-mod Test02 {
+mod Test03 {
 
     use BasicDuckDB.DuckDBDriver
     use BasicDuckDB.DuckDBConnection
@@ -15,6 +15,7 @@ mod Test02 {
     use BasicDuckDB.RowReader
     use BasicDuckDB.JDBC.Statement
 
+    // needs a rewrite, not very compelling
     @test
     def test01(): Bool \ IO =
         Result.flatten(run {
@@ -29,17 +30,16 @@ mod Test02 {
                     DuckDBAppender.appendString(name);
                     DuckDBAppender.appendInt32(year)
                 }, List#{("DuckDB", 2019), ("SQLite", 2000)});
-                DuckDBConnection.queryForEach(dbReader(), "SELECT * FROM facts.databases;")
+                DuckDBConnection.queryFold(dbReader, 0, "SELECT * FROM facts.databases;") |> println
             });
             true
         } with DuckDBDriver.runWithIO 
           with FileWrite.runWithIO) == Ok(true)
 
 
-     def dbReader(): Unit -> Unit \ RowReader + IO = () -> {
-        let name = RowReader.getStringByName("name");
-        let year = RowReader.getInt32ByName("year");
-        println("Database: ${name}, Year: ${year}")
+     def dbReader(year: Int32): Int32 \ RowReader = {
+        let year1 = RowReader.getInt32ByName("year");
+        Int32.max(year, year1)
      }
 
 }
