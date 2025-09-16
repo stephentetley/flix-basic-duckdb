@@ -242,7 +242,7 @@ mod BasicDuckDB.DuckDBConnection {
         } with Statement.runWithIO(stmt))
 
 
-    pub def queryForEach(f: Unit -> Unit \ ef, sql: String): Result[IoError, Unit] \ (ef - Statement - DuckDBResultSet - RowReader + DuckDBConnection) + {IO} = 
+    pub def queryForEach(f: Unit -> Unit \ ef, sql: String): Result[IoError, Unit] \ (ef + DuckDBConnection) - Statement - DuckDBResultSet - RowReader  + {IO} = 
         let stmt = DuckDBConnection.createStatement();
         run {
             let results = Statement.executeQuery(sql);
@@ -263,7 +263,7 @@ mod BasicDuckDB.DuckDBConnection {
             ()
         } with Statement.runWithIO(stmt)
 
-    pub def execAppender(schema: String, table: String, f: a -> Unit \ ef, t: t): Result[IoError, Unit] \ (ef + ForEach.Aef[t] + DuckDBConnection) &(~DuckDBAppender)+ {IO} with ForEach[t] where ForEach.Elm[t] ~ a = 
+    pub def execAppender(schema: String, table: String, f: a -> Unit \ ef, t: t): Result[IoError, Unit] \ (ef + ForEach.Aef[t] + DuckDBConnection) & (~DuckDBAppender)+ {IO} with ForEach[t] where ForEach.Elm[t] ~ a = 
         let appn = DuckDBConnection.createAppender(schema, table);
         run { 
             ForEach.forEach(a -> {

@@ -94,7 +94,7 @@ mod BasicDuckDB.DuckDBDriver {
     pub def runWithIO(f: Unit -> a \ ef): Result[IoError, a] \ (ef - DuckDBDriver) + {IO} =
         handle(f)()
 
-    pub def execDuckDBConnection(url: String, f: Unit -> a \ ef): Result[IoError, a] \ (ef - DuckDBConnection + DuckDBDriver) + {IO} = 
+    pub def execDuckDBConnection(url: String, f: Unit -> a \ ef): Result[IoError, a] \ (ef + DuckDBDriver - DuckDBConnection) + {IO} = 
         let conn = DuckDBDriver.connect(url);
         let ans = run {
             let ans1 = f();
