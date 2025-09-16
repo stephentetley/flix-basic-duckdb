@@ -17,8 +17,6 @@
 
 mod BasicDuckDB.Shim.XLSX {
 
-
-
     use BasicDuckDB.DuckDBDriver
     use BasicDuckDB.DuckDBConnection
     use BasicDuckDB.DuckDBResultSet
@@ -42,5 +40,9 @@ mod BasicDuckDB.Shim.XLSX {
                 DuckDBConnection.queryFold(f, s, sql)
             }) 
         } with DuckDBDriver.runWithIO))
+
+
+    pub def load_facts(f: Unit -> #{ | r } \ ef, file_name: String): Result[IoError, #{ | r }] \ ((~(IO + DuckDBConnection + DuckDBDriver + DuckDBResultSet + Statement + RowReader)) & ef) + IO = 
+        fold(acc -> acc <+> f(), #{}, file_name)
 
 }
