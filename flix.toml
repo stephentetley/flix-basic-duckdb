@@ -7,7 +7,7 @@ license     = "Apache-2.0"
 authors     = ["Stephen Tetley <stephen.tetley@gmail.com>"]
 
 [dependencies]
-
+"github:stephentetley/flix-pretty" = "0.9.1"
 
 
 [mvn-dependencies]
