@@ -17,12 +17,13 @@
 
 mod BasicDuckDB.Shim.XLSX {
 
-    use BasicDuckDB.Shim.XLSXOption
+    
     use BasicDuckDB.DuckDBDriver
     use BasicDuckDB.DuckDBConnection
     use BasicDuckDB.DuckDBResultSet
     use BasicDuckDB.RowReader
     use BasicDuckDB.JDBC.Statement
+    use BasicDuckDB.Shim.XLSXOption
     use BasicDuckDB.Shim.Internal.Utils.{printOptions}
     
     pub def forEach(f: Unit -> Unit \ ef, file_name: String, opts: List[XLSXOption]): Result[IoError, Unit] \ ((~(IO + DuckDBConnection + DuckDBDriver + DuckDBResultSet + Statement + RowReader)) & ef) + IO = 
