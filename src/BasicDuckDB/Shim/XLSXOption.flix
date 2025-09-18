@@ -19,6 +19,7 @@ mod BasicDuckDB.Shim {
     use Text.Pretty
     use Text.PrettyLevel
     use Text.PrettyPrint.{Doc, <<>>, intersperse, text, empty, squotes, equals, comma}
+    use BasicDuckDB.Shim.Internal.Utils.{argument, varchar, boolean, argList}
 
     pub enum XLSXOption {
         case Header(Bool)
@@ -41,16 +42,10 @@ mod BasicDuckDB.Shim {
             case XLSXOption.EmptyAsVarchar(b) => argument("empty_as_varchar", boolean(b))
         }
         
-        pub override def pPrintList(l: PrettyLevel, xs: List[XLSXOption]) : Doc = match xs {
-            case Nil => empty()
-            case _ => comma() <<>> intersperse(text(", "), List.map(Pretty.pPrintPrec(l, 0), xs))
-        }
+        pub override def pPrintList(l: PrettyLevel, xs: List[XLSXOption]) : Doc = argList(l, xs)
             
     }
 
-    def argument(name: String, body: Doc): Doc = text(name) <<>> equals() <<>> body
-    def boolean(b: Bool): Doc = text(if (b) "true" else "false")
-    def varchar(s: String): Doc = squotes(text(s))
 
 }
 

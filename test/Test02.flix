@@ -18,8 +18,8 @@ mod Test02 {
     @test
     def test01(): Bool \ IO =
         Result.flatten(run {
-            let dir = FileWrite.mkTempDir("flix");
-            let url = "jdbc:duckdb:${dir}/test-db-12345.duckdb";
+            let dir = FileWrite.mkTempDir("flix_test02");
+            let url = "jdbc:duckdb:${dir}/test02_db.duckdb";
             let _ = DuckDBDriver.execDuckDBConnection(url, () -> {
                 let _ = DuckDBConnection.execStatement(() -> {
                     Statement.executeUpdate("CREATE SCHEMA IF NOT EXISTS facts;");
