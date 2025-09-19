@@ -18,10 +18,11 @@ mod BasicDuckDB.Shim.Internal.Utils {
 
     use Text.Pretty
     use Text.PrettyLevel
-    use Text.PrettyPrint.{Doc, <<>>, intersperse, text, empty, squotes, equals, comma}
+    use Text.PrettyPrint.{Doc, <<>>, intersperse, text, bigInt, empty, squotes, equals, comma}
 
     pub def argument(name: String, body: Doc): Doc = text(name) <<>> equals() <<>> body
     pub def boolean(b: Bool): Doc = text(if (b) "true" else "false")
+    pub def bigint(i: BigInt): Doc = bigInt(i)
     pub def varchar(s: String): Doc = squotes(text(s))
 
     pub def argList(l: PrettyLevel, xs: List[t]) : Doc with Pretty[t] = match xs {
