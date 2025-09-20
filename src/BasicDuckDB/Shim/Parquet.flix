@@ -26,6 +26,8 @@ mod BasicDuckDB.Shim.Parquet {
     use BasicDuckDB.Shim.ParquetOption
     use BasicDuckDB.Shim.Internal.Utils.{printOptions}
     
+    // TODO multiple files... Output...
+
     pub def forEach(f: Unit -> Unit \ ef, file_name: String, opts: List[ParquetOption]): Result[IoError, Unit] \ ((~(IO + DuckDBConnection + DuckDBDriver + DuckDBResultSet + Statement + RowReader)) & ef) + IO = 
         let url = "jdbc:duckdb:";
         let sql = "SELECT * FROM read_parquet('${file_name}'${printOptions(opts)});";

@@ -33,7 +33,11 @@ mod BasicDuckDB.Shim.Script {
                 case Err(e) => Err(e)
             }
         } with FileReadWithResult.runWithIO
-        
+
+    pub def executeUpdate(sql: String): Result[IoError, Bool] \ (DuckDBConnection) + {IO} =
+        DuckDBConnection.execStatement(() -> {
+            Statement.execute(sql)
+        })
         
         
 }

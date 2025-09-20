@@ -26,6 +26,8 @@ mod BasicDuckDB.Shim.CSV {
     use BasicDuckDB.Shim.CSVOption
     use BasicDuckDB.Shim.Internal.Utils.{printOptions}
     
+    // TODO multiple files... Output...
+
     pub def forEach(f: Unit -> Unit \ ef, file_name: String, opts: List[CSVOption]): Result[IoError, Unit] \ ((~(IO + DuckDBConnection + DuckDBDriver + DuckDBResultSet + Statement + RowReader)) & ef) + IO = 
         let url = "jdbc:duckdb:";
         let sql = "SELECT * FROM read_csv('${file_name}'${printOptions(opts)});";
