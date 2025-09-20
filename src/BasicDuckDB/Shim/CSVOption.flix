@@ -19,15 +19,16 @@ mod BasicDuckDB.Shim {
     use Text.Pretty
     use Text.PrettyLevel
     use Text.PrettyPrint.{Doc}
-    use BasicDuckDB.Shim.Internal.Utils.{argument, varchar, boolean, bigint, argList}
+    use BasicDuckDB.Shim.Internal.Utils.{argument, varchar, boolean, bigint, 
+        listOfVarchar, structOfVarchar, listOfTypename, argList}
 
     pub enum CSVOption {
         case AllVarchar(Bool)
         case AllowQuotedNulls(Bool)
         case AutoDetect(Bool)
-        case AutoTypeCandidates(Bool)
+        case AutoTypeCandidates(List[String])
         case BufferSize(BigInt)
-        // Columns is important, but currently not implemented
+        case Columns(List[(String, String)])
         case Comment(String)
         case Compression(String)
         case DateFormat(String)
@@ -37,15 +38,15 @@ mod BasicDuckDB.Shim {
         case Encoding(String)
         case Filename(Bool)
         case Header(Bool)
-        // force_not_null
+        case ForceNotNull(List[String])
         case HivePartitioning(Bool)
         case IgnoreErrors(Bool)
         case MaxLineSize(BigInt)
-        // names / column_names
+        case Names(List[String])
         case NewLine(String)
         case NormalizeNames(Bool)
         case NullPadding(Bool)
-        // nullstr / null
+        case Nullstr(List[String])
         case Parallel(Bool)
         case Quote(String)
         case RejectsScan(String)
@@ -58,7 +59,7 @@ mod BasicDuckDB.Shim {
         case StrictMode(Bool)
         case Thousands(String)
         case TimestampFormat(String)
-        // types
+        case Types(List[String])
         case UnionByName(Bool)
     }
 
@@ -67,8 +68,9 @@ mod BasicDuckDB.Shim {
             case CSVOption.AllVarchar(b) => argument("all_varchar", boolean(b))
             case CSVOption.AllowQuotedNulls(b) => argument("allow_quoted_nulls", boolean(b))
             case CSVOption.AutoDetect(b) => argument("auto_detect", boolean(b))
-            case CSVOption.AutoTypeCandidates(b) => argument("auto_type_candidates", boolean(b))
+            case CSVOption.AutoTypeCandidates(xs) => argument("auto_type_candidates", listOfTypename(xs))
             case CSVOption.BufferSize(i) => argument("buffer_size", bigint(i))
+            case CSVOption.Columns(xs) => argument("columns", structOfVarchar(xs))
             case CSVOption.Comment(s) => argument("comment", varchar(s))
             case CSVOption.Compression(s) => argument("compression", varchar(s))
             case CSVOption.DateFormat(s) => argument("date_format", varchar(s))
@@ -77,13 +79,16 @@ mod BasicDuckDB.Shim {
             case CSVOption.Encoding(s) => argument("encoding", varchar(s))
             case CSVOption.Escape(s) => argument("escape", varchar(s))
             case CSVOption.Filename(b) => argument("filename", boolean(b))
+            case CSVOption.ForceNotNull(xs) => argument("force_not_null", listOfVarchar(xs))
             case CSVOption.Header(b) => argument("header", boolean(b))
             case CSVOption.HivePartitioning(b) => argument("hive_partitioning", boolean(b))
             case CSVOption.IgnoreErrors(b) => argument("ignore_errors", boolean(b))
             case CSVOption.MaxLineSize(i) => argument("max_line_size", bigint(i))
+            case CSVOption.Names(xs) => argument("names", listOfVarchar(xs))
             case CSVOption.NewLine(s) => argument("new_line", varchar(s))
             case CSVOption.NormalizeNames(b) => argument("normalize_names", boolean(b))
             case CSVOption.NullPadding(b) => argument("null_padding", boolean(b))
+            case CSVOption.Nullstr(xs) => argument("nullstr", listOfVarchar(xs))
             case CSVOption.Parallel(b) => argument("parallel", boolean(b))
             case CSVOption.Quote(s) => argument("quote", varchar(s))
             case CSVOption.RejectsScan(s) => argument("rejects_scan", varchar(s))
@@ -96,6 +101,7 @@ mod BasicDuckDB.Shim {
             case CSVOption.StrictMode(b) => argument("strict_mode", boolean(b))
             case CSVOption.Thousands(s) => argument("thousands", varchar(s))
             case CSVOption.TimestampFormat(s) => argument("timestamp_format", varchar(s))
+            case CSVOption.Types(xs) => argument("types", listOfVarchar(xs))
             case CSVOption.UnionByName(b) => argument("union_by_name", boolean(b))
         }
         
@@ -117,11 +123,11 @@ mod BasicDuckDB.Shim.CSVOption {
 
     pub def auto_detect(b: Bool): CSVOption = CSVOption.AutoDetect(b)
 
-    pub def auto_type_candidates(b: Bool): CSVOption = CSVOption.AutoTypeCandidates(b)
+    pub def auto_type_candidates(xs: List[String]): CSVOption = CSVOption.AutoTypeCandidates(xs)
 
     pub def buffer_size(i: BigInt): CSVOption = CSVOption.BufferSize(i)
 
-    // Columns
+    pub def columns(xs: List[(String, String)]): CSVOption = CSVOption.Columns(xs)
 
     pub def comment(s: String): CSVOption = CSVOption.Comment(s)
 
@@ -139,7 +145,7 @@ mod BasicDuckDB.Shim.CSVOption {
 
     pub def filename(b: Bool): CSVOption = CSVOption.Filename(b)
 
-    // pub def force_not_null(b: Bool): CSVOption = CSVOption.ForceNotNull(b)
+    pub def force_not_null(xs: List[String]): CSVOption = CSVOption.ForceNotNull(xs)
 
     pub def header(b: Bool): CSVOption = CSVOption.Header(b)
 
@@ -149,7 +155,7 @@ mod BasicDuckDB.Shim.CSVOption {
 
     pub def max_line_size(i: BigInt): CSVOption = CSVOption.MaxLineSize(i)
 
-    // names
+    pub def names(xs: List[String]): CSVOption = CSVOption.Names(xs)
 
     pub def new_line(s: String): CSVOption = CSVOption.NewLine(s)
 
@@ -157,7 +163,7 @@ mod BasicDuckDB.Shim.CSVOption {
 
     pub def null_padding(b: Bool): CSVOption = CSVOption.NullPadding(b)
 
-    // null / nullstr
+    pub def nullstr(xs: List[String]): CSVOption = CSVOption.Nullstr(xs)
 
     pub def parallel(b: Bool): CSVOption = CSVOption.Parallel(b)
 
@@ -183,7 +189,8 @@ mod BasicDuckDB.Shim.CSVOption {
 
     pub def timestamp_format(s: String): CSVOption = CSVOption.TimestampFormat(s)
 
-    // types, dtypes, column_types
+    // List of types by position, for by name use columns
+    pub def types(xs: List[String]): CSVOption = CSVOption.Types(xs)
 
     pub def union_by_name(b: Bool): CSVOption = CSVOption.UnionByName(b)
 

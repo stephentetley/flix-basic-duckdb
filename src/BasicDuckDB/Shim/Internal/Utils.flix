@@ -18,12 +18,25 @@ mod BasicDuckDB.Shim.Internal.Utils {
 
     use Text.Pretty
     use Text.PrettyLevel
-    use Text.PrettyPrint.{Doc, <<>>, intersperse, text, bigInt, empty, squotes, equals, comma}
+    use Text.PrettyPrint.{Doc, <<>>, intersperse, text, bigInt, empty, squotes, equals, comma, 
+        commaBraces, commaBrackets, colon}
+
+    // TODO must deal with escaping in VARCHAR
 
     pub def argument(name: String, body: Doc): Doc = text(name) <<>> equals() <<>> body
     pub def boolean(b: Bool): Doc = text(if (b) "true" else "false")
     pub def bigint(i: BigInt): Doc = bigInt(i)
     pub def varchar(s: String): Doc = squotes(text(s))
+    
+    pub def listOfVarchar(xs: List[String]): Doc = 
+        commaBrackets(List.map(s -> squotes(text(s)), xs))
+
+    pub def listOfTypename(xs: List[String]): Doc = listOfVarchar(xs)
+
+
+    pub def structOfVarchar(xs: List[(String, String)]): Doc = 
+        def field = match (n,v) -> squotes(text(n)) <<>> colon() <<>> squotes(text(v));
+        commaBraces(List.map(field(), xs))
 
     pub def argList(l: PrettyLevel, xs: List[t]) : Doc with Pretty[t] = match xs {
         case Nil => empty()
