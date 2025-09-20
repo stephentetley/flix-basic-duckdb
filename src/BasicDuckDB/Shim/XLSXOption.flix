@@ -18,28 +18,28 @@ mod BasicDuckDB.Shim {
 
     use Text.Pretty
     use Text.PrettyLevel
-    use Text.PrettyPrint.{Doc, <<>>, intersperse, text, empty, squotes, equals, comma}
+    use Text.PrettyPrint.{Doc}
     use BasicDuckDB.Shim.Internal.Utils.{argument, varchar, boolean, argList}
 
     pub enum XLSXOption {
-        case Header(Bool)
-        case Sheet(String)
         case AllVarchar(Bool)
+        case EmptyAsVarchar(Bool)
+        case Header(Bool)
         case IgnoreErrors(Bool)
         case Range(String)
+        case Sheet(String)
         case StopAtEmpty(Bool)
-        case EmptyAsVarchar(Bool)
     }
 
     instance Pretty[XLSXOption] {
         pub override def pPrint(o: XLSXOption): Doc = match o {
-            case XLSXOption.Header(b) => argument("header", boolean(b))
-            case XLSXOption.Sheet(s) => argument("sheet", varchar(s))
             case XLSXOption.AllVarchar(b) => argument("all_varchar", boolean(b))
+            case XLSXOption.EmptyAsVarchar(b) => argument("empty_as_varchar", boolean(b))
+            case XLSXOption.Header(b) => argument("header", boolean(b))
             case XLSXOption.IgnoreErrors(b) => argument("ignore_errors", boolean(b))
             case XLSXOption.Range(s) => argument("range", varchar(s))
+            case XLSXOption.Sheet(s) => argument("sheet", varchar(s))
             case XLSXOption.StopAtEmpty(b) => argument("stop_at_empty", boolean(b))
-            case XLSXOption.EmptyAsVarchar(b) => argument("empty_as_varchar", boolean(b))
         }
         
         pub override def pPrintList(l: PrettyLevel, xs: List[XLSXOption]) : Doc = argList(l, xs)
@@ -53,18 +53,18 @@ mod BasicDuckDB.Shim.XLSXOption {
 
     use BasicDuckDB.Shim.XLSXOption
 
-    pub def header(b: Bool): XLSXOption = XLSXOption.Header(b)
-
-    pub def sheet(s: String): XLSXOption = XLSXOption.Sheet(s)
-
     pub def all_varchar(b: Bool): XLSXOption = XLSXOption.AllVarchar(b)
+    
+    pub def empty_as_varchar(b: Bool): XLSXOption =  XLSXOption.EmptyAsVarchar(b)
+
+    pub def header(b: Bool): XLSXOption = XLSXOption.Header(b)
 
     pub def ignore_errors(b: Bool): XLSXOption = XLSXOption.IgnoreErrors(b)
 
     pub def range(s: String): XLSXOption = XLSXOption.Range(s)
 
+    pub def sheet(s: String): XLSXOption = XLSXOption.Sheet(s)
+
     pub def stop_at_empty(b: Bool): XLSXOption = XLSXOption.StopAtEmpty(b)
-    
-    pub def empty_as_varchar(b: Bool): XLSXOption =  XLSXOption.EmptyAsVarchar(b)
 
 }
