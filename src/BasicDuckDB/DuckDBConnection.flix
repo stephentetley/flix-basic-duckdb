@@ -59,6 +59,7 @@ mod BasicDuckDB.DuckDBConnection {
     use BasicDuckDB.JDBC.StatementHandle.StatementHandle
     use BasicDuckDB.DuckDBConnection
     use BasicDuckDB.RowReader
+    use BasicDuckDB.ReadRow
     use IoError.ErrorKind
     use IoError.IoError
     
@@ -220,7 +221,7 @@ mod BasicDuckDB.DuckDBConnection {
         } with DuckDBPreparedStatement.runWithIO(stmt)
         
 
-    pub def queryFold(f: a -> a \ ef, s: a, sql: String): Result[IoError, a] \ (ef - Statement - DuckDBResultSet - RowReader + DuckDBConnection) + {IO} = 
+    pub def queryFold(reader: RowReader[b, ef], f: (a, b) -> a \ ef1, s: a, sql: String): Result[IoError, a] \ (ef + ef1 - Statement - DuckDBResultSet + DuckDBConnection) + {IO} = 
         let stmt = DuckDBConnection.createStatement();
         Result.flatten(run {
             let results = Statement.executeQuery(sql);
@@ -229,8 +230,8 @@ mod BasicDuckDB.DuckDBConnection {
                 def loop(acc, fk, sk) = {
                     let more = DuckDBResultSet.next();
                     if (more) {
-                        match DuckDBResultSet.execRowReader(() -> f(acc)) {
-                            case Ok(s1) => loop(s1, fk, sk)
+                        match DuckDBResultSet.execRowReader(reader) {
+                            case Ok(b) => loop(f(acc, b), fk, sk)
                             case Err(err) => fk(err)
                         }
                     } else sk(acc)
@@ -242,7 +243,7 @@ mod BasicDuckDB.DuckDBConnection {
         } with Statement.runWithIO(stmt))
 
 
-    pub def queryForEach(f: Unit -> Unit \ ef, sql: String): Result[IoError, Unit] \ (ef + DuckDBConnection) - Statement - DuckDBResultSet - RowReader  + {IO} = 
+    pub def queryForEach(reader: RowReader[a, ef], sql: String): Result[IoError, Unit] \ (ef + DuckDBConnection) - Statement - DuckDBResultSet + {IO} = 
         let stmt = DuckDBConnection.createStatement();
         run {
             let results = Statement.executeQuery(sql);
@@ -251,8 +252,8 @@ mod BasicDuckDB.DuckDBConnection {
                 def loop(fk, sk) = {
                     let more = DuckDBResultSet.next();
                     if (more) {
-                        match DuckDBResultSet.execRowReader(f) {
-                            case Ok(()) => loop(fk, sk)
+                        match DuckDBResultSet.execRowReader(reader) {
+                            case Ok(_) => loop(fk, sk)
                             case Err(err) => fk(err)
                         }
                     } else sk()

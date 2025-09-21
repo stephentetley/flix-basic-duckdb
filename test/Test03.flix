@@ -12,7 +12,9 @@ mod Test03 {
     use BasicDuckDB.DuckDBConnection
     use BasicDuckDB.DuckDBPreparedStatement
     use BasicDuckDB.DuckDBAppender
+    use BasicDuckDB.ReadRow
     use BasicDuckDB.RowReader
+    use BasicDuckDB.RowReader.RowReader
     use BasicDuckDB.JDBC.Statement
 
     // needs a rewrite, not very compelling
@@ -30,17 +32,14 @@ mod Test03 {
                     DuckDBAppender.appendString(name);
                     DuckDBAppender.appendInt32(year)
                 }, List#{("DuckDB", 2019), ("SQLite", 2000)});
-                DuckDBConnection.queryFold(dbReader, 0, "SELECT * FROM facts.databases;") |> println
+                DuckDBConnection.queryFold(dbReader(), Int32.max, 0, "SELECT * FROM facts.databases;") |> println
             });
             true
         } with DuckDBDriver.runWithIO 
           with FileWrite.runWithIO) == Ok(true)
 
 
-     def dbReader(year: Int32): Int32 \ RowReader = {
-        let year1 = RowReader.getInt32ByName("year");
-        Int32.max(year, year1)
-     }
+    def dbReader(): RowReader[Int32, {}] = RowReader(() -> ReadRow.getInt32ByName("year"))
 
 }
 

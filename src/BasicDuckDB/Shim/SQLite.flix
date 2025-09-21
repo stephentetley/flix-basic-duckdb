@@ -25,7 +25,7 @@ mod BasicDuckDB.Shim.SQLite {
     use BasicDuckDB.JDBC.Statement
     use BasicDuckDB.Shim.Script
     
-    pub def forEach(f: Unit -> Unit \ ef, file_name: String, table_name: {table_name=String}): Result[IoError, Unit] \ ((~(IO + DuckDBConnection + DuckDBDriver + DuckDBResultSet + Statement + RowReader)) & ef) + IO = 
+    pub def forEach(reader: RowReader[a, ef], file_name: String, table_name: {table_name=String}): Result[IoError, Unit] \ ((~(IO + DuckDBConnection + DuckDBDriver + DuckDBResultSet + Statement)) & ef) + IO = 
         let url = "jdbc:duckdb:";
         let sql1 = "ATTACH '${file_name}' AS temp_sqlite_db (TYPE sqlite); USE temp_sqlite_db;";
         let sql2 = "SELECT * FROM temp_sqlite_db.${table_name#table_name};";
@@ -33,13 +33,13 @@ mod BasicDuckDB.Shim.SQLite {
         Result.flatten(Result.flatten(run {
             DuckDBDriver.execDuckDBConnection(url, () -> {
                 let _ = Script.executeUpdate(sql1);
-                let ans = DuckDBConnection.queryForEach(f, sql2);
+                let ans = DuckDBConnection.queryForEach(reader, sql2);
                 let _ = Script.executeUpdate(sql3);
                 ans
             }) 
         } with DuckDBDriver.runWithIO))
     
-    pub def fold(f: a -> a \ ef, s: a, file_name: String, table_name: {table_name=String}): Result[IoError, a] \ ((~(IO + DuckDBConnection + DuckDBDriver + DuckDBResultSet + Statement + RowReader)) & ef) + IO = 
+    pub def fold(reader: RowReader[b, ef], f: (a, b) -> a \ ef1, s: a, file_name: String, table_name: {table_name=String}): Result[IoError, a] \ ((~(IO + DuckDBConnection + DuckDBDriver + DuckDBResultSet + Statement)) & {ef + ef1}) + IO = 
         let url = "jdbc:duckdb:";
         let sql1 = "ATTACH '${file_name}' AS temp_sqlite_db (TYPE sqlite); USE temp_sqlite_db;";
         let sql2 = "SELECT * FROM temp_sqlite_db.${table_name#table_name};";
@@ -47,15 +47,15 @@ mod BasicDuckDB.Shim.SQLite {
         Result.flatten(Result.flatten(run {
             DuckDBDriver.execDuckDBConnection(url, () -> {
                 let _ = Script.executeUpdate(sql1);
-                let ans = DuckDBConnection.queryFold(f, s, sql2);
+                let ans = DuckDBConnection.queryFold(reader, f, s, sql2);
                 let _ = Script.executeUpdate(sql3);
                 ans
             }) 
         } with DuckDBDriver.runWithIO))
 
 
-    pub def load_facts(f: Unit -> #{ | r } \ ef, file_name: String, table_name: {table_name=String}): Result[IoError, #{ | r }] \ ((~(IO + DuckDBConnection + DuckDBDriver + DuckDBResultSet + Statement + RowReader)) & ef) + IO = 
-        fold(acc -> acc <+> f(), #{}, file_name, table_name)
+    pub def load_facts(reader: RowReader[#{ | r }, ef], file_name: String, table_name: {table_name=String}): Result[IoError, #{ | r }] \ ((~(IO + DuckDBConnection + DuckDBDriver + DuckDBResultSet + Statement)) & ef) + IO = 
+        fold(reader, (acc, b) -> acc <+> b, #{}, file_name, table_name)
 
 
 

@@ -26,27 +26,27 @@ mod BasicDuckDB.Shim.XLSX {
     use BasicDuckDB.Shim.XLSXOption
     use BasicDuckDB.Shim.Internal.Utils.{printOptions}
     
-    pub def forEach(f: Unit -> Unit \ ef, file_name: String, opts: List[XLSXOption]): Result[IoError, Unit] \ ((~(IO + DuckDBConnection + DuckDBDriver + DuckDBResultSet + Statement + RowReader)) & ef) + IO = 
+    pub def forEach(reader: RowReader[a, ef], file_name: String, opts: List[XLSXOption]): Result[IoError, Unit] \ ((~(IO + DuckDBConnection + DuckDBDriver + DuckDBResultSet + Statement)) & ef) + IO = 
         let url = "jdbc:duckdb:";
         let sql = "SELECT * FROM read_xlsx('${file_name}'${printOptions(opts)});";
         Result.flatten(Result.flatten(run {
             DuckDBDriver.execDuckDBConnection(url, () -> {
-                DuckDBConnection.queryForEach(f, sql)
+                DuckDBConnection.queryForEach(reader, sql)
             }) 
         } with DuckDBDriver.runWithIO))
     
-    pub def fold(f: a -> a \ ef, s: a, file_name: String, opts: List[XLSXOption]): Result[IoError, a] \ ((~(IO + DuckDBConnection + DuckDBDriver + DuckDBResultSet + Statement + RowReader)) & ef) + IO = 
+    pub def fold(reader: RowReader[b, ef], f: (a, b) -> a \ ef1, s: a, file_name: String, opts: List[XLSXOption]): Result[IoError, a] \ ((~(IO + DuckDBConnection + DuckDBDriver + DuckDBResultSet + Statement)) & {ef + ef1}) + IO = 
         let url = "jdbc:duckdb:";
         let sql = "SELECT * FROM read_xlsx('${file_name}')${printOptions(opts)};";
         Result.flatten(Result.flatten(run {
             DuckDBDriver.execDuckDBConnection(url, () -> {
-                DuckDBConnection.queryFold(f, s, sql)
+                DuckDBConnection.queryFold(reader, f, s, sql)
             }) 
         } with DuckDBDriver.runWithIO))
 
 
-    pub def load_facts(f: Unit -> #{ | r } \ ef, file_name: String, opts: List[XLSXOption]): Result[IoError, #{ | r }] \ ((~(IO + DuckDBConnection + DuckDBDriver + DuckDBResultSet + Statement + RowReader)) & ef) + IO = 
-        fold(acc -> acc <+> f(), #{}, file_name, opts)
+    pub def load_facts(reader: RowReader[#{ | r }, ef], file_name: String, opts: List[XLSXOption]): Result[IoError, #{ | r }] \ ((~(IO + DuckDBConnection + DuckDBDriver + DuckDBResultSet + Statement)) & ef) + IO = 
+        fold(reader, (acc, b) -> acc <+> b, #{}, file_name, opts)
 
 
 

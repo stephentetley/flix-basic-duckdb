@@ -6,3 +6,5 @@ extended Java interface which has some differences to JDBC.
 The `Shim` modules hide implementation details - use these
 if you can.
 
+Error handling is currently lacking.
+

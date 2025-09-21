@@ -13,6 +13,8 @@ mod Test02 {
     use BasicDuckDB.DuckDBPreparedStatement
     use BasicDuckDB.DuckDBAppender
     use BasicDuckDB.RowReader
+    use BasicDuckDB.RowReader.RowReader
+    use BasicDuckDB.ReadRow
     use BasicDuckDB.JDBC.Statement
 
     @test
@@ -36,11 +38,11 @@ mod Test02 {
           with FileWrite.runWithIO) == Ok(true)
 
 
-     def dbReader(): Unit -> Unit \ RowReader + IO = () -> {
-        let name = RowReader.getStringByName("name");
-        let year = RowReader.getInt32ByName("year");
+    def dbReader(): RowReader[Unit, IO] = RowReader(() -> {
+        let name = ReadRow.getStringByName("name");
+        let year = ReadRow.getInt32ByName("year");
         println("Database: ${name}, Year: ${year}")
-     }
+    })
 
 }
 

@@ -11,6 +11,8 @@ mod Test05 {
     use BasicDuckDB.DuckDBDriver
     use BasicDuckDB.DuckDBConnection
     use BasicDuckDB.RowReader
+    use BasicDuckDB.RowReader.RowReader
+    use BasicDuckDB.ReadRow
     use BasicDuckDB.Shim.SQLite
 
     @test
@@ -26,12 +28,12 @@ mod Test05 {
         } with DuckDBDriver.runWithIO 
           with FileWrite.runWithIO) == Ok(true)
 
-     def rowReader(): Unit -> Unit \ RowReader + IO = () -> {
-        let country = RowReader.getStringByIndex(0);
-        let capital = RowReader.getStringByIndex(1);
-        let pop = RowReader.getFloat64ByIndex(2);
+    def rowReader(): RowReader[Unit, IO] = RowReader(() -> {
+        let country = ReadRow.getStringByIndex(0);
+        let capital = ReadRow.getStringByIndex(1);
+        let pop = ReadRow.getFloat64ByIndex(2);
         println("${country}, capital city: ${capital}, population in millions: ${pop}")
-     }
+    })
 
 }
 

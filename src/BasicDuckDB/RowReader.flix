@@ -19,7 +19,9 @@ mod BasicDuckDB {
 
     use BasicDuckDB.JDBC.StructHandle
 
-    pub eff RowReader {
+    pub enum RowReader[a:Type, ef: Eff] { case RowReader(Unit -> a \ {ReadRow + ef})}
+
+    pub eff ReadRow {
         def getStringByIndex(ix: Int32): String
         def getStringByName(name: String): String
         def getBoolByIndex(ix: Int32): Bool
@@ -49,6 +51,7 @@ mod BasicDuckDB.RowReader {
     use BasicDuckDB.DuckDBResultSetHandle
     use BasicDuckDB.DuckDBResultSetHandle.DuckDBResultSetHandle
     use BasicDuckDB.RowReader
+    use BasicDuckDB.ReadRow
     use BasicDuckDB.JDBC.StructHandle
     use BasicDuckDB.JDBC.StructHandle.StructHandle
     use IoError.ErrorKind
@@ -56,12 +59,12 @@ mod BasicDuckDB.RowReader {
 
     import java.sql.SQLException
 
-    pub def handle(results: DuckDBResultSetHandle, f: a -> b \ ef): a -> Result[IoError, b] \ (ef - RowReader + IO) =
+    pub def handle(results: DuckDBResultSetHandle, f: a -> b \ ef): a -> Result[IoError, b] \ (ef - ReadRow + IO) =
         x -> {
             let DuckDBResultSetHandle(jresults) = results;
             run {
                 Ok(f(x))
-            } with handler RowReader {
+            } with handler ReadRow {
             
                 def getStringByIndex(ix, k) = try {
                     let ans = jresults.getString(ix + 1);
@@ -207,7 +210,7 @@ mod BasicDuckDB.RowReader {
 
         }
 
-    pub def runWithIO(rset: DuckDBResultSetHandle, f: Unit -> a \ ef): Result[IoError, a] \ (ef - RowReader) + {IO} = 
+    pub def runWithIO(rset: DuckDBResultSetHandle, f: Unit -> a \ ef): Result[IoError, a] \ (ef - ReadRow) + {IO} = 
         handle(rset, f)()
 
 }
