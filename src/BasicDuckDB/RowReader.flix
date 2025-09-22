@@ -50,7 +50,6 @@ mod BasicDuckDB.RowReader {
     
     use BasicDuckDB.DuckDBResultSetHandle
     use BasicDuckDB.DuckDBResultSetHandle.DuckDBResultSetHandle
-    use BasicDuckDB.RowReader
     use BasicDuckDB.ReadRow
     use BasicDuckDB.JDBC.StructHandle
     use BasicDuckDB.JDBC.StructHandle.StructHandle

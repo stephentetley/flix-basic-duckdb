@@ -21,7 +21,9 @@ mod BasicDuckDB {
 
     // Note zero-indexed unlike JDBC which is one-indexed
 
-    pub eff PreparedStatementSetter {
+    pub enum PreparedStatementSetter[a:Type, ef: Eff] { case PreparedStatementSetter(Unit -> a \ {SetPreparedStatement + ef})}
+    
+    pub eff SetPreparedStatement {
         def setNull(paramIx: Int32, sqlType: Int32): Unit
         def setBool(paramIx: Int32, value: Bool): Unit
         def setInt8(paramIx: Int32, value: Int8): Unit
@@ -40,18 +42,18 @@ mod BasicDuckDB.PreparedStatementSetter {
     
     use BasicDuckDB.DuckDBPreparedStatementHandle
     use BasicDuckDB.DuckDBPreparedStatementHandle.DuckDBPreparedStatementHandle
-    use BasicDuckDB.PreparedStatementSetter
+    use BasicDuckDB.SetPreparedStatement
     use IoError.ErrorKind
     use IoError.IoError
 
     import java.sql.{SQLException, SQLTimeoutException, SQLFeatureNotSupportedException}
 
-    pub def handle(stmt: DuckDBPreparedStatementHandle, f: a -> b \ ef): a -> Result[IoError, b] \ (ef - PreparedStatementSetter + IO) =
+    pub def handle(stmt: DuckDBPreparedStatementHandle, f: a -> b \ ef): a -> Result[IoError, b] \ (ef - SetPreparedStatement + IO) =
         x -> {
             let DuckDBPreparedStatementHandle(jstmt) = stmt;
             run {
                 Ok(f(x))
-            } with handler PreparedStatementSetter {
+            } with handler SetPreparedStatement {
             
 
                 def setNull(paramIx, sqlType, k) = try {
@@ -128,7 +130,7 @@ mod BasicDuckDB.PreparedStatementSetter {
             }
        }
 
-    pub def runWithIO(stmt: DuckDBPreparedStatementHandle, f: Unit -> a \ ef): Result[IoError, a] \ (ef - PreparedStatementSetter) + {IO} =
+    pub def runWithIO(stmt: DuckDBPreparedStatementHandle, f: Unit -> a \ ef): Result[IoError, a] \ (ef - SetPreparedStatement) + {IO} =
         handle(stmt, f)()
 
 }

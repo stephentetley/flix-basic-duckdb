@@ -41,6 +41,8 @@ mod BasicDuckDB.DuckDBPreparedStatement {
     use BasicDuckDB.DuckDBResultSetHandle.DuckDBResultSetHandle
     use BasicDuckDB.DuckDBPreparedStatement
     use BasicDuckDB.PreparedStatementSetter
+    use BasicDuckDB.PreparedStatementSetter.PreparedStatementSetter
+    use BasicDuckDB.SetPreparedStatement
     use IoError.ErrorKind
     use IoError.IoError
 
@@ -113,8 +115,9 @@ mod BasicDuckDB.DuckDBPreparedStatement {
     pub def runWithIO(stmt: DuckDBPreparedStatementHandle, f: Unit -> a \ ef): Result[IoError, a] \ (ef - DuckDBPreparedStatement) + {IO} =
         handle(stmt, f)() 
 
-    pub def execPreparedStatementSetter(f: Unit -> a \ ef): Result[IoError, a] \ (ef - PreparedStatementSetter + DuckDBPreparedStatement) + {IO} = 
+    pub def execPreparedStatementSetter(setter: PreparedStatementSetter[a, ef]): Result[IoError, a] \ (ef - SetPreparedStatement + DuckDBPreparedStatement) + {IO} = 
         let stmt = DuckDBPreparedStatement.askDuckDBPreparedStatementHandle();
+        let PreparedStatementSetter(f) = setter;
         run {
             f()
         } with PreparedStatementSetter.runWithIO(stmt)
