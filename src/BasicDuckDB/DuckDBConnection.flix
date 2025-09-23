@@ -58,6 +58,9 @@ mod BasicDuckDB.DuckDBConnection {
     use BasicDuckDB.JDBC.StatementHandle
     use BasicDuckDB.JDBC.StatementHandle.StatementHandle
     use BasicDuckDB.DuckDBConnection
+    use BasicDuckDB.AppendRow
+    use BasicDuckDB.RowAppender
+    use BasicDuckDB.RowAppender.RowAppender
     use BasicDuckDB.RowReader
     use BasicDuckDB.ReadRow
     use IoError.ErrorKind
@@ -243,7 +246,7 @@ mod BasicDuckDB.DuckDBConnection {
         } with Statement.runWithIO(stmt))
 
 
-    pub def queryForEach(reader: RowReader[a, ef], sql: String): Result[IoError, Unit] \ (ef + DuckDBConnection) - Statement - DuckDBResultSet + {IO} = 
+    pub def queryForEach(reader: RowReader[a, ef], sql: String): Result[IoError, Unit] \ (ef + IO + DuckDBConnection) - Statement - DuckDBResultSet = 
         let stmt = DuckDBConnection.createStatement();
         run {
             let results = Statement.executeQuery(sql);
@@ -264,16 +267,17 @@ mod BasicDuckDB.DuckDBConnection {
             ()
         } with Statement.runWithIO(stmt)
 
-    pub def execAppender(schema: String, table: String, f: a -> Unit \ ef, t: t): Result[IoError, Unit] \ (ef + ForEach.Aef[t] + DuckDBConnection) & (~DuckDBAppender)+ {IO} with ForEach[t] where ForEach.Elm[t] ~ a = 
-        let appn = DuckDBConnection.createAppender(schema, table);
+    // The effect should not be this complicated
+    pub def execRowAppender(schema: String, table: String, appendf: a -> RowAppender[b, ef] \ ef1, t: t): Result[IoError, Unit] \ DuckDBConnection + (((ef & (~AppendRow)) + DuckDBAppender + IO + ef1 + DuckDBAppender + DuckDBAppender + ForEach.Aef[t] + DuckDBAppender) & (~DuckDBAppender)) + IO with ForEach[t] where ForEach.Elm[t] ~ a = 
+        let hndl = DuckDBConnection.createAppender(schema, table);
         run { 
             ForEach.forEach(a -> {
                 DuckDBAppender.beginRow();
-                f(a);
+                let _ = DuckDBAppender.execRowAppender(appendf(a));
                 DuckDBAppender.endRow()
                 }, t);
                 DuckDBAppender.close()
-        } with DuckDBAppender.runWithIO(appn)
+        } with DuckDBAppender.runWithIO(hndl)
 
 
 }

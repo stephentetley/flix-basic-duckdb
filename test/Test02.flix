@@ -11,7 +11,9 @@ mod Test02 {
     use BasicDuckDB.DuckDBDriver
     use BasicDuckDB.DuckDBConnection
     use BasicDuckDB.DuckDBPreparedStatement
-    use BasicDuckDB.DuckDBAppender
+    use BasicDuckDB.AppendRow
+    use BasicDuckDB.RowAppender
+    use BasicDuckDB.RowAppender.RowAppender
     use BasicDuckDB.RowReader
     use BasicDuckDB.RowReader.RowReader
     use BasicDuckDB.ReadRow
@@ -27,15 +29,19 @@ mod Test02 {
                     Statement.executeUpdate("CREATE SCHEMA IF NOT EXISTS facts;");
                     Statement.executeUpdate("CREATE TABLE IF NOT EXISTS facts.databases (name VARCHAR NOT NULL, year INTEGER, PRIMARY KEY(name));")
                 });
-                let _ = DuckDBConnection.execAppender("facts", "databases", match (name, year) -> {
-                    DuckDBAppender.appendString(name);
-                    DuckDBAppender.appendInt32(year)
-                }, List#{("DuckDB", 2019), ("SQLite", 2000)});
+                let _ = DuckDBConnection.execRowAppender("facts", "databases", 
+                            match (name, year) -> appender(name, year),
+                            List#{("DuckDB", 2019), ("SQLite", 2000)});
                 DuckDBConnection.queryForEach(dbReader(), "SELECT * FROM facts.databases;")
             });
             true
         } with DuckDBDriver.runWithIO 
           with FileWrite.runWithIO) == Ok(true)
+
+    def appender(name: String, year: Int32): RowAppender[Unit, {}] = RowAppender(() -> {
+        AppendRow.appendString(name);
+        AppendRow.appendInt32(year)
+    })
 
 
     def dbReader(): RowReader[Unit, IO] = RowReader(() -> {
