@@ -19,7 +19,7 @@ mod BasicDuckDB {
 
     use BasicDuckDB.JDBC.StructHandle
 
-    pub enum RowReader[a:Type, ef: Eff] { case RowReader(Unit -> a \ {ReadRow + ef})}
+    pub enum RowReader[a:Type, ef: Eff](Unit -> a \ {ReadRow + ef})
 
     pub eff ReadRow {
         def getStringByIndex(ix: Int32): String

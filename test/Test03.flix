@@ -32,7 +32,7 @@ mod Test03 {
                 });
                 let _ = DuckDBConnection.execRowAppender("facts", 
                             "databases", 
-                            match (name, year) -> appender(name, year), 
+                            xy -> xy ||> appender, 
                             List#{("DuckDB", 2019), ("SQLite", 2000)});
                 DuckDBConnection.queryFold(dbReader(), Int32.max, 0, "SELECT * FROM facts.databases;") |> println
             });

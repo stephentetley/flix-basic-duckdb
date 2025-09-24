@@ -21,7 +21,7 @@ mod BasicDuckDB {
 
     // Note zero-indexed unlike JDBC which is one-indexed
 
-    pub enum PreparedStatementSetter[a:Type, ef: Eff] { case PreparedStatementSetter(Unit -> a \ {SetPreparedStatement + ef})}
+    pub enum PreparedStatementSetter[a:Type, ef: Eff](Unit -> a \ {SetPreparedStatement + ef})
     
     pub eff SetPreparedStatement {
         def setNull(paramIx: Int32, sqlType: Int32): Unit

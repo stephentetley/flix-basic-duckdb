@@ -30,7 +30,7 @@ mod Test02 {
                     Statement.executeUpdate("CREATE TABLE IF NOT EXISTS facts.databases (name VARCHAR NOT NULL, year INTEGER, PRIMARY KEY(name));")
                 });
                 let _ = DuckDBConnection.execRowAppender("facts", "databases", 
-                            match (name, year) -> appender(name, year),
+                            xy -> xy ||> appender,
                             List#{("DuckDB", 2019), ("SQLite", 2000)});
                 DuckDBConnection.queryForEach(dbReader(), "SELECT * FROM facts.databases;")
             });
