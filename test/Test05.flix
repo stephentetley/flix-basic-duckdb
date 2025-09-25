@@ -17,7 +17,7 @@ mod Test05 {
 
     @test
     def test01(): Bool \ IO =
-        Result.flatten(run {
+        (run {
             let url = "jdbc:duckdb:";
             let _ = DuckDBDriver.execDuckDBConnection(url, () -> {
                 SQLite.forEach(rowReader(), 
@@ -25,8 +25,7 @@ mod Test05 {
                     table_name="country")
             });
             true
-        } with DuckDBDriver.runWithIO 
-          with FileWrite.runWithIO) == Ok(true)
+        } with DuckDBDriver.runWithIO) == Ok(true)
 
     def rowReader(): RowReader[Unit, IO] = RowReader(() -> {
         let country = ReadRow.getStringByIndex(0);

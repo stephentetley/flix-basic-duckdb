@@ -28,7 +28,7 @@ mod BasicDuckDB.Shim.Parquet {
     
     // TODO multiple files... Output...
 
-    pub def forEach(reader: RowReader[a, ef], file_name: String, opts: List[ParquetOption]): Result[IoError, Unit] \ ((~(IO + DuckDBConnection + DuckDBDriver + DuckDBResultSet + Statement)) & ef) + IO = 
+    pub def forEach(reader: RowReader[a, ef], file_name: String, opts: List[ParquetOption]): Result[IoError, Unit] \ {IO + ef} - {DuckDBConnection + DuckDBDriver + DuckDBResultSet + Statement} = 
         let url = "jdbc:duckdb:";
         let sql = "SELECT * FROM read_parquet('${file_name}'${printOptions(opts)});";
         Result.flatten(Result.flatten(run {
@@ -37,7 +37,7 @@ mod BasicDuckDB.Shim.Parquet {
             }) 
         } with DuckDBDriver.runWithIO))
     
-    pub def fold(reader: RowReader[b, ef], f: (a, b) -> a \ ef1, s: a, file_name: String, opts: List[ParquetOption]): Result[IoError, a] \ ((~(IO + DuckDBConnection + DuckDBDriver + DuckDBResultSet + Statement)) & {ef + ef1}) + IO = 
+    pub def fold(reader: RowReader[b, ef], f: (a, b) -> a \ ef1, s: a, file_name: String, opts: List[ParquetOption]): Result[IoError, a] \ {IO + ef + ef1} - {DuckDBConnection + DuckDBDriver + DuckDBResultSet + Statement} = 
         let url = "jdbc:duckdb:";
         let sql = "SELECT * FROM read_parquet('${file_name}')${printOptions(opts)};";
         Result.flatten(Result.flatten(run {
@@ -47,7 +47,7 @@ mod BasicDuckDB.Shim.Parquet {
         } with DuckDBDriver.runWithIO))
 
 
-    pub def load_facts(reader: RowReader[#{ | r }, ef], file_name: String, opts: List[ParquetOption]): Result[IoError, #{ | r }] \ ((~(IO + DuckDBConnection + DuckDBDriver + DuckDBResultSet + Statement)) & {ef}) + IO = 
+    pub def load_facts(reader: RowReader[#{ | r }, ef], file_name: String, opts: List[ParquetOption]): Result[IoError, #{ | r }] \ {IO + ef} - {DuckDBConnection + DuckDBDriver + DuckDBResultSet + Statement} = 
         fold(reader, (acc, b) -> acc <+> b, #{}, file_name, opts)
 
 

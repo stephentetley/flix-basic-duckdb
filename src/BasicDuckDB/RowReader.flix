@@ -58,7 +58,7 @@ mod BasicDuckDB.RowReader {
 
     import java.sql.SQLException
 
-    pub def handle(results: DuckDBResultSetHandle, f: a -> b \ ef): a -> Result[IoError, b] \ (ef - ReadRow + IO) =
+    pub def handle(results: DuckDBResultSetHandle, f: a -> b \ ef): a -> Result[IoError, b] \ {IO + ef} - {ReadRow} =
         x -> {
             let DuckDBResultSetHandle(jresults) = results;
             run {
@@ -209,7 +209,7 @@ mod BasicDuckDB.RowReader {
 
         }
 
-    pub def runWithIO(rset: DuckDBResultSetHandle, f: Unit -> a \ ef): Result[IoError, a] \ (ef - ReadRow) + {IO} = 
+    pub def runWithIO(rset: DuckDBResultSetHandle, f: Unit -> a \ ef): Result[IoError, a] \ {IO + ef} - {ReadRow} = 
         handle(rset, f)()
 
 }

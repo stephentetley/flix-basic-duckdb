@@ -47,7 +47,7 @@ mod BasicDuckDB.RowAppender {
     import java.sql.SQLException
     import java.lang.Throwable
 
-    pub def handle(appender: DuckDBAppenderHandle, f: a -> b \ ef): a -> Result[IoError, b] \ (ef - AppendRow + IO) =
+    pub def handle(appender: DuckDBAppenderHandle, f: a -> b \ ef): a -> Result[IoError, b] \ {IO + ef} - {AppendRow} =
         x -> {
             let DuckDBAppenderHandle(jappender) = appender;
             run {
@@ -141,7 +141,7 @@ mod BasicDuckDB.RowAppender {
             }
         }
 
-    pub def runWithIO(appender: DuckDBAppenderHandle, f: Unit -> a \ ef): Result[IoError, a] \ (ef - AppendRow) + {IO} = 
+    pub def runWithIO(appender: DuckDBAppenderHandle, f: Unit -> a \ ef): Result[IoError, a] \ {IO + ef} - {AppendRow} = 
         handle(appender, f)()
 
 }

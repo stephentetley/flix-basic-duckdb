@@ -26,7 +26,7 @@ mod BasicDuckDB.Shim.XLSX {
     use BasicDuckDB.Shim.XLSXOption
     use BasicDuckDB.Shim.Internal.Utils.{printOptions}
     
-    pub def forEach(reader: RowReader[a, ef], file_name: String, opts: List[XLSXOption]): Result[IoError, Unit] \ ((~(IO + DuckDBConnection + DuckDBDriver + DuckDBResultSet + Statement)) & ef) + IO = 
+    pub def forEach(reader: RowReader[a, ef], file_name: String, opts: List[XLSXOption]): Result[IoError, Unit] \ {IO + ef} - {DuckDBConnection + DuckDBDriver + DuckDBResultSet + Statement}  = 
         let url = "jdbc:duckdb:";
         let sql = "SELECT * FROM read_xlsx('${file_name}'${printOptions(opts)});";
         Result.flatten(Result.flatten(run {
@@ -35,7 +35,7 @@ mod BasicDuckDB.Shim.XLSX {
             }) 
         } with DuckDBDriver.runWithIO))
     
-    pub def fold(reader: RowReader[b, ef], f: (a, b) -> a \ ef1, s: a, file_name: String, opts: List[XLSXOption]): Result[IoError, a] \ ((~(IO + DuckDBConnection + DuckDBDriver + DuckDBResultSet + Statement)) & {ef + ef1}) + IO = 
+    pub def fold(reader: RowReader[b, ef], f: (a, b) -> a \ ef1, s: a, file_name: String, opts: List[XLSXOption]): Result[IoError, a] \ {IO + ef + ef1} - {DuckDBConnection + DuckDBDriver + DuckDBResultSet + Statement} = 
         let url = "jdbc:duckdb:";
         let sql = "SELECT * FROM read_xlsx('${file_name}')${printOptions(opts)};";
         Result.flatten(Result.flatten(run {
@@ -45,10 +45,8 @@ mod BasicDuckDB.Shim.XLSX {
         } with DuckDBDriver.runWithIO))
 
 
-    pub def load_facts(reader: RowReader[#{ | r }, ef], file_name: String, opts: List[XLSXOption]): Result[IoError, #{ | r }] \ ((~(IO + DuckDBConnection + DuckDBDriver + DuckDBResultSet + Statement)) & ef) + IO = 
+    pub def load_facts(reader: RowReader[#{ | r }, ef], file_name: String, opts: List[XLSXOption]): Result[IoError, #{ | r }] \ {IO + ef} - {DuckDBConnection + DuckDBDriver + DuckDBResultSet + Statement} = 
         fold(reader, (acc, b) -> acc <+> b, #{}, file_name, opts)
-
-
-
+    
 
 }

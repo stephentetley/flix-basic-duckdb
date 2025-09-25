@@ -25,7 +25,7 @@ mod BasicDuckDB.Shim.SQLite {
     use BasicDuckDB.JDBC.Statement
     use BasicDuckDB.Shim.Script
     
-    pub def forEach(reader: RowReader[a, ef], file_name: String, table_name: {table_name=String}): Result[IoError, Unit] \ ((~(IO + DuckDBConnection + DuckDBDriver + DuckDBResultSet + Statement)) & ef) + IO = 
+    pub def forEach(reader: RowReader[a, ef], file_name: String, table_name: {table_name=String}): Result[IoError, Unit] \ {IO + ef} - {DuckDBConnection + DuckDBDriver + DuckDBResultSet + Statement} = 
         let url = "jdbc:duckdb:";
         let sql1 = "ATTACH '${file_name}' AS temp_sqlite_db (TYPE sqlite); USE temp_sqlite_db;";
         let sql2 = "SELECT * FROM temp_sqlite_db.${table_name#table_name};";
@@ -39,7 +39,7 @@ mod BasicDuckDB.Shim.SQLite {
             }) 
         } with DuckDBDriver.runWithIO))
     
-    pub def fold(reader: RowReader[b, ef], f: (a, b) -> a \ ef1, s: a, file_name: String, table_name: {table_name=String}): Result[IoError, a] \ ((~(IO + DuckDBConnection + DuckDBDriver + DuckDBResultSet + Statement)) & {ef + ef1}) + IO = 
+    pub def fold(reader: RowReader[b, ef], f: (a, b) -> a \ ef1, s: a, file_name: String, table_name: {table_name=String}): Result[IoError, a] \ {IO + ef + ef1} - {DuckDBConnection + DuckDBDriver + DuckDBResultSet + Statement} = 
         let url = "jdbc:duckdb:";
         let sql1 = "ATTACH '${file_name}' AS temp_sqlite_db (TYPE sqlite); USE temp_sqlite_db;";
         let sql2 = "SELECT * FROM temp_sqlite_db.${table_name#table_name};";
@@ -54,7 +54,7 @@ mod BasicDuckDB.Shim.SQLite {
         } with DuckDBDriver.runWithIO))
 
 
-    pub def load_facts(reader: RowReader[#{ | r }, ef], file_name: String, table_name: {table_name=String}): Result[IoError, #{ | r }] \ ((~(IO + DuckDBConnection + DuckDBDriver + DuckDBResultSet + Statement)) & ef) + IO = 
+    pub def load_facts(reader: RowReader[#{ | r }, ef], file_name: String, table_name: {table_name=String}): Result[IoError, #{ | r }] \ {IO + ef} - {DuckDBConnection + DuckDBDriver + DuckDBResultSet + Statement} = 
         fold(reader, (acc, b) -> acc <+> b, #{}, file_name, table_name)
 
 
