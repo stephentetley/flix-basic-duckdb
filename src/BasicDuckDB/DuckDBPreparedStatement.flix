@@ -112,10 +112,10 @@ mod BasicDuckDB.DuckDBPreparedStatement {
             }
        }
 
-    pub def runWithIO(stmt: DuckDBPreparedStatementHandle, f: Unit -> a \ ef): Result[IoError, a] \ (ef - DuckDBPreparedStatement) + {IO} =
+    pub def runWithIO(stmt: DuckDBPreparedStatementHandle, f: Unit -> a \ ef): Result[IoError, a] \ {IO + ef} - DuckDBPreparedStatement =
         handle(stmt, f)() 
 
-    pub def execPreparedStatementSetter(setter: PreparedStatementSetter[a, ef]): Result[IoError, a] \ (ef - SetPreparedStatement + DuckDBPreparedStatement) + {IO} = 
+    pub def execPreparedStatementSetter(setter: PreparedStatementSetter[a, ef]): Result[IoError, a] \ {IO + ef + DuckDBPreparedStatement} - SetPreparedStatement = 
         let stmt = DuckDBPreparedStatement.askDuckDBPreparedStatementHandle();
         let PreparedStatementSetter(f) = setter;
         run {

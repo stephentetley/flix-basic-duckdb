@@ -71,7 +71,7 @@ mod BasicDuckDB.DuckDBConnection {
     import java.sql.SQLException
     import org.duckdb.{DuckDBPreparedStatement => JDuckDBPreparedStatement}
 
-    pub def handle(conn: DuckDBConnectionHandle, f: a -> b \ ef): a -> Result[IoError, b] \ (ef - DuckDBConnection + IO) =
+    pub def handle(conn: DuckDBConnectionHandle, f: a -> b \ ef): a -> Result[IoError, b] \ {IO + ef} - DuckDBConnection =
         x -> {
             let DuckDBConnectionHandle(jconn) = conn;
             run {
@@ -203,11 +203,11 @@ mod BasicDuckDB.DuckDBConnection {
 
 
     
-    pub def runWithIO(conn: DuckDBConnectionHandle, f: Unit -> a \ ef): Result[IoError, a] \ (ef - DuckDBConnection) + {IO} = 
+    pub def runWithIO(conn: DuckDBConnectionHandle, f: Unit -> a \ ef): Result[IoError, a] \ {IO + ef} - DuckDBConnection = 
         handle(conn, f)()
 
     
-    pub def execStatement(f: Unit -> a \ ef): Result[IoError, a] \ (ef - Statement + DuckDBConnection) + {IO} = 
+    pub def execStatement(f: Unit -> a \ ef): Result[IoError, a] \ {IO + ef + DuckDBConnection} - Statement = 
         let stmt = DuckDBConnection.createStatement();
         run {
             let ans = f();
@@ -215,7 +215,7 @@ mod BasicDuckDB.DuckDBConnection {
             ans
         } with Statement.runWithIO(stmt)
 
-    pub def execDuckDBPreparedStatement(sql: String, f: Unit -> a \ ef): Result[IoError, a] \ (ef - DuckDBPreparedStatement + DuckDBConnection) + {IO} = 
+    pub def execDuckDBPreparedStatement(sql: String, f: Unit -> a \ ef): Result[IoError, a] \ {IO + ef + DuckDBConnection} - DuckDBPreparedStatement = 
         let stmt = DuckDBConnection.prepareStatement(sql);
         run {
             let ans = f();
@@ -224,7 +224,7 @@ mod BasicDuckDB.DuckDBConnection {
         } with DuckDBPreparedStatement.runWithIO(stmt)
         
 
-    pub def queryFold(reader: RowReader[b, ef], f: (a, b) -> a \ ef1, s: a, sql: String): Result[IoError, a] \ (ef + ef1 - Statement - DuckDBResultSet + DuckDBConnection) + {IO} = 
+    pub def queryFold(reader: RowReader[b, ef], f: (a, b) -> a \ ef1, s: a, sql: String): Result[IoError, a] \ {IO + ef + ef1 + DuckDBConnection} - {Statement + DuckDBResultSet} = 
         let stmt = DuckDBConnection.createStatement();
         Result.flatten(run {
             let results = Statement.executeQuery(sql);
@@ -246,7 +246,7 @@ mod BasicDuckDB.DuckDBConnection {
         } with Statement.runWithIO(stmt))
 
 
-    pub def queryForEach(reader: RowReader[a, ef], sql: String): Result[IoError, Unit] \ (ef + IO + DuckDBConnection) - Statement - DuckDBResultSet = 
+    pub def queryForEach(reader: RowReader[a, ef], sql: String): Result[IoError, Unit] \ {IO + ef + DuckDBConnection} - {Statement + DuckDBResultSet} = 
         let stmt = DuckDBConnection.createStatement();
         run {
             let results = Statement.executeQuery(sql);
@@ -267,8 +267,8 @@ mod BasicDuckDB.DuckDBConnection {
             ()
         } with Statement.runWithIO(stmt)
 
-    // The effect should not be this complicated
-    pub def execRowAppender(schema: String, table: String, appendf: a -> RowAppender[b, ef] \ ef1, t: t): Result[IoError, Unit] \ DuckDBConnection + (((ef & (~AppendRow)) + DuckDBAppender + IO + ef1 + DuckDBAppender + DuckDBAppender + ForEach.Aef[t] + DuckDBAppender) & (~DuckDBAppender)) + IO with ForEach[t] where ForEach.Elm[t] ~ a = 
+    // forEach has a strange effect on the effect signature
+    pub def execRowAppender(schema: String, table: String, appendf:  a -> RowAppender[b, ef] \ ef1, t: t): Result[IoError, Unit] \ ({IO + ef + DuckDBConnection} - AppendRow) + {IO + ef1 + DuckDBAppender + DuckDBAppender + DuckDBAppender + ForEach.Aef[t]} - {DuckDBAppender} with ForEach[t] where ForEach.Elm[t] ~ a = 
         let hndl = DuckDBConnection.createAppender(schema, table);
         run { 
             ForEach.forEach(a -> {

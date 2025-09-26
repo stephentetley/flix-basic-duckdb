@@ -179,11 +179,11 @@ mod BasicDuckDB.DuckDBResultSet {
 
 
     
-    pub def runWithIO(results: DuckDBResultSetHandle, f: Unit -> a \ ef): Result[IoError, a] \ (ef - DuckDBResultSet) + {IO} =
+    pub def runWithIO(results: DuckDBResultSetHandle, f: Unit -> a \ ef): Result[IoError, a] \ {IO + ef} - DuckDBResultSet =
         handle(results, f)()
 
 
-    pub def execRowReader(reader: RowReader[a, ef]): Result[IoError, a] \ (ef - ReadRow + DuckDBResultSet) + {IO} = 
+    pub def execRowReader(reader: RowReader[a, ef]): Result[IoError, a] \ {IO + ef + DuckDBResultSet} - ReadRow = 
         let results = DuckDBResultSet.askDuckDBResultSetHandle();
         let RowReader(f) = reader;
         run {
