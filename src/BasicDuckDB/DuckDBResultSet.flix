@@ -60,7 +60,7 @@ mod BasicDuckDB.DuckDBResultSet {
     import java.sql.SQLException
 
 
-    pub def handle(results: DuckDBResultSetHandle, f: a -> b \ ef): a -> Result[IoError, b] \ (ef - DuckDBResultSet + IO) =
+    pub def handle(results: DuckDBResultSetHandle, f: a -> b \ ef): a -> Result[IoError, b] \ {IO + ef} - DuckDBResultSet =
         x -> {
             let DuckDBResultSetHandle(jresults) = results;
             run {

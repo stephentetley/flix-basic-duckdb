@@ -49,7 +49,7 @@ mod BasicDuckDB.DuckDBPreparedStatement {
     import java.sql.{SQLException, SQLTimeoutException, SQLFeatureNotSupportedException}
     import org.duckdb.{DuckDBResultSet => JDuckDBResultSet}
 
-    pub def handle(stmt: DuckDBPreparedStatementHandle, f: a -> b \ ef): a -> Result[IoError, b] \ (ef - DuckDBPreparedStatement + IO) =
+    pub def handle(stmt: DuckDBPreparedStatementHandle, f: a -> b \ ef): a -> Result[IoError, b] \ {IO + ef} - DuckDBPreparedStatement =
         x -> {
             let DuckDBPreparedStatementHandle(jstmt) = stmt;
             run {

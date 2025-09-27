@@ -48,7 +48,7 @@ mod BasicDuckDB.PreparedStatementSetter {
 
     import java.sql.{SQLException, SQLTimeoutException, SQLFeatureNotSupportedException}
 
-    pub def handle(stmt: DuckDBPreparedStatementHandle, f: a -> b \ ef): a -> Result[IoError, b] \ (ef - SetPreparedStatement + IO) =
+    pub def handle(stmt: DuckDBPreparedStatementHandle, f: a -> b \ ef): a -> Result[IoError, b] \ {IO + ef} - SetPreparedStatement =
         x -> {
             let DuckDBPreparedStatementHandle(jstmt) = stmt;
             run {
@@ -130,7 +130,7 @@ mod BasicDuckDB.PreparedStatementSetter {
             }
        }
 
-    pub def runWithIO(stmt: DuckDBPreparedStatementHandle, f: Unit -> a \ ef): Result[IoError, a] \ (ef - SetPreparedStatement) + {IO} =
+    pub def runWithIO(stmt: DuckDBPreparedStatementHandle, f: Unit -> a \ ef): Result[IoError, a] \ {IO + ef} - SetPreparedStatement  =
         handle(stmt, f)()
 
 }

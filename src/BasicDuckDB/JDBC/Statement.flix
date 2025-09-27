@@ -47,7 +47,7 @@ mod BasicDuckDB.JDBC.Statement {
 
     import java.sql.SQLException
 
-    pub def handle(stmt: StatementHandle, f: a -> b \ ef): a -> Result[IoError, b] \ (ef - Statement + IO) =
+    pub def handle(stmt: StatementHandle, f: a -> b \ ef): a -> Result[IoError, b] \ {IO + ef} - Statement =
         x -> {
             let StatementHandle(jstmt) = stmt; 
             run {
@@ -140,6 +140,6 @@ mod BasicDuckDB.JDBC.Statement {
             }
         }
 
-    pub def runWithIO(stmt: StatementHandle, f: Unit -> a \ ef): Result[IoError, a] \ (ef - Statement) + {IO} = 
+    pub def runWithIO(stmt: StatementHandle, f: Unit -> a \ ef): Result[IoError, a] \ {IO + ef} - Statement = 
         handle(stmt, f)()
 }
