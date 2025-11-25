@@ -30,6 +30,6 @@ mod BasicDuckDB.JDBC.StructHandle {
 
     pub def getSQLTypeName(s: StructHandle): String = 
         let StructHandle(s1) = s;
-        unsafe s1.getSQLTypeName()
+        unsafe IO { s1.getSQLTypeName() }
 
 }

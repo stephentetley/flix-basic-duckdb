@@ -26,7 +26,7 @@ mod Test02 {
             let url = "jdbc:duckdb:${dir}/test02_db.duckdb";
             let _ = DuckDBDriver.execDuckDBConnection(url, () -> {
                 let _ = DuckDBConnection.execStatement(() -> {
-                    Statement.executeUpdate("CREATE SCHEMA IF NOT EXISTS facts;");
+                    discard Statement.executeUpdate("CREATE SCHEMA IF NOT EXISTS facts;");
                     Statement.executeUpdate("CREATE TABLE IF NOT EXISTS facts.databases (name VARCHAR NOT NULL, year INTEGER, PRIMARY KEY(name));")
                 });
                 let _ = DuckDBConnection.execRowAppender("facts", "databases", 

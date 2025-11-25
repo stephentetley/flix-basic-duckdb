@@ -35,7 +35,7 @@ mod BasicDuckDB.Shim.Internal.Utils {
 
 
     pub def structOfVarchar(xs: List[(String, String)]): Doc = 
-        def field = match (n,v) -> squotes(text(n)) <<>> colon() <<>> squotes(text(v));
+        def field() = match (n,v) -> squotes(text(n)) <<>> colon() <<>> squotes(text(v));
         commaBraces(List.map(field(), xs))
 
     pub def argList(l: PrettyLevel, xs: List[t]) : Doc with Pretty[t] = match xs {
