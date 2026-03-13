@@ -7,23 +7,26 @@
 
 
 mod Test04 {
-
+    use Assert.assert
+    use Assert.{assertEq}
     use BasicDuckDB.DuckDBDriver
     use BasicDuckDB.DuckDBConnection
     use BasicDuckDB.Shim.Script
 
-    @test
-    def test01(): Bool \ IO =
-        Result.flatten(run {
-            let dir = FileWrite.mkTempDir("flix_test04");
-            let url = "jdbc:duckdb:${dir}/test04_db.duckdb";
-            let _ = DuckDBDriver.execDuckDBConnection(url, () -> {
-                Script.executeFile("./testdata/setup_test04_db.sql")
-            });
-            true
-        } with DuckDBDriver.runWithIO 
-          with FileWrite.runWithIO) == Ok(true)
-
+    @Test
+    def test01(): Unit \ {Assert + IO} =
+        assertEq(
+            expected = Ok(true),
+            Result.flatten(run {
+                let dir = FileWrite.mkTempDir("flix_test04");
+                let url = "jdbc:duckdb:${dir}/test04_db.duckdb";
+                let _ = DuckDBDriver.execDuckDBConnection(url, () -> {
+                    Script.executeFile("./testdata/setup_test04_db.sql")
+                });
+                true
+            } with DuckDBDriver.runWithIO 
+            with FileWrite.runWithIO) 
+        )
 
 }
 

@@ -16,9 +16,9 @@
 
 mod BasicDuckDB.Shim {
 
-    use Text.Pretty
-    use Text.PrettyLevel
-    use Text.PrettyPrint.{Doc}
+    use FlixPretty.Doc
+    use FlixPretty.PrettyClass.PrettyLevel
+    use FlixPretty.PrettyClass.Pretty
     use BasicDuckDB.Shim.Internal.Utils.{argument, varchar, boolean, structOfVarchar, 
         argList}
 

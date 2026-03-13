@@ -1,3 +1,6 @@
+### v0.3.0
+   Updated to work with flix-pretty 0.10.0
+
 ### v0.2.1
    Updated to work with Flix 0.67.0
    

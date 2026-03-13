@@ -2,12 +2,12 @@
 name        = "flix-basic-duckdb"
 description = "A database interface for Flix to DuckDB."
 version     = "0.3.0"
-flix        = "0.67.0"
+flix        = "0.69.2"
 license     = "Apache-2.0"
 authors     = ["Stephen Tetley <stephen.tetley@gmail.com>"]
 
 [dependencies]
-"github:stephentetley/flix-pretty" = { version = "0.9.2", security = "unrestricted" }
+"github:stephentetley/flix-pretty" = { version = "0.10.0", security = "unrestricted" }
 
 
 [mvn-dependencies]

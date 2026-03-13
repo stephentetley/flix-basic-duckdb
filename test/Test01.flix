@@ -8,18 +8,21 @@
 
 mod Test01 {
 
-
+    use Assert.{assertEq}
     use BasicDuckDB.DuckDBDriver
 
 
-    @test
-    def test01(): Bool \ IO =
-        (run {
-            let mjr = DuckDBDriver.getMajorVersion();
-            let mnr = DuckDBDriver.getMinorVersion();
-            println("${mjr}.${mnr}");
-            true
-        } with DuckDBDriver.runWithIO) == Ok(true)
+    @Test
+    def test01(): Unit \ {Assert + IO} =
+        assertEq(
+            expected = Ok(true), 
+            (run {
+                let mjr = DuckDBDriver.getMajorVersion();
+                let mnr = DuckDBDriver.getMinorVersion();
+                println("${mjr}.${mnr}");
+                true
+            } with DuckDBDriver.runWithIO)
+        )
 
 
 }

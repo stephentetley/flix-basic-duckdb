@@ -16,9 +16,10 @@
 
 mod BasicDuckDB.Shim.Internal.Utils {
 
-    use Text.Pretty
-    use Text.PrettyLevel
-    use Text.PrettyPrint.{Doc, <<>>, intersperse, text, bigInt, empty, squotes, equals, comma, 
+    use FlixPretty.Doc
+    use FlixPretty.PrettyClass.PrettyLevel
+    use FlixPretty.PrettyClass.Pretty
+    use FlixPretty.{<<>>, intersperse, text, bigInt, empty, squotes, equals, comma, 
         commaBraces, commaBrackets, colon}
 
     // TODO must deal with escaping in VARCHAR
@@ -44,7 +45,7 @@ mod BasicDuckDB.Shim.Internal.Utils {
     }
 
     pub def printOptions(opts: List[t]): String with Pretty[t] =
-        Text.PrettyPrint.render(100, Text.Pretty.pPrintList(Text.prettyNormal(), opts))
+        FlixPretty.render(100, Pretty.pPrintList(FlixPretty.PrettyClass.prettyNormal(), opts))
 
 }
 

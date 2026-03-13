@@ -7,7 +7,7 @@
 
 
 mod Test03 {
-
+    use Assert.{assertEq}
     use BasicDuckDB.DuckDBDriver
     use BasicDuckDB.DuckDBConnection
     use BasicDuckDB.DuckDBPreparedStatement
@@ -20,25 +20,28 @@ mod Test03 {
     use BasicDuckDB.JDBC.Statement
 
     // needs a rewrite, not very compelling
-    @test
-    def test01(): Bool \ IO =
-        Result.flatten(run {
-            let dir = FileWrite.mkTempDir("flix_test03");
-            let url = "jdbc:duckdb:${dir}/test03_db.duckdb";
-            let _ = DuckDBDriver.execDuckDBConnection(url, () -> {
-                let _ = DuckDBConnection.execStatement(() -> {
-                    discard Statement.executeUpdate("CREATE SCHEMA IF NOT EXISTS facts;");
-                    Statement.executeUpdate("CREATE TABLE IF NOT EXISTS facts.databases (name VARCHAR NOT NULL, year INTEGER, PRIMARY KEY(name));")
+    @Test
+    def test01(): Unit \ {Assert + IO} =
+        assertEq(
+            expected = Ok(true),
+            Result.flatten(run {
+                let dir = FileWrite.mkTempDir("flix_test03");
+                let url = "jdbc:duckdb:${dir}/test03_db.duckdb";
+                let _ = DuckDBDriver.execDuckDBConnection(url, () -> {
+                    let _ = DuckDBConnection.execStatement(() -> {
+                        discard Statement.executeUpdate("CREATE SCHEMA IF NOT EXISTS facts;");
+                        Statement.executeUpdate("CREATE TABLE IF NOT EXISTS facts.databases (name VARCHAR NOT NULL, year INTEGER, PRIMARY KEY(name));")
+                    });
+                    let _ = DuckDBConnection.execRowAppender("facts", 
+                                "databases", 
+                                xy -> xy ||> appender, 
+                                List#{("DuckDB", 2019), ("SQLite", 2000)});
+                    DuckDBConnection.queryFold(dbReader(), Int32.max, 0, "SELECT * FROM facts.databases;") |> println
                 });
-                let _ = DuckDBConnection.execRowAppender("facts", 
-                            "databases", 
-                            xy -> xy ||> appender, 
-                            List#{("DuckDB", 2019), ("SQLite", 2000)});
-                DuckDBConnection.queryFold(dbReader(), Int32.max, 0, "SELECT * FROM facts.databases;") |> println
-            });
             true
-        } with DuckDBDriver.runWithIO 
-          with FileWrite.runWithIO) == Ok(true)
+            } with DuckDBDriver.runWithIO 
+              with FileWrite.runWithIO)
+        )
 
 
     def dbReader(): RowReader[Int32, {}] = RowReader(() -> ReadRow.getInt32ByName("year"))

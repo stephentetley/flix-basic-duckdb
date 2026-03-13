@@ -7,7 +7,7 @@
 
 
 mod Test05 {
-
+    use Assert.{assertEq}
     use BasicDuckDB.DuckDBDriver
     use BasicDuckDB.DuckDBConnection
     use BasicDuckDB.RowReader
@@ -15,17 +15,19 @@ mod Test05 {
     use BasicDuckDB.ReadRow
     use BasicDuckDB.Shim.SQLite
 
-    @test
-    def test01(): Bool \ IO =
-        (run {
-            let url = "jdbc:duckdb:";
-            let _ = DuckDBDriver.execDuckDBConnection(url, () -> {
-                SQLite.forEach(rowReader(), 
-                    "./testdata/countries.sqlite", 
-                    table_name="country")
-            });
-            true
-        } with DuckDBDriver.runWithIO) == Ok(true)
+    @Test
+    def test01(): Unit \ {Assert + IO} =
+        assertEq(expected = Ok(true),
+            (run {
+                let url = "jdbc:duckdb:";
+                let _ = DuckDBDriver.execDuckDBConnection(url, () -> {
+                    SQLite.forEach(rowReader(), 
+                        "./testdata/countries.sqlite", 
+                        table_name="country")
+                });
+                true
+            } with DuckDBDriver.runWithIO)
+        )
 
     def rowReader(): RowReader[Unit, IO] = RowReader(() -> {
         let country = ReadRow.getStringByIndex(0);
