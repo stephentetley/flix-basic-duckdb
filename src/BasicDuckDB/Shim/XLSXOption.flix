@@ -22,7 +22,6 @@ pub mod BasicDuckDB.Shim.XLSXOption {
     use FlixPretty.PrettyClass.Pretty
     use BasicDuckDB.Shim.Internal.Utils.{argument, varchar, boolean, argList}
     
-    use BasicDuckDB.Shim.XLSXOption.XLSXOption
 
     pub enum XLSXOption {
         case AllVarchar(Bool)
