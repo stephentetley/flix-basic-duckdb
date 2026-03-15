@@ -15,8 +15,16 @@
  */
 
 
-mod BasicDuckDB {
 
+pub mod BasicDuckDB.RowAppender {
+
+    use BasicDuckDB.DuckDBAppender.{DuckDBAppenderHandle}
+    use IoError.ErrorKind
+    use IoError.IoError
+
+    import java.sql.SQLException
+    import java.lang.Throwable
+    
     pub enum RowAppender[a:Type, ef: Eff](Unit -> a \ {AppendRow + ef})
 
     pub eff AppendRow {
@@ -33,23 +41,10 @@ mod BasicDuckDB {
         def appendChar(value: Char): Unit
         def appendString(value: String): Unit
     }
-}
-
-mod BasicDuckDB.RowAppender {
-
-    use BasicDuckDB.DuckDBAppenderHandle
-    use BasicDuckDB.DuckDBAppenderHandle.DuckDBAppenderHandle
-    use BasicDuckDB.RowAppender
-    use BasicDuckDB.AppendRow
-    use IoError.ErrorKind
-    use IoError.IoError
-
-    import java.sql.SQLException
-    import java.lang.Throwable
 
     pub def handle(appender: DuckDBAppenderHandle, f: a -> b \ ef): a -> Result[IoError, b] \ {IO + ef} - {AppendRow} =
         x -> {
-            let DuckDBAppenderHandle(jappender) = appender;
+            let DuckDBAppenderHandle.DuckDBAppenderHandle(jappender) = appender;
             run {
                 Ok(f(x))
             } with handler AppendRow {

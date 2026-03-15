@@ -6,18 +6,20 @@
 // > java --enable-native-access=ALL-UNNAMED -jar ../bin/flix-0.62.0.jar test
 
 
-mod Test02 {
+pub mod Test02 {
     use Assert.{assertEq}
     use BasicDuckDB.DuckDBDriver
     use BasicDuckDB.DuckDBConnection
     use BasicDuckDB.DuckDBPreparedStatement
-    use BasicDuckDB.AppendRow
     use BasicDuckDB.RowAppender
+    use BasicDuckDB.RowAppender.{AppendRow}
     use BasicDuckDB.RowAppender.RowAppender
+    use BasicDuckDB.RowAppender.RowAppender.{RowAppender}
     use BasicDuckDB.RowReader
     use BasicDuckDB.RowReader.RowReader
-    use BasicDuckDB.ReadRow
-    use BasicDuckDB.JDBC.Statement
+    use BasicDuckDB.RowReader.RowReader.{RowReader}
+    use BasicDuckDB.RowReader.ReadRow
+    use BasicDuckDB.JDBC.Statement.{Statement}
 
     @Test
     def test01(): Unit \ {Assert + IO} =
@@ -37,7 +39,7 @@ mod Test02 {
                     DuckDBConnection.queryForEach(dbReader(), "SELECT * FROM facts.databases;")
                 });
                 true
-            } with DuckDBDriver.runWithIO 
+            } with BasicDuckDB.DuckDBDriver.runWithIO 
             with FileWrite.runWithIO) 
         )
 

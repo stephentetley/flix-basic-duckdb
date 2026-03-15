@@ -15,9 +15,15 @@
  */
 
 
-mod BasicDuckDB {
+pub mod BasicDuckDB.RowReader {
+    
+    use BasicDuckDB.DuckDBResultSet.{DuckDBResultSetHandle}
+    use BasicDuckDB.JDBC.Struct.{StructHandle}
 
-    use BasicDuckDB.JDBC.StructHandle
+    use IoError.ErrorKind
+    use IoError.IoError
+
+    import java.sql.SQLException
 
     pub enum RowReader[a:Type, ef: Eff](Unit -> a \ {ReadRow + ef})
 
@@ -44,23 +50,9 @@ mod BasicDuckDB {
         def getStructByIndex(ix: Int32): StructHandle
     }
 
-}
-
-mod BasicDuckDB.RowReader {
-    
-    use BasicDuckDB.DuckDBResultSetHandle
-    use BasicDuckDB.DuckDBResultSetHandle.DuckDBResultSetHandle
-    use BasicDuckDB.ReadRow
-    use BasicDuckDB.JDBC.StructHandle
-    use BasicDuckDB.JDBC.StructHandle.StructHandle
-    use IoError.ErrorKind
-    use IoError.IoError
-
-    import java.sql.SQLException
-
     pub def handle(results: DuckDBResultSetHandle, f: a -> b \ ef): a -> Result[IoError, b] \ {IO + ef} - {ReadRow} =
         x -> {
-            let DuckDBResultSetHandle(jresults) = results;
+            let DuckDBResultSetHandle.DuckDBResultSetHandle(jresults) = results;
             run {
                 Ok(f(x))
             } with handler ReadRow {
@@ -200,7 +192,7 @@ mod BasicDuckDB.RowReader {
                 }
 
                 def getStructByIndex(ix, k) = try {
-                    let ans = StructHandle(jresults.getStruct(ix));
+                    let ans = StructHandle.StructHandle(jresults.getStruct(ix));
                     k(ans)
                 } catch {
                     case ex: SQLException => Err(IoError(ErrorKind.Other, ex.getMessage()))

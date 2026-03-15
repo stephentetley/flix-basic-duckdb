@@ -15,7 +15,20 @@
  */
 
 
-mod BasicDuckDB {
+
+pub mod BasicDuckDB.DuckDBAppender {
+
+    use BasicDuckDB.DuckDBAppender.{DuckDBAppender}
+    use BasicDuckDB.RowAppender.{AppendRow}
+    use BasicDuckDB.RowAppender.{RowAppender}
+    use IoError.ErrorKind
+    use IoError.IoError
+
+    import java.sql.SQLException
+    import java.lang.Throwable
+    import org.duckdb.{DuckDBAppender => JDuckDBAppender}
+
+    pub enum DuckDBAppenderHandle (JDuckDBAppender)
 
     pub eff DuckDBAppender {
         // `askDuckDBAppenderHandle` should not be used in user code
@@ -27,25 +40,10 @@ mod BasicDuckDB {
         // def finalize(): Unit
         def close(): Unit
     }
-}
-
-mod BasicDuckDB.DuckDBAppender {
-
-    use BasicDuckDB.DuckDBAppenderHandle
-    use BasicDuckDB.DuckDBAppenderHandle.DuckDBAppenderHandle
-    use BasicDuckDB.DuckDBAppender
-    use BasicDuckDB.RowAppender
-    use BasicDuckDB.RowAppender.RowAppender
-    use BasicDuckDB.AppendRow
-    use IoError.ErrorKind
-    use IoError.IoError
-
-    import java.sql.SQLException
-    import java.lang.Throwable
 
     pub def handle(appender: DuckDBAppenderHandle, f: a -> b \ ef): a -> Result[IoError, b] \ {IO + ef} - DuckDBAppender =
         x -> {
-            let DuckDBAppenderHandle(jappender) = appender;
+            let DuckDBAppenderHandle.DuckDBAppenderHandle(jappender) = appender;
             run {
                 Ok(f(x))
             } with handler DuckDBAppender {
@@ -97,10 +95,10 @@ mod BasicDuckDB.DuckDBAppender {
 
     pub def execRowAppender(appender: RowAppender[a, ef]): Result[IoError, a] \ {IO + ef + DuckDBAppender} - {AppendRow} = 
         let hndl = DuckDBAppender.askDuckDBAppenderHandle();
-        let RowAppender(f) = appender;
+        let RowAppender.RowAppender(f) = appender;
         run {
             f()
-        } with RowAppender.runWithIO(hndl)
+        } with BasicDuckDB.RowAppender.runWithIO(hndl)
 
 
 }

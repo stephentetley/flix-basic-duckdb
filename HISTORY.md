@@ -1,5 +1,8 @@
 ### v0.3.0
    Updated to work with flix-pretty 0.10.0
+   Exposed modules as `pub` and pushed datatypes down one layer 
+   into their respective module.
+   Updated tests to use `Assert` effect.
 
 ### v0.2.1
    Updated to work with Flix 0.67.0

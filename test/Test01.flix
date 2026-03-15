@@ -6,10 +6,10 @@
 // > java --enable-native-access=ALL-UNNAMED -jar ../bin/flix-0.62.0.jar test
 
 
-mod Test01 {
+pub mod Test01 {
 
     use Assert.{assertEq}
-    use BasicDuckDB.DuckDBDriver
+    use BasicDuckDB.DuckDBDriver.{DuckDBDriver}
 
 
     @Test
@@ -17,11 +17,11 @@ mod Test01 {
         assertEq(
             expected = Ok(true), 
             (run {
-                let mjr = DuckDBDriver.getMajorVersion();
-                let mnr = DuckDBDriver.getMinorVersion();
-                println("${mjr}.${mnr}");
+                let major = DuckDBDriver.getMajorVersion();
+                let minor = DuckDBDriver.getMinorVersion();
+                println("${major}.${minor}");
                 true
-            } with DuckDBDriver.runWithIO)
+            } with BasicDuckDB.DuckDBDriver.runWithIO)
         )
 
 

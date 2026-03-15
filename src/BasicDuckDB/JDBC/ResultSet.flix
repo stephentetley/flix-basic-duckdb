@@ -15,10 +15,10 @@
  */
 
 
-mod BasicDuckDB {
+pub mod BasicDuckDB.JDBC.ResultSet {
 
-    import org.duckdb.{DuckDBConnection => JDuckDBConnection}
+    import java.sql.{ResultSet => JResultSet}
     
-    pub enum DuckDBConnectionHandle (JDuckDBConnection)
+    pub enum ResultSetHandle (JResultSet)
 
 }

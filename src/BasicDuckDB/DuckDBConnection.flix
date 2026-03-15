@@ -15,11 +15,32 @@
  */
 
 
-mod BasicDuckDB {
 
-    use BasicDuckDB.DuckDBAppenderHandle
-    use BasicDuckDB.DuckDBPreparedStatementHandle
-    use BasicDuckDB.JDBC.StatementHandle
+pub mod BasicDuckDB.DuckDBConnection {
+
+    use BasicDuckDB.DuckDBAppender.{DuckDBAppender}
+    use BasicDuckDB.DuckDBAppender.{DuckDBAppenderHandle}
+    use BasicDuckDB.DuckDBPreparedStatement.{DuckDBPreparedStatement}
+    use BasicDuckDB.DuckDBPreparedStatement.{DuckDBPreparedStatementHandle}
+    use BasicDuckDB.DuckDBResultSet.{DuckDBResultSet}
+    use BasicDuckDB.JDBC.Statement.{Statement}
+    use BasicDuckDB.JDBC.Statement.StatementHandle
+    use BasicDuckDB.DuckDBConnection.{DuckDBConnection}
+    use BasicDuckDB.RowAppender.AppendRow
+    use BasicDuckDB.RowAppender.{RowAppender}
+    use BasicDuckDB.RowReader.RowReader
+    use BasicDuckDB.RowReader.ReadRow
+    use IoError.ErrorKind
+    use IoError.IoError
+    
+    import java.sql.{Connection => JConnection}
+    import java.sql.{Statement => JStatement}
+    import java.sql.SQLException
+    import org.duckdb.{DuckDBPreparedStatement => JDuckDBPreparedStatement}
+    import org.duckdb.{DuckDBConnection => JDuckDBConnection}
+    
+    pub enum DuckDBConnectionHandle (JDuckDBConnection)
+
 
     pub eff DuckDBConnection {
         def createStatement(): StatementHandle
@@ -41,45 +62,15 @@ mod BasicDuckDB {
         def setTransactionIsolation(level: Int32): Unit
     }
 
-
-}
-
-mod BasicDuckDB.DuckDBConnection {
-
-    use BasicDuckDB.DuckDBConnectionHandle
-    use BasicDuckDB.DuckDBConnectionHandle.DuckDBConnectionHandle
-    use BasicDuckDB.DuckDBAppender
-    use BasicDuckDB.DuckDBAppenderHandle.DuckDBAppenderHandle
-    use BasicDuckDB.DuckDBPreparedStatement
-    use BasicDuckDB.DuckDBPreparedStatementHandle
-    use BasicDuckDB.DuckDBPreparedStatementHandle.DuckDBPreparedStatementHandle
-    use BasicDuckDB.DuckDBResultSet
-    use BasicDuckDB.JDBC.Statement
-    use BasicDuckDB.JDBC.StatementHandle
-    use BasicDuckDB.JDBC.StatementHandle.StatementHandle
-    use BasicDuckDB.DuckDBConnection
-    use BasicDuckDB.AppendRow
-    use BasicDuckDB.RowAppender
-    use BasicDuckDB.RowAppender.RowAppender
-    use BasicDuckDB.RowReader
-    use BasicDuckDB.ReadRow
-    use IoError.ErrorKind
-    use IoError.IoError
-    
-    import java.sql.{Connection => JConnection}
-    import java.sql.{Statement => JStatement}
-    import java.sql.SQLException
-    import org.duckdb.{DuckDBPreparedStatement => JDuckDBPreparedStatement}
-
     pub def handle(conn: DuckDBConnectionHandle, f: a -> b \ ef): a -> Result[IoError, b] \ {IO + ef} - DuckDBConnection =
         x -> {
-            let DuckDBConnectionHandle(jconn) = conn;
+            let DuckDBConnectionHandle.DuckDBConnectionHandle(jconn) = conn;
             run {
                 Ok(f(x))
             } with handler DuckDBConnection {
             
                 def createStatement(k) = try {
-                    let ans = StatementHandle(jconn.createStatement());
+                    let ans = StatementHandle.StatementHandle(jconn.createStatement());
                     k(ans)
                 } catch {
                     case ex: SQLException => Err(IoError(ErrorKind.Other, ex.getMessage()))
@@ -88,14 +79,14 @@ mod BasicDuckDB.DuckDBConnection {
                 def prepareStatement(sql, k) = try {
                     let ans = jconn.prepareStatement(sql);
                     let ans1 = unchecked_cast(ans as JDuckDBPreparedStatement);
-                    let ans2 = DuckDBPreparedStatementHandle(ans1);
+                    let ans2 = DuckDBPreparedStatementHandle.DuckDBPreparedStatementHandle(ans1);
                     k(ans2)
                 } catch {
                     case ex: SQLException => Err(IoError(ErrorKind.Other, ex.getMessage()))
                 }
 
                 def createAppender(schema, table, k) = try {
-                    let ans2 = DuckDBAppenderHandle(jconn.createAppender(schema, table));
+                    let ans2 = DuckDBAppenderHandle.DuckDBAppenderHandle(jconn.createAppender(schema, table));
                     k(ans2)
                 } catch {
                     case ex: SQLException => Err(IoError(ErrorKind.Other, ex.getMessage()))
@@ -213,7 +204,7 @@ mod BasicDuckDB.DuckDBConnection {
             let ans = f();
             Statement.close();
             ans
-        } with Statement.runWithIO(stmt)
+        } with BasicDuckDB.JDBC.Statement.runWithIO(stmt)
 
     pub def execDuckDBPreparedStatement(sql: String, f: Unit -> a \ ef): Result[IoError, a] \ {IO + ef + DuckDBConnection} - DuckDBPreparedStatement = 
         let stmt = DuckDBConnection.prepareStatement(sql);
@@ -221,51 +212,51 @@ mod BasicDuckDB.DuckDBConnection {
             let ans = f();
             DuckDBPreparedStatement.close();
             ans
-        } with DuckDBPreparedStatement.runWithIO(stmt)
+        } with BasicDuckDB.DuckDBPreparedStatement.runWithIO(stmt)
         
 
     pub def queryFold(reader: RowReader[b, ef], f: (a, b) -> a \ ef1, s: a, sql: String): Result[IoError, a] \ {IO + ef + ef1 + DuckDBConnection} - {Statement + DuckDBResultSet} = 
         let stmt = DuckDBConnection.createStatement();
         Result.flatten(run {
             let results = Statement.executeQuery(sql);
-            let results1 = BasicDuckDB.DuckDBResultSetHandle.castResultSetHandle(results);
+            let results1 = BasicDuckDB.DuckDBResultSet.castResultSetHandle(results);
             let ans = Result.flatten(run {
                 def loop(acc, fk, sk) = {
                     let more = DuckDBResultSet.next();
                     if (more) {
-                        match DuckDBResultSet.execRowReader(reader) {
+                        match BasicDuckDB.DuckDBResultSet.execRowReader(reader) {
                             case Ok(b) => loop(f(acc, b), fk, sk)
                             case Err(err) => fk(err)
                         }
                     } else sk(acc)
                 };
                 loop(s, e -> Err(e), a -> Ok(a))
-            } with DuckDBResultSet.runWithIO(results1));
+            } with BasicDuckDB.DuckDBResultSet.runWithIO(results1));
             Statement.close();
             ans
-        } with Statement.runWithIO(stmt))
+        } with BasicDuckDB.JDBC.Statement.runWithIO(stmt))
 
 
     pub def queryForEach(reader: RowReader[a, ef], sql: String): Result[IoError, Unit] \ {IO + ef + DuckDBConnection} - {Statement + DuckDBResultSet} = 
         let stmt = DuckDBConnection.createStatement();
         run {
             let results = Statement.executeQuery(sql);
-            let results1 = BasicDuckDB.DuckDBResultSetHandle.castResultSetHandle(results);
+            let results1 = BasicDuckDB.DuckDBResultSet.castResultSetHandle(results);
             let _ = run {
                 def loop(fk, sk) = {
                     let more = DuckDBResultSet.next();
                     if (more) {
-                        match DuckDBResultSet.execRowReader(reader) {
+                        match BasicDuckDB.DuckDBResultSet.execRowReader(reader) {
                             case Ok(_) => loop(fk, sk)
                             case Err(err) => fk(err)
                         }
                     } else sk()
                 };
                 loop(e -> Err(e), a -> Ok(a))
-            } with DuckDBResultSet.runWithIO(results1);
+            } with BasicDuckDB.DuckDBResultSet.runWithIO(results1);
             Statement.close();
             ()
-        } with Statement.runWithIO(stmt)
+        } with BasicDuckDB.JDBC.Statement.runWithIO(stmt)
 
     // forEach has a strange effect on the effect signature
     pub def execRowAppender(schema: String, table: String, appendf:  a -> RowAppender[b, ef] \ ef1, t: t): Result[IoError, Unit] \ ({IO + ef + DuckDBConnection} - AppendRow) + {IO + ef1 + DuckDBAppender + DuckDBAppender + DuckDBAppender + ForEach.Aef[t]} - {DuckDBAppender} with ForEach[t] where ForEach.Elm[t] ~ a = 
@@ -273,11 +264,11 @@ mod BasicDuckDB.DuckDBConnection {
         run { 
             ForEach.forEach(a -> {
                 DuckDBAppender.beginRow();
-                let _ = DuckDBAppender.execRowAppender(appendf(a));
+                let _ = BasicDuckDB.DuckDBAppender.execRowAppender(appendf(a));
                 DuckDBAppender.endRow()
                 }, t);
                 DuckDBAppender.close()
-        } with DuckDBAppender.runWithIO(hndl)
+        } with BasicDuckDB.DuckDBAppender.runWithIO(hndl)
 
 
 }

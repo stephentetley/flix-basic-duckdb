@@ -15,15 +15,15 @@
  */
 
 
-mod BasicDuckDB.Shim.Parquet {
+pub mod BasicDuckDB.Shim.Parquet {
 
     
-    use BasicDuckDB.DuckDBDriver
-    use BasicDuckDB.DuckDBConnection
-    use BasicDuckDB.DuckDBResultSet
-    use BasicDuckDB.RowReader
-    use BasicDuckDB.JDBC.Statement
-    use BasicDuckDB.Shim.ParquetOption
+    use BasicDuckDB.DuckDBDriver.{DuckDBDriver}
+    use BasicDuckDB.DuckDBConnection.{DuckDBConnection}
+    use BasicDuckDB.DuckDBResultSet.{DuckDBResultSet}
+    use BasicDuckDB.RowReader.{RowReader}
+    use BasicDuckDB.JDBC.Statement.{Statement}
+    use BasicDuckDB.Shim.ParquetOption.ParquetOption
     use BasicDuckDB.Shim.Internal.Utils.{printOptions}
     
     // TODO multiple files... Output...
@@ -32,19 +32,19 @@ mod BasicDuckDB.Shim.Parquet {
         let url = "jdbc:duckdb:";
         let sql = "SELECT * FROM read_parquet('${file_name}'${printOptions(opts)});";
         Result.flatten(Result.flatten(run {
-            DuckDBDriver.execDuckDBConnection(url, () -> {
-                DuckDBConnection.queryForEach(reader, sql)
+            BasicDuckDB.DuckDBDriver.execDuckDBConnection(url, () -> {
+                BasicDuckDB.DuckDBConnection.queryForEach(reader, sql)
             }) 
-        } with DuckDBDriver.runWithIO))
+        } with BasicDuckDB.DuckDBDriver.runWithIO))
     
     pub def fold(reader: RowReader[b, ef], f: (a, b) -> a \ ef1, s: a, file_name: String, opts: List[ParquetOption]): Result[IoError, a] \ {IO + ef + ef1} - {DuckDBConnection + DuckDBDriver + DuckDBResultSet + Statement} = 
         let url = "jdbc:duckdb:";
         let sql = "SELECT * FROM read_parquet('${file_name}')${printOptions(opts)};";
         Result.flatten(Result.flatten(run {
-            DuckDBDriver.execDuckDBConnection(url, () -> {
-                DuckDBConnection.queryFold(reader, f, s, sql)
+            BasicDuckDB.DuckDBDriver.execDuckDBConnection(url, () -> {
+                BasicDuckDB.DuckDBConnection.queryFold(reader, f, s, sql)
             }) 
-        } with DuckDBDriver.runWithIO))
+        } with BasicDuckDB.DuckDBDriver.runWithIO))
 
 
     pub def load_facts(reader: RowReader[#{ | r }, ef], file_name: String, opts: List[ParquetOption]): Result[IoError, #{ | r }] \ {IO + ef} - {DuckDBConnection + DuckDBDriver + DuckDBResultSet + Statement} = 

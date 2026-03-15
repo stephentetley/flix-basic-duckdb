@@ -6,13 +6,13 @@
 // > java --enable-native-access=ALL-UNNAMED -jar ../bin/flix-0.62.0.jar test
 
 
-mod Test05 {
+pub mod Test05 {
     use Assert.{assertEq}
     use BasicDuckDB.DuckDBDriver
     use BasicDuckDB.DuckDBConnection
     use BasicDuckDB.RowReader
     use BasicDuckDB.RowReader.RowReader
-    use BasicDuckDB.ReadRow
+    use BasicDuckDB.RowReader.ReadRow
     use BasicDuckDB.Shim.SQLite
 
     @Test
@@ -29,7 +29,7 @@ mod Test05 {
             } with DuckDBDriver.runWithIO)
         )
 
-    def rowReader(): RowReader[Unit, IO] = RowReader(() -> {
+    def rowReader(): RowReader[Unit, IO] = RowReader.RowReader(() -> {
         let country = ReadRow.getStringByIndex(0);
         let capital = ReadRow.getStringByIndex(1);
         let pop = ReadRow.getFloat64ByIndex(2);

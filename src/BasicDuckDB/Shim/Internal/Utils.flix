@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-mod BasicDuckDB.Shim.Internal.Utils {
+pub mod BasicDuckDB.Shim.Internal.Utils {
 
     use FlixPretty.Doc
     use FlixPretty.PrettyClass.PrettyLevel

@@ -15,10 +15,15 @@
  */
 
 
-mod BasicDuckDB.JDBC {
 
-    import java.sql.{ResultSet => JResultSet}
+pub mod BasicDuckDB.JDBC.Struct {
+
+    import java.sql.{Struct => JStruct}
     
-    pub enum ResultSetHandle (JResultSet)
+    pub enum StructHandle (JStruct)
+
+    pub def getSQLTypeName(s: StructHandle): String = 
+        let StructHandle.StructHandle(s1) = s;
+        unsafe IO { s1.getSQLTypeName() }
 
 }

@@ -15,9 +15,18 @@
  */
 
 
-mod BasicDuckDB {
+pub mod BasicDuckDB.DuckDBDriver {
+    
+    use BasicDuckDB.DuckDBDriver.DuckDBDriver
+    use BasicDuckDB.DuckDBConnection.DuckDBConnection
+    use BasicDuckDB.DuckDBConnection.DuckDBConnectionHandle
+    use IoError.ErrorKind
+    use IoError.IoError
 
-    use BasicDuckDB.DuckDBConnectionHandle
+    import java.sql.SQLException
+    import java.util.{Properties => JProperties}
+    import org.duckdb.{DuckDBDriver => JDuckDBDriver}
+    import org.duckdb.{DuckDBConnection => JDuckDBConnection}
 
     pub eff DuckDBDriver {
         def connect(url: String): DuckDBConnectionHandle
@@ -26,22 +35,6 @@ mod BasicDuckDB {
         def getMajorVersion(): Int32
         def getMinorVersion(): Int32
     }
-
-}
-
-mod BasicDuckDB.DuckDBDriver {
-    
-
-    use BasicDuckDB.DuckDBDriver
-    use BasicDuckDB.DuckDBConnection
-    use BasicDuckDB.DuckDBConnectionHandle.DuckDBConnectionHandle
-    use IoError.ErrorKind
-    use IoError.IoError
-
-    import java.sql.SQLException
-    import java.util.{Properties => JProperties}
-    import org.duckdb.{DuckDBDriver => JDuckDBDriver}
-    import org.duckdb.{DuckDBConnection => JDuckDBConnection}
 
     pub def handle(f: a -> b \ ef): a -> Result[IoError, b] \ {IO + ef} - DuckDBDriver =
         x -> {
@@ -54,7 +47,7 @@ mod BasicDuckDB.DuckDBDriver {
                     let props = new JProperties();
                     let ans = jdriver.connect(url, props);
                     let ans1 = unchecked_cast(ans as JDuckDBConnection);
-                    let ans2 = DuckDBConnectionHandle(ans1);
+                    let ans2 = DuckDBConnectionHandle.DuckDBConnectionHandle(ans1);
                     k(ans2)
                 } catch {
                     case ex: SQLException => Err(IoError(ErrorKind.Other, ex.getMessage()))
@@ -100,7 +93,7 @@ mod BasicDuckDB.DuckDBDriver {
             let ans1 = f();
             DuckDBConnection.close();
             ans1
-        } with DuckDBConnection.runWithIO(conn);
+        } with BasicDuckDB.DuckDBConnection.runWithIO(conn);
         ans
 
 }

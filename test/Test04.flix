@@ -6,7 +6,7 @@
 // > java --enable-native-access=ALL-UNNAMED -jar ../bin/flix-0.62.0.jar test
 
 
-mod Test04 {
+pub mod Test04 {
     use Assert.assert
     use Assert.{assertEq}
     use BasicDuckDB.DuckDBDriver

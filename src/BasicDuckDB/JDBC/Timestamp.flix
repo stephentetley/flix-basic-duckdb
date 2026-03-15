@@ -15,7 +15,7 @@
  */
 
 
-mod BasicDuckDB.JDBC {
+pub mod BasicDuckDB.JDBC.Timestamp {
 
     import java.sql.{Timestamp => JTimestamp}
     
@@ -23,7 +23,7 @@ mod BasicDuckDB.JDBC {
 
 }
 
-mod BasicDuckDB.JDBC.Timestamp {
+pub mod BasicDuckDB.JDBC.Timestamp {
 
     use BasicDuckDB.JDBC.Timestamp
     use BasicDuckDB.JDBC.Timestamp.Timestamp

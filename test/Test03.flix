@@ -6,18 +6,20 @@
 // > java --enable-native-access=ALL-UNNAMED -jar ../bin/flix-0.62.0.jar test
 
 
-mod Test03 {
+pub mod Test03 {
     use Assert.{assertEq}
     use BasicDuckDB.DuckDBDriver
     use BasicDuckDB.DuckDBConnection
     use BasicDuckDB.DuckDBPreparedStatement
-    use BasicDuckDB.AppendRow
     use BasicDuckDB.RowAppender
+    use BasicDuckDB.RowAppender.AppendRow
     use BasicDuckDB.RowAppender.RowAppender
-    use BasicDuckDB.ReadRow
+    use BasicDuckDB.RowAppender.RowAppender.{RowAppender}
     use BasicDuckDB.RowReader
     use BasicDuckDB.RowReader.RowReader
-    use BasicDuckDB.JDBC.Statement
+    use BasicDuckDB.RowReader.RowReader.{RowReader}
+    use BasicDuckDB.RowReader.ReadRow
+    use BasicDuckDB.JDBC.Statement.{Statement}
 
     // needs a rewrite, not very compelling
     @Test
@@ -36,7 +38,7 @@ mod Test03 {
                                 "databases", 
                                 xy -> xy ||> appender, 
                                 List#{("DuckDB", 2019), ("SQLite", 2000)});
-                    DuckDBConnection.queryFold(dbReader(), Int32.max, 0, "SELECT * FROM facts.databases;") |> println
+                    BasicDuckDB.DuckDBConnection.queryFold(dbReader(), Int32.max, 0, "SELECT * FROM facts.databases;") |> println
                 });
             true
             } with DuckDBDriver.runWithIO 

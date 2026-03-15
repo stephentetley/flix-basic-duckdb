@@ -15,8 +15,21 @@
  */
 
 
-mod BasicDuckDB {
 
+pub mod BasicDuckDB.DuckDBPreparedStatement {
+    
+    use BasicDuckDB.DuckDBResultSet.DuckDBResultSetHandle
+    use BasicDuckDB.PreparedStatementSetter
+    use BasicDuckDB.PreparedStatementSetter.PreparedStatementSetter
+    use BasicDuckDB.PreparedStatementSetter.SetPreparedStatement
+    use IoError.ErrorKind
+    use IoError.IoError
+
+    import java.sql.{SQLException, SQLTimeoutException, SQLFeatureNotSupportedException}
+    import org.duckdb.{DuckDBResultSet => JDuckDBResultSet}
+    import org.duckdb.{DuckDBPreparedStatement => JDuckDBPreparedStatement}
+    
+    pub enum DuckDBPreparedStatementHandle (JDuckDBPreparedStatement)
 
     pub eff DuckDBPreparedStatement {
         // `askDuckDBPreparedStatementHandle` should not be used in user code
@@ -31,27 +44,9 @@ mod BasicDuckDB {
         def clearParameters(): Unit
     }
 
-}
-
-mod BasicDuckDB.DuckDBPreparedStatement {
-    
-    use BasicDuckDB.DuckDBPreparedStatementHandle
-    use BasicDuckDB.DuckDBPreparedStatementHandle.DuckDBPreparedStatementHandle
-    use BasicDuckDB.DuckDBResultSetHandle
-    use BasicDuckDB.DuckDBResultSetHandle.DuckDBResultSetHandle
-    use BasicDuckDB.DuckDBPreparedStatement
-    use BasicDuckDB.PreparedStatementSetter
-    use BasicDuckDB.PreparedStatementSetter.PreparedStatementSetter
-    use BasicDuckDB.SetPreparedStatement
-    use IoError.ErrorKind
-    use IoError.IoError
-
-    import java.sql.{SQLException, SQLTimeoutException, SQLFeatureNotSupportedException}
-    import org.duckdb.{DuckDBResultSet => JDuckDBResultSet}
-
     pub def handle(stmt: DuckDBPreparedStatementHandle, f: a -> b \ ef): a -> Result[IoError, b] \ {IO + ef} - DuckDBPreparedStatement =
         x -> {
-            let DuckDBPreparedStatementHandle(jstmt) = stmt;
+            let DuckDBPreparedStatementHandle.DuckDBPreparedStatementHandle(jstmt) = stmt;
             run {
                 Ok(f(x))
             } with handler DuckDBPreparedStatement {
@@ -89,7 +84,7 @@ mod BasicDuckDB.DuckDBPreparedStatement {
                 def executeQuery(k) = try {
                     let ans = jstmt.executeQuery();
                     let ans1 = unchecked_cast(ans as JDuckDBResultSet);
-                    let ans2 = DuckDBResultSetHandle(ans1);
+                    let ans2 = DuckDBResultSetHandle.DuckDBResultSetHandle(ans1);
                     k(ans2)
                 } catch {
                     case ex: SQLTimeoutException => Err(IoError(ErrorKind.Other, ex.getMessage()))
@@ -117,9 +112,9 @@ mod BasicDuckDB.DuckDBPreparedStatement {
 
     pub def execPreparedStatementSetter(setter: PreparedStatementSetter[a, ef]): Result[IoError, a] \ {IO + ef + DuckDBPreparedStatement} - SetPreparedStatement = 
         let stmt = DuckDBPreparedStatement.askDuckDBPreparedStatementHandle();
-        let PreparedStatementSetter(f) = setter;
+        let PreparedStatementSetter.PreparedStatementSetter(f) = setter;
         run {
             f()
-        } with PreparedStatementSetter.runWithIO(stmt)
+        } with BasicDuckDB.PreparedStatementSetter.runWithIO(stmt)
 
 }

@@ -15,8 +15,14 @@
  */
 
 
-mod BasicDuckDB {
 
+pub mod BasicDuckDB.PreparedStatementSetter {
+    
+    use BasicDuckDB.DuckDBPreparedStatement.{DuckDBPreparedStatementHandle}
+    use IoError.ErrorKind
+    use IoError.IoError
+
+    import java.sql.{SQLException, SQLTimeoutException, SQLFeatureNotSupportedException}
 
 
     // Note zero-indexed unlike JDBC which is one-indexed
@@ -36,21 +42,10 @@ mod BasicDuckDB {
         def setString(paramIx: Int32, value: String): Unit
     }
 
-}
-
-mod BasicDuckDB.PreparedStatementSetter {
-    
-    use BasicDuckDB.DuckDBPreparedStatementHandle
-    use BasicDuckDB.DuckDBPreparedStatementHandle.DuckDBPreparedStatementHandle
-    use BasicDuckDB.SetPreparedStatement
-    use IoError.ErrorKind
-    use IoError.IoError
-
-    import java.sql.{SQLException, SQLTimeoutException, SQLFeatureNotSupportedException}
 
     pub def handle(stmt: DuckDBPreparedStatementHandle, f: a -> b \ ef): a -> Result[IoError, b] \ {IO + ef} - SetPreparedStatement =
         x -> {
-            let DuckDBPreparedStatementHandle(jstmt) = stmt;
+            let DuckDBPreparedStatementHandle.DuckDBPreparedStatementHandle(jstmt) = stmt;
             run {
                 Ok(f(x))
             } with handler SetPreparedStatement {

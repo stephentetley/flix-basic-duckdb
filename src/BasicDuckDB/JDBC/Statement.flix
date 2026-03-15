@@ -15,9 +15,19 @@
  */
 
 
-mod BasicDuckDB.JDBC {
 
-    use BasicDuckDB.JDBC.ResultSetHandle
+
+pub mod BasicDuckDB.JDBC.Statement {
+    
+
+    use BasicDuckDB.JDBC.ResultSet.ResultSetHandle
+    use IoError.ErrorKind
+    use IoError.IoError
+
+    import java.sql.SQLException
+    import java.sql.{Statement => JStatement}
+    
+    pub enum StatementHandle (JStatement)
 
     pub eff Statement {
         def close(): Unit
@@ -34,22 +44,9 @@ mod BasicDuckDB.JDBC {
         def isCloseOnCompletion(): Bool
     }
 
-}
-
-mod BasicDuckDB.JDBC.Statement {
-    
-    use BasicDuckDB.JDBC.StatementHandle
-    use BasicDuckDB.JDBC.StatementHandle.StatementHandle
-    use BasicDuckDB.JDBC.Statement
-    use BasicDuckDB.JDBC.ResultSetHandle.ResultSetHandle
-    use IoError.ErrorKind
-    use IoError.IoError
-
-    import java.sql.SQLException
-
     pub def handle(stmt: StatementHandle, f: a -> b \ ef): a -> Result[IoError, b] \ {IO + ef} - Statement =
         x -> {
-            let StatementHandle(jstmt) = stmt; 
+            let StatementHandle.StatementHandle(jstmt) = stmt; 
             run {
                 Ok(f(x))
             } with handler Statement {
@@ -104,7 +101,7 @@ mod BasicDuckDB.JDBC.Statement {
                 }
                 
                 def executeQuery(sql, k) = try {
-                    let ans = ResultSetHandle(jstmt.executeQuery(sql));
+                    let ans = ResultSetHandle.ResultSetHandle(jstmt.executeQuery(sql));
                     k(ans)
                 } catch {
                     case ex: SQLException => Err(IoError(ErrorKind.Other, ex.getMessage()))

@@ -14,7 +14,8 @@
  * limitations under the License.
  */
 
-mod BasicDuckDB.Shim {
+
+pub mod BasicDuckDB.Shim.ParquetOption {
 
     use FlixPretty.Doc
     use FlixPretty.PrettyClass.PrettyLevel
@@ -44,13 +45,6 @@ mod BasicDuckDB.Shim {
         pub override def pPrintList(l: PrettyLevel, xs: List[ParquetOption]) : Doc = argList(l, xs)
             
     }
-
-
-}
-
-mod BasicDuckDB.Shim.ParquetOption {
-
-    use BasicDuckDB.Shim.ParquetOption
 
     pub def binary_as_string(b: Bool): ParquetOption = ParquetOption.BinaryAsString(b)
 

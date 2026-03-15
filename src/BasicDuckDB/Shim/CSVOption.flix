@@ -14,7 +14,8 @@
  * limitations under the License.
  */
 
-mod BasicDuckDB.Shim {
+
+pub mod BasicDuckDB.Shim.CSVOption {
 
     use FlixPretty.Doc
     use FlixPretty.PrettyClass.PrettyLevel
@@ -108,13 +109,6 @@ mod BasicDuckDB.Shim {
         pub override def pPrintList(l: PrettyLevel, xs: List[CSVOption]) : Doc = argList(l, xs)
             
     }
-
-
-}
-
-mod BasicDuckDB.Shim.CSVOption {
-
-    use BasicDuckDB.Shim.CSVOption
 
 
     pub def all_varchar(b: Bool): CSVOption = CSVOption.AllVarchar(b)

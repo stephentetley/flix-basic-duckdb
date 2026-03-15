@@ -14,12 +14,15 @@
  * limitations under the License.
  */
 
-mod BasicDuckDB.Shim {
+
+pub mod BasicDuckDB.Shim.XLSXOption {
 
     use FlixPretty.Doc
     use FlixPretty.PrettyClass.PrettyLevel
     use FlixPretty.PrettyClass.Pretty
     use BasicDuckDB.Shim.Internal.Utils.{argument, varchar, boolean, argList}
+    
+    use BasicDuckDB.Shim.XLSXOption.XLSXOption
 
     pub enum XLSXOption {
         case AllVarchar(Bool)
@@ -45,13 +48,6 @@ mod BasicDuckDB.Shim {
         pub override def pPrintList(l: PrettyLevel, xs: List[XLSXOption]) : Doc = argList(l, xs)
             
     }
-
-
-}
-
-mod BasicDuckDB.Shim.XLSXOption {
-
-    use BasicDuckDB.Shim.XLSXOption
 
     pub def all_varchar(b: Bool): XLSXOption = XLSXOption.AllVarchar(b)
     

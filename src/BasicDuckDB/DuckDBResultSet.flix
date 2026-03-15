@@ -15,9 +15,28 @@
  */
 
 
-mod BasicDuckDB {
 
-    use BasicDuckDB.DuckDBResultSetHandle
+
+pub mod BasicDuckDB.DuckDBResultSet {
+
+    use BasicDuckDB.RowReader
+    use BasicDuckDB.RowReader.RowReader
+    use BasicDuckDB.RowReader.ReadRow
+    use BasicDuckDB.JDBC.ResultSet.{ResultSetHandle}
+    use IoError.ErrorKind
+    use IoError.IoError
+    
+    import java.sql.{Connection => JConnection}
+    import java.sql.{Statement => JStatement}
+    import java.sql.SQLException
+    import org.duckdb.{DuckDBResultSet => JDuckDBResultSet}
+    
+    pub enum DuckDBResultSetHandle (JDuckDBResultSet)
+
+    pub def castResultSetHandle(results: ResultSetHandle): DuckDBResultSetHandle = 
+        let ResultSetHandle.ResultSetHandle(results1) = results;
+        let results2 = unchecked_cast(results1 as JDuckDBResultSet);
+        DuckDBResultSetHandle.DuckDBResultSetHandle(results2)
 
     pub eff DuckDBResultSet {
         // `askDuckDBResultSetHandle` should not be used in user code
@@ -41,28 +60,9 @@ mod BasicDuckDB {
     }
 
 
-}
-
-mod BasicDuckDB.DuckDBResultSet {
-
-
-    use BasicDuckDB.DuckDBResultSetHandle
-    use BasicDuckDB.DuckDBResultSetHandle.DuckDBResultSetHandle
-    use BasicDuckDB.DuckDBResultSet
-    use BasicDuckDB.RowReader
-    use BasicDuckDB.RowReader.RowReader
-    use BasicDuckDB.ReadRow
-    use IoError.ErrorKind
-    use IoError.IoError
-    
-    import java.sql.{Connection => JConnection}
-    import java.sql.{Statement => JStatement}
-    import java.sql.SQLException
-
-
     pub def handle(results: DuckDBResultSetHandle, f: a -> b \ ef): a -> Result[IoError, b] \ {IO + ef} - DuckDBResultSet =
         x -> {
-            let DuckDBResultSetHandle(jresults) = results;
+            let DuckDBResultSetHandle.DuckDBResultSetHandle(jresults) = results;
             run {
                 Ok(f(x))
             } with handler DuckDBResultSet {
@@ -185,10 +185,10 @@ mod BasicDuckDB.DuckDBResultSet {
 
     pub def execRowReader(reader: RowReader[a, ef]): Result[IoError, a] \ {IO + ef + DuckDBResultSet} - ReadRow = 
         let results = DuckDBResultSet.askDuckDBResultSetHandle();
-        let RowReader(f) = reader;
+        let RowReader.RowReader(f) = reader;
         run {
             f()
-        } with RowReader.runWithIO(results)
+        } with BasicDuckDB.RowReader.runWithIO(results)
 
 
 }
