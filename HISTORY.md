@@ -1,5 +1,9 @@
+### v0.3.1
+   Updated to work with `flix-pretty` dependency.
+   Updated DuckDB dependency.
+   
 ### v0.3.0
-   Updated to work with flix-pretty 0.10.0
+   Updated to work with `flix-pretty` 0.10.0.
    Exposed modules as `pub` and pushed datatypes down one layer 
    into their respective module.
    Updated tests to use `Assert` effect.

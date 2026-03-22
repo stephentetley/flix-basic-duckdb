@@ -18,7 +18,6 @@
 
 pub mod BasicDuckDB.DuckDBAppender {
 
-    use BasicDuckDB.DuckDBAppender.{DuckDBAppender}
     use BasicDuckDB.RowAppender.{AppendRow}
     use BasicDuckDB.RowAppender.{RowAppender}
     use IoError.ErrorKind

@@ -25,7 +25,6 @@ pub mod BasicDuckDB.DuckDBConnection {
     use BasicDuckDB.DuckDBResultSet.{DuckDBResultSet}
     use BasicDuckDB.JDBC.Statement.{Statement}
     use BasicDuckDB.JDBC.Statement.StatementHandle
-    use BasicDuckDB.DuckDBConnection.{DuckDBConnection}
     use BasicDuckDB.RowAppender.AppendRow
     use BasicDuckDB.RowAppender.{RowAppender}
     use BasicDuckDB.RowReader.RowReader

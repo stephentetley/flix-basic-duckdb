@@ -17,7 +17,6 @@
 
 pub mod BasicDuckDB.DuckDBDriver {
     
-    use BasicDuckDB.DuckDBDriver.DuckDBDriver
     use BasicDuckDB.DuckDBConnection.DuckDBConnection
     use BasicDuckDB.DuckDBConnection.DuckDBConnectionHandle
     use IoError.ErrorKind
