@@ -7,7 +7,12 @@
 
 
 pub mod Test02 {
+    
     use Assert.{assertEq}
+    
+    use Fs.FileWrite
+    use Fs.WriteFile
+    
     use BasicDuckDB.DuckDBDriver
     use BasicDuckDB.DuckDBConnection
     use BasicDuckDB.DuckDBPreparedStatement
@@ -26,19 +31,19 @@ pub mod Test02 {
         assertEq(
             expected = Ok(true),
             Result.flatten(run {
-                let dir = FileWrite.mkTempDir("flix_test02");
-                let url = "jdbc:duckdb:${dir}/test02_db.duckdb";
-                let _ = DuckDBDriver.execDuckDBConnection(url, () -> {
-                    let _ = DuckDBConnection.execStatement(() -> {
-                        discard Statement.executeUpdate("CREATE SCHEMA IF NOT EXISTS facts;");
-                        Statement.executeUpdate("CREATE TABLE IF NOT EXISTS facts.databases (name VARCHAR NOT NULL, year INTEGER, PRIMARY KEY(name));")
-                    });
-                    let _ = DuckDBConnection.execRowAppender("facts", "databases", 
-                                xy -> xy ||> appender,
-                                List#{("DuckDB", 2019), ("SQLite", 2000)});
-                    DuckDBConnection.queryForEach(dbReader(), "SELECT * FROM facts.databases;")
-                });
-                true
+                forM (
+                    dir <- FileWrite.mkTempDir("flix_test02");
+                    url <- Ok("jdbc:duckdb:${dir}/test02_db.duckdb");
+                    _   <- DuckDBDriver.execDuckDBConnection(url, () -> {
+                        let _ = DuckDBConnection.execStatement(() -> {
+                            discard Statement.executeUpdate("CREATE SCHEMA IF NOT EXISTS facts;");
+                            Statement.executeUpdate("CREATE TABLE IF NOT EXISTS facts.databases (name VARCHAR NOT NULL, year INTEGER, PRIMARY KEY(name));")
+                        });
+                        let _ = DuckDBConnection.execRowAppender("facts", "databases", 
+                                    xy -> xy ||> appender,
+                                    List#{("DuckDB", 2019), ("SQLite", 2000)});
+                        DuckDBConnection.queryForEach(dbReader(), "SELECT * FROM facts.databases;")
+                    })) yield true
             } with BasicDuckDB.DuckDBDriver.runWithIO 
             with FileWrite.runWithIO) 
         )

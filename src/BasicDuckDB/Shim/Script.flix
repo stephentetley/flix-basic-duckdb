@@ -17,22 +17,26 @@
 
 pub mod BasicDuckDB.Shim.Script {
 
+    use Fs.FileRead
+    use Fs.ReadFile
+
     use BasicDuckDB.DuckDBDriver
     use BasicDuckDB.DuckDBConnection.{DuckDBConnection}
     use BasicDuckDB.DuckDBResultSet
     use BasicDuckDB.RowReader
     use BasicDuckDB.JDBC.Statement.{Statement}
     
-    pub def executeFile(file_name: String): Result[IoError, Bool] \ {IO + DuckDBConnection} =
+
+    pub def executeFile(file_name: String): Result[IoError, Bool] \ {IO + FileRead, DuckDBConnection} =
         run {
-            match FileReadWithResult.read(file_name) {
+            match FileRead.read(file_name) {
                 case Ok(sql) =>
                     BasicDuckDB.DuckDBConnection.execStatement(() -> {
                         Statement.execute(sql)
                     })
                 case Err(e) => Err(e)
             }
-        } with FileReadWithResult.runWithIO
+        } with ReadFile.runWithFileRead
 
     pub def executeUpdate(sql: String): Result[IoError, Bool] \ {IO + DuckDBConnection} =
         BasicDuckDB.DuckDBConnection.execStatement(() -> {

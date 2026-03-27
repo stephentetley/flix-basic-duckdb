@@ -1,3 +1,6 @@
+### v0.4.0
+   Updated to work with Flix 0.70.0.
+
 ### v0.3.1
    Updated to work with `flix-pretty` dependency.
    Updated DuckDB dependency.

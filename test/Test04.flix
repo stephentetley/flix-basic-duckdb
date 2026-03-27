@@ -12,20 +12,25 @@ pub mod Test04 {
     use BasicDuckDB.DuckDBDriver
     use BasicDuckDB.DuckDBConnection
     use BasicDuckDB.Shim.Script
+    
+    use Fs.FileWrite
+    use Fs.WriteFile
+    use Fs.FileRead
 
     @Test
-    def test01(): Unit \ {Assert + IO} =
+    def test01(): Unit \ {Assert + FileRead + IO} =
         assertEq(
             expected = Ok(true),
             Result.flatten(run {
-                let dir = FileWrite.mkTempDir("flix_test04");
-                let url = "jdbc:duckdb:${dir}/test04_db.duckdb";
-                let _ = DuckDBDriver.execDuckDBConnection(url, () -> {
-                    Script.executeFile("./testdata/setup_test04_db.sql")
-                });
-                true
+                forM (
+                    dir <- FileWrite.mkTempDir("flix_test04");
+                    url <- Ok("jdbc:duckdb:${dir}/test04_db.duckdb");
+                    _   <- DuckDBDriver.execDuckDBConnection(url, () -> {
+                            Script.executeFile("./testdata/setup_test04_db.sql")
+                        })
+                ) yield true
             } with DuckDBDriver.runWithIO 
-            with FileWrite.runWithIO) 
+              with FileWrite.runWithIO) 
         )
 
 }
