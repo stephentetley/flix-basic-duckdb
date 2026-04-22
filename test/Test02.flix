@@ -45,7 +45,7 @@ pub mod Test02 {
                         DuckDBConnection.queryForEach(dbReader(), "SELECT * FROM facts.databases;")
                     })) yield true
             } with BasicDuckDB.DuckDBDriver.runWithIO 
-            with FileWrite.runWithIO) 
+              with FileWrite.runWithIO)
         )
 
     def appender(name: String, year: Int32): RowAppender[Unit, {}] = RowAppender(() -> {

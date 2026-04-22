@@ -38,7 +38,7 @@ pub mod BasicDuckDB.DuckDBConnection {
     import org.duckdb.{DuckDBPreparedStatement => JDuckDBPreparedStatement}
     import org.duckdb.{DuckDBConnection => JDuckDBConnection}
     
-    pub enum DuckDBConnectionHandle (JDuckDBConnection)
+    pub enum DuckDBConnectionHandle(JDuckDBConnection)
 
 
     pub eff DuckDBConnection {

@@ -1,3 +1,6 @@
+### v0.5.0
+   Added UDFs.
+
 ### v0.4.0
    Updated to work with Flix 0.70.0.
 
