@@ -19,15 +19,22 @@ pub mod BasicDuckDB.DuckDBScalarFunctionBuilder {
     
     use BasicDuckDB.DuckDBFunctions.RegisteredFunction 
     use BasicDuckDB.DuckDBConnection.DuckDBConnectionHandle
+    use BasicDuckDB.DuckDBColumnType.ColumnType
+    use BasicDuckDB.DuckDBLogicalType.LogicalType
 
     import org.duckdb.{DuckDBScalarFunctionBuilder => JDuckDBScalarFunctionBuilder}
     import org.duckdb.{DuckDBFunctions => JDuckDBFunctions}
     import org.duckdb.{DuckDBFunctions$RegisteredFunction => JRegisteredFunction}
     import java.sql.{SQLException => JSQLException}
+    import java.util.function.{IntUnaryOperator => JIntUnaryOperator}
 
     pub eff DuckDBScalarFunctionBuilder {
         def withName(s: String): Unit
         def withNullInNullOut(): Unit
+        def withParameter(ctype: ColumnType): Unit
+        // def withParameterLogicalType(ltype: LogicalType): Unit
+        def withReturnType(ctype: ColumnType): Unit
+        def withUnaryInt32Function(f: Int32 -> Int32): Unit
     }
 
 
@@ -45,19 +52,44 @@ pub mod BasicDuckDB.DuckDBScalarFunctionBuilder {
                 Ok(f(x))
             } with handler DuckDBScalarFunctionBuilder {
                         
-                def withName(s, k) = try {                    
+                def withName(s, k) = try {
                     unsafe IO as r { discard builder.withName(s) };
                     k()
                 } catch {
                     case ex: JSQLException => Err(ex.getMessage())
                 }
 
-                def withNullInNullOut(k) = try {                    
+                def withNullInNullOut(k) = try {
                     unsafe IO as r { discard builder.withNullInNullOut() };
                     k()
                 } catch {
                     case ex: JSQLException => Err(ex.getMessage())
                 }
+                
+                def withParameter(p, k) = try {
+                    let jparam = BasicDuckDB.DuckDBColumnType.marshalColumnType(p) ;
+                    unsafe IO as r { discard builder.withParameter(jparam) };
+                    k()
+                } catch {
+                    case ex: JSQLException => Err(ex.getMessage())
+                }
+                
+                def withReturnType(p, k) = try {
+                    let jparam = BasicDuckDB.DuckDBColumnType.marshalColumnType(p) ;
+                    unsafe IO as r { discard builder.withReturnType(jparam) };
+                    k()
+                } catch {
+                    case ex: JSQLException => Err(ex.getMessage())
+                }
+
+            def withUnaryInt32Function(fn, k) = try {
+                    let jf1: JIntUnaryOperator = makeIntUnaryOperator(fn);
+                    unsafe IO as r { discard builder.withIntFunction(jf1) };
+                    k()
+                } catch {
+                    case ex: JSQLException => Err(ex.getMessage())
+                }
+
             };
             match ans {
                 case Ok(ans1)    => { 
@@ -68,4 +100,9 @@ pub mod BasicDuckDB.DuckDBScalarFunctionBuilder {
                 case Err(msg) => Err(msg)
             }
         }
+
+    def makeIntUnaryOperator(f: Int32 -> Int32 \ ef): JIntUnaryOperator =
+        i -> unchecked_cast(f(i) as _ \ IO)
+
+
 }

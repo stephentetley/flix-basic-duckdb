@@ -60,7 +60,7 @@ pub mod BasicDuckDB.DuckDBColumnType {
         case VARIANT
     }
 
-    pub def marshalMonth(x: ColumnType): JDuckDBColumnType =
+    pub def marshalColumnType(x: ColumnType): JDuckDBColumnType =
         match x {
             case ColumnType.ARRAY                       => unsafe IO { JDuckDBColumnType.ARRAY }
             case ColumnType.BIGINT                      => unsafe IO { JDuckDBColumnType.BIGINT }
@@ -105,7 +105,7 @@ pub mod BasicDuckDB.DuckDBColumnType {
     def primEquals(x: JDuckDBColumnType, y: JDuckDBColumnType): Bool =
         unsafe IO { x.equals(y) }
 
-    pub def unmarshalMonth(x: JDuckDBColumnType): ColumnType =
+    pub def unmarshalColumnType(x: JDuckDBColumnType): ColumnType =
         match x {
             case x1 if primEquals(x1, unsafe IO { JDuckDBColumnType.ARRAY })                    => ColumnType.ARRAY
             case x1 if primEquals(x1, unsafe IO { JDuckDBColumnType.BIGINT })                   => ColumnType.BIGINT

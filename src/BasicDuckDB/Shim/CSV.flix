@@ -21,14 +21,14 @@ pub mod BasicDuckDB.Shim.CSV {
     use BasicDuckDB.DuckDBDriver.{DuckDBDriver}
     use BasicDuckDB.DuckDBConnection.{DuckDBConnection}
     use BasicDuckDB.DuckDBResultSet.{DuckDBResultSet}
-    use BasicDuckDB.RowReader.{RowReader}
+    use BasicDuckDB.RowReader.ReadRow
     use BasicDuckDB.JDBC.Statement.{Statement}
     use BasicDuckDB.Shim.CSVOption.CSVOption
     use BasicDuckDB.Shim.Internal.Utils.{printOptions}
     
     // TODO multiple files... Output...
 
-    pub def forEach(reader: RowReader[a, ef], file_name: String, opts: List[CSVOption]): Result[IoError, Unit] \ {IO + ef} - {DuckDBConnection + DuckDBDriver + DuckDBResultSet + Statement} = 
+    pub def forEach(reader: Unit -> a \ ReadRow + ef, file_name: String, opts: List[CSVOption]): Result[IoError, Unit] \ {IO + ef} - {DuckDBConnection + DuckDBDriver + DuckDBResultSet + Statement} = 
         let url = "jdbc:duckdb:";
         let sql = "SELECT * FROM read_csv('${file_name}'${printOptions(opts)});";
         Result.flatten(Result.flatten(run {
@@ -37,16 +37,16 @@ pub mod BasicDuckDB.Shim.CSV {
             }) 
         } with BasicDuckDB.DuckDBDriver.runWithIO))
     
-    pub def fold(reader: RowReader[b, ef], f: (a, b) -> a \ ef1, s: a, file_name: String, opts: List[CSVOption]): Result[IoError, a] \ {IO + ef + ef1} - {DuckDBConnection + DuckDBDriver + DuckDBResultSet + Statement} =  
+    pub def fold(reader: a -> a \ ReadRow + ef, s: a, file_name: String, opts: List[CSVOption]): Result[IoError, a] \ {IO + ef} - {DuckDBConnection + DuckDBDriver + DuckDBResultSet + Statement} =  
         let url = "jdbc:duckdb:";
         let sql = "SELECT * FROM read_csv('${file_name}'${printOptions(opts)});";
         Result.flatten(Result.flatten(run {
             BasicDuckDB.DuckDBDriver.execDuckDBConnection(url, () -> {
-                BasicDuckDB.DuckDBConnection.queryFold(reader, f, s, sql)
+                BasicDuckDB.DuckDBConnection.queryFold(reader, s, sql)
             }) 
         } with BasicDuckDB.DuckDBDriver.runWithIO))
 
-    pub def load_facts(reader: RowReader[#{ | r }, ef], file_name: String, opts: List[CSVOption]): Result[IoError, #{ | r }] \ {IO + ef} - {DuckDBConnection + DuckDBDriver + DuckDBResultSet + Statement} = 
-        fold(reader, (acc, b) -> acc <+> b, #{}, file_name, opts)
+    pub def load_facts(reader: Unit -> #{ | r } \ ReadRow + ef, file_name: String, opts: List[CSVOption]): Result[IoError, #{ | r }] \ {IO + ef} - {DuckDBConnection + DuckDBDriver + DuckDBResultSet + Statement} = 
+        fold(acc -> { let row1 = reader(); acc <+> row1 }, #{}, file_name, opts)
         
 }

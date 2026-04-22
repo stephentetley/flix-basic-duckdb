@@ -1,5 +1,6 @@
 ### v0.5.0
    Added UDFs.
+   Removed `RowReader` enum.
 
 ### v0.4.0
    Updated to work with Flix 0.70.0.

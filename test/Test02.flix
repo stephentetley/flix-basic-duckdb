@@ -21,8 +21,7 @@ pub mod Test02 {
     use BasicDuckDB.RowAppender.RowAppender
     use BasicDuckDB.RowAppender.RowAppender.{RowAppender}
     use BasicDuckDB.RowReader
-    use BasicDuckDB.RowReader.RowReader
-    use BasicDuckDB.RowReader.RowReader.{RowReader}
+    use BasicDuckDB.RowReader.ReadRow
     use BasicDuckDB.RowReader.ReadRow
     use BasicDuckDB.JDBC.Statement.{Statement}
 
@@ -54,11 +53,11 @@ pub mod Test02 {
     })
 
 
-    def dbReader(): RowReader[Unit, IO] = RowReader(() -> {
+    def dbReader(): Unit -> Unit \ ReadRow + IO = () -> {
         let name = ReadRow.getStringByName("name");
         let year = ReadRow.getInt32ByName("year");
         println("Database: ${name}, Year: ${year}")
-    })
+    }
 
 }
 

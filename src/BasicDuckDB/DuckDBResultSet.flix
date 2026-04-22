@@ -20,7 +20,7 @@
 pub mod BasicDuckDB.DuckDBResultSet {
 
     use BasicDuckDB.RowReader
-    use BasicDuckDB.RowReader.RowReader
+    // use BasicDuckDB.RowReader.RowReader
     use BasicDuckDB.RowReader.ReadRow
     use BasicDuckDB.JDBC.ResultSet.{ResultSetHandle}
     use IoError.ErrorKind
@@ -183,11 +183,10 @@ pub mod BasicDuckDB.DuckDBResultSet {
         handle(results, f)()
 
 
-    pub def execRowReader(reader: RowReader[a, ef]): Result[IoError, a] \ {IO + ef + DuckDBResultSet} - ReadRow = 
+    pub def execReadRow(reader: Unit -> a \ ReadRow + ef): Result[IoError, a] \ {IO + ef + DuckDBResultSet} - ReadRow = 
         let results = DuckDBResultSet.askDuckDBResultSetHandle();
-        let RowReader.RowReader(f) = reader;
         run {
-            f()
+            reader()
         } with BasicDuckDB.RowReader.runWithIO(results)
 
 

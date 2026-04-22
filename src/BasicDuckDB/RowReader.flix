@@ -25,7 +25,7 @@ pub mod BasicDuckDB.RowReader {
 
     import java.sql.SQLException
 
-    pub enum RowReader[a:Type, ef: Eff](Unit -> a \ {ReadRow + ef})
+    // pub enum RowReader[a:Type, ef: Eff](Unit -> a \ {ReadRow + ef})
 
     pub eff ReadRow {
         def getStringByIndex(ix: Int32): String
@@ -201,7 +201,7 @@ pub mod BasicDuckDB.RowReader {
 
         }
 
-    pub def runWithIO(rset: DuckDBResultSetHandle, f: Unit -> a \ ef): Result[IoError, a] \ {IO + ef} - {ReadRow} = 
+    pub def runWithIO(rset: DuckDBResultSetHandle, f: Unit -> a \ ef): Result[IoError, a] \ {IO + ef} - ReadRow = 
         handle(rset, f)()
 
 }

@@ -16,8 +16,7 @@ pub mod Test03 {
     use BasicDuckDB.RowAppender.RowAppender
     use BasicDuckDB.RowAppender.RowAppender.{RowAppender}
     use BasicDuckDB.RowReader
-    use BasicDuckDB.RowReader.RowReader
-    use BasicDuckDB.RowReader.RowReader.{RowReader}
+    use BasicDuckDB.RowReader.ReadRow
     use BasicDuckDB.RowReader.ReadRow
     use BasicDuckDB.JDBC.Statement.{Statement}
     
@@ -43,14 +42,14 @@ pub mod Test03 {
                                     "databases", 
                                     xy -> xy ||> appender, 
                                     List#{("DuckDB", 2019), ("SQLite", 2000)});
-                        BasicDuckDB.DuckDBConnection.queryFold(dbReader(), Int32.max, 0, "SELECT * FROM facts.databases;") |> println
+                        BasicDuckDB.DuckDBConnection.queryFold(acc -> { let i = dbReader()(); Int32.max(acc, i) }, 0, "SELECT * FROM facts.databases;") |> println
                 })) yield true
             } with DuckDBDriver.runWithIO 
               with FileWrite.runWithIO)
         )
 
 
-    def dbReader(): RowReader[Int32, {}] = RowReader(() -> ReadRow.getInt32ByName("year"))
+    def dbReader(): Unit -> Int32 \ ReadRow = () -> ReadRow.getInt32ByName("year")
     
     def appender(name: String, year: Int32): RowAppender[Unit, {}] = RowAppender(() -> {
         AppendRow.appendString(name);
