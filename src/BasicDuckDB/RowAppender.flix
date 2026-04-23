@@ -25,7 +25,6 @@ pub mod BasicDuckDB.RowAppender {
     import java.sql.SQLException
     import java.lang.Throwable
     
-    pub enum RowAppender[a:Type, ef: Eff](Unit -> a \ {AppendRow + ef})
 
     pub eff AppendRow {
         def appendNull(): Unit

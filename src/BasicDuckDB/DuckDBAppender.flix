@@ -18,8 +18,7 @@
 
 pub mod BasicDuckDB.DuckDBAppender {
 
-    use BasicDuckDB.RowAppender.{AppendRow}
-    use BasicDuckDB.RowAppender.{RowAppender}
+    use BasicDuckDB.RowAppender.AppendRow
     use IoError.ErrorKind
     use IoError.IoError
 
@@ -92,11 +91,10 @@ pub mod BasicDuckDB.DuckDBAppender {
     pub def runWithIO(appender: DuckDBAppenderHandle, f: Unit -> a \ ef): Result[IoError, a] \ {IO + ef} - DuckDBAppender = 
         handle(appender, f)()
 
-    pub def execRowAppender(appender: RowAppender[a, ef]): Result[IoError, a] \ {IO + ef + DuckDBAppender} - {AppendRow} = 
+    pub def execRowAppender(appender: Unit -> a \ AppendRow + ef): Result[IoError, a] \ {IO + ef + DuckDBAppender} - {AppendRow} = 
         let hndl = DuckDBAppender.askDuckDBAppenderHandle();
-        let RowAppender.RowAppender(f) = appender;
         run {
-            f()
+            appender()
         } with BasicDuckDB.RowAppender.runWithIO(hndl)
 
 

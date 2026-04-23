@@ -16,11 +16,7 @@ pub mod Test02 {
     use BasicDuckDB.DuckDBDriver
     use BasicDuckDB.DuckDBConnection
     use BasicDuckDB.DuckDBPreparedStatement
-    use BasicDuckDB.RowAppender
-    use BasicDuckDB.RowAppender.{AppendRow}
-    use BasicDuckDB.RowAppender.RowAppender
-    use BasicDuckDB.RowAppender.RowAppender.{RowAppender}
-    use BasicDuckDB.RowReader
+    use BasicDuckDB.RowAppender.AppendRow
     use BasicDuckDB.RowReader.ReadRow
     use BasicDuckDB.RowReader.ReadRow
     use BasicDuckDB.JDBC.Statement.{Statement}
@@ -39,21 +35,21 @@ pub mod Test02 {
                             Statement.executeUpdate("CREATE TABLE IF NOT EXISTS facts.databases (name VARCHAR NOT NULL, year INTEGER, PRIMARY KEY(name));")
                         });
                         let _ = DuckDBConnection.execRowAppender("facts", "databases", 
-                                    xy -> xy ||> appender,
+                                    xy -> { let (x, y) = xy; appender(x, y) }, 
                                     List#{("DuckDB", 2019), ("SQLite", 2000)});
-                        DuckDBConnection.queryForEach(dbReader(), "SELECT * FROM facts.databases;")
+                        DuckDBConnection.queryForEach(rowReader(), "SELECT * FROM facts.databases;")
                     })) yield true
             } with BasicDuckDB.DuckDBDriver.runWithIO 
               with FileWrite.runWithIO)
         )
 
-    def appender(name: String, year: Int32): RowAppender[Unit, {}] = RowAppender(() -> {
+    def appender(name: String, year: Int32): Unit \ AppendRow = {
         AppendRow.appendString(name);
         AppendRow.appendInt32(year)
-    })
+    }
 
 
-    def dbReader(): Unit -> Unit \ ReadRow + IO = () -> {
+    def rowReader(): Unit -> Unit \ ReadRow + IO = () -> {
         let name = ReadRow.getStringByName("name");
         let year = ReadRow.getInt32ByName("year");
         println("Database: ${name}, Year: ${year}")

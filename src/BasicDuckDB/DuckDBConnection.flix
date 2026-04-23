@@ -26,8 +26,6 @@ pub mod BasicDuckDB.DuckDBConnection {
     use BasicDuckDB.JDBC.Statement.{Statement}
     use BasicDuckDB.JDBC.Statement.StatementHandle
     use BasicDuckDB.RowAppender.AppendRow
-    use BasicDuckDB.RowAppender.{RowAppender}
-    // use BasicDuckDB.RowReader.RowReader
     use BasicDuckDB.RowReader.ReadRow
     use IoError.ErrorKind
     use IoError.IoError
@@ -258,12 +256,14 @@ pub mod BasicDuckDB.DuckDBConnection {
         } with BasicDuckDB.JDBC.Statement.runWithIO(stmt)
 
     // forEach has a strange effect on the effect signature
-    pub def execRowAppender(schema: String, table: String, appendf:  a -> RowAppender[b, ef] \ ef1, t: t): Result[IoError, Unit] \ ({IO + ef + DuckDBConnection} - AppendRow) + {IO + ef1 + DuckDBAppender + DuckDBAppender + DuckDBAppender + ForEach.Aef[t]} - {DuckDBAppender} with ForEach[t] where ForEach.Elm[t] ~ a = 
+    pub def execRowAppender(schema: String, 
+                            table: String, 
+                            appendf: a -> Unit \ AppendRow + ef, t: t): Result[IoError, Unit] \ ({IO + ef + DuckDBConnection} - AppendRow) + {IO + DuckDBAppender + DuckDBAppender + DuckDBAppender + ForEach.Aef[t]} - {DuckDBAppender} with ForEach[t] where ForEach.Elm[t] ~ a = 
         let hndl = DuckDBConnection.createAppender(schema, table);
         run { 
             ForEach.forEach(a -> {
                 DuckDBAppender.beginRow();
-                let _ = BasicDuckDB.DuckDBAppender.execRowAppender(appendf(a));
+                discard BasicDuckDB.DuckDBAppender.execRowAppender(_ -> appendf(a));
                 DuckDBAppender.endRow()
                 }, t);
                 DuckDBAppender.close()
