@@ -12,7 +12,7 @@ pub mod Test05 {
     use BasicDuckDB.DuckDBConnection
     use BasicDuckDB.RowReader
     use BasicDuckDB.RowReader.ReadRow
-    use BasicDuckDB.RowReader.ReadRow
+    use BasicDuckDB.RowReader.ReadRowWithAlt
     use BasicDuckDB.Shim.SQLite
 
     @Test
@@ -29,12 +29,12 @@ pub mod Test05 {
             } with DuckDBDriver.runWithIO)
         )
 
-    def rowReader(): Unit -> Unit \ ReadRow + IO = () -> {
+    def rowReader(): Unit -> Unit \ ReadRowWithAlt + IO = () -> checked_ecast({
         let country = ReadRow.getStringByIndex(0);
         let capital = ReadRow.getStringByIndex(1);
         let pop = ReadRow.getFloat64ByIndex(2);
         println("${country}, capital city: ${capital}, population in millions: ${pop}")
-    }
+    })
 
 }
 

@@ -12,7 +12,7 @@ pub mod Test03 {
     use BasicDuckDB.DuckDBConnection
     use BasicDuckDB.DuckDBPreparedStatement
     use BasicDuckDB.RowAppender.AppendRow
-    use BasicDuckDB.RowReader.ReadRow
+    use BasicDuckDB.RowReader.ReadRowWithAlt
     use BasicDuckDB.RowReader.ReadRow
     use BasicDuckDB.JDBC.Statement.{Statement}
     
@@ -45,7 +45,8 @@ pub mod Test03 {
         )
 
 
-    def dbReader(): Unit -> Int32 \ ReadRow = () -> ReadRow.getInt32ByName("year")
+    def dbReader(): Unit -> Int32 \ ReadRowWithAlt = () -> 
+        BasicDuckDB.Base.Alt.withDefault(_ -> ReadRow.getInt32ByName("year"), 1970)
     
     def appender(name: String, year: Int32): Unit \ AppendRow = {
         AppendRow.appendString(name);

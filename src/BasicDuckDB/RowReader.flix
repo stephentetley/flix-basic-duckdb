@@ -16,16 +16,18 @@
 
 
 pub mod BasicDuckDB.RowReader {
-    
-    use BasicDuckDB.DuckDBResultSet.{DuckDBResultSetHandle}
-    use BasicDuckDB.JDBC.Struct.{StructHandle}
+    import java.io.IOError
 
     use IoError.ErrorKind
     use IoError.IoError
 
+    use BasicDuckDB.Base.Alt.Alt
+    use BasicDuckDB.DuckDBResultSet.{DuckDBResultSetHandle}
+    use BasicDuckDB.JDBC.Struct.{StructHandle}
+
+
     import java.sql.SQLException
 
-    // pub enum RowReader[a:Type, ef: Eff](Unit -> a \ {ReadRow + ef})
 
     pub eff ReadRow {
         def getStringByIndex(ix: Int32): String
@@ -50,158 +52,171 @@ pub mod BasicDuckDB.RowReader {
         def getStructByIndex(ix: Int32): StructHandle
     }
 
-    pub def handle(results: DuckDBResultSetHandle, f: a -> b \ ef): a -> Result[IoError, b] \ {IO + ef} - {ReadRow} =
-        x -> {
-            let DuckDBResultSetHandle.DuckDBResultSetHandle(jresults) = results;
-            run {
-                Ok(f(x))
-            } with handler ReadRow {
-            
-                def getStringByIndex(ix, k) = try {
-                    let ans = jresults.getString(ix + 1);
-                    k(ans)
-                } catch {
-                    case ex: SQLException => Err(IoError(ErrorKind.Other, ex.getMessage()))
-                }
-
-                def getStringByName(name, k) = try {
-                    let ans = jresults.getString(name);
-                    k(ans)
-                } catch {
-                    case ex: SQLException => Err(IoError(ErrorKind.Other, ex.getMessage()))
-                }
-                
-                def getBoolByIndex(ix, k) = try {
-                    let ans = jresults.getBoolean(ix + 1);
-                    k(ans)
-                } catch {
-                    case ex: SQLException => Err(IoError(ErrorKind.Other, ex.getMessage()))
-                }
-                
-                def getBoolByName(name, k) = try {
-                    let ans = jresults.getBoolean(name);
-                    k(ans)
-                } catch {
-                    case ex: SQLException => Err(IoError(ErrorKind.Other, ex.getMessage()))
-                }
+    pub type alias ReadRowWithAlt = ReadRow + Alt
 
 
-                def getInt8ByIndex(ix, k) = try {
-                    let ans = jresults.getByte(ix + 1);
-                    k(ans)
-                } catch {
-                    case ex: SQLException => Err(IoError(ErrorKind.Other, ex.getMessage()))
-                }
-
-                def getInt8ByName(name, k) = try {
-                    let ans = jresults.getByte(name);
-                    k(ans)
-                } catch {
-                    case ex: SQLException => Err(IoError(ErrorKind.Other, ex.getMessage()))
-                }
-
-                def getInt16ByIndex(ix, k) = try {
-                    let ans = jresults.getShort(ix + 1);
-                    k(ans)
-                } catch {
-                    case ex: SQLException => Err(IoError(ErrorKind.Other, ex.getMessage()))
-                }
-
-                def getInt16ByName(name, k) = try {
-                    let ans = jresults.getShort(name);
-                    k(ans)
-                } catch {
-                    case ex: SQLException => Err(IoError(ErrorKind.Other, ex.getMessage()))
-                }
-
-                def getInt32ByIndex(ix, k) = try {
-                    let ans = jresults.getInt(ix + 1);
-                    k(ans)
-                } catch {
-                    case ex: SQLException => Err(IoError(ErrorKind.Other, ex.getMessage()))
-                }
-
-                def getInt32ByName(name, k) = try {
-                    let ans = jresults.getInt(name);
-                    k(ans)
-                } catch {
-                    case ex: SQLException => Err(IoError(ErrorKind.Other, ex.getMessage()))
-                }
-
-                def getInt64ByIndex(ix, k) = try {
-                    let ans = jresults.getLong(ix + 1);
-                    k(ans)
-                } catch {
-                    case ex: SQLException => Err(IoError(ErrorKind.Other, ex.getMessage()))
-                }
-
-                def getInt64ByName(name, k) = try {
-                    let ans = jresults.getLong(name);
-                    k(ans)
-                } catch {
-                    case ex: SQLException => Err(IoError(ErrorKind.Other, ex.getMessage()))
-                }
-
-                def getBigIntByIndex(ix, k) = try {
-                    let ans = jresults.getHugeint(ix + 1);
-                    k(ans)
-                } catch {
-                    case ex: SQLException => Err(IoError(ErrorKind.Other, ex.getMessage()))
-                }
-
-                def getFloat32ByIndex(ix, k) = try {
-                    let ans = jresults.getFloat(ix + 1);
-                    k(ans)
-                } catch {
-                    case ex: SQLException => Err(IoError(ErrorKind.Other, ex.getMessage()))
-                }
-
-                def getFloat32ByName(name, k) = try {
-                    let ans = jresults.getFloat(name);
-                    k(ans)
-                } catch {
-                    case ex: SQLException => Err(IoError(ErrorKind.Other, ex.getMessage()))
-                }
-
-                def getFloat64ByIndex(ix, k) = try {
-                    let ans = jresults.getDouble(ix + 1);
-                    k(ans)
-                } catch {
-                    case ex: SQLException => Err(IoError(ErrorKind.Other, ex.getMessage()))
-                }
-
-                def getFloat64ByName(name, k) = try {
-                    let ans = jresults.getDouble(name);
-                    k(ans)
-                } catch {
-                    case ex: SQLException => Err(IoError(ErrorKind.Other, ex.getMessage()))
-                }
-
-                def getBigDecimalByIndex(ix, k) = try {
-                    let ans = jresults.getBigDecimal(ix + 1);
-                    k(ans)
-                } catch {
-                    case ex: SQLException => Err(IoError(ErrorKind.Other, ex.getMessage()))
-                }
-
-                def getBigDecimalByName(name, k) = try {
-                    let ans = jresults.getBigDecimal(name);
-                    k(ans)
-                } catch {
-                    case ex: SQLException => Err(IoError(ErrorKind.Other, ex.getMessage()))
-                }
-
-                def getStructByIndex(ix, k) = try {
-                    let ans = StructHandle.StructHandle(jresults.getStruct(ix));
-                    k(ans)
-                } catch {
-                    case ex: SQLException => Err(IoError(ErrorKind.Other, ex.getMessage()))
-                }
+    pub def handle(results: DuckDBResultSetHandle, 
+                    f: a -> b \ ef): a -> Result[String, b] \ ((ef + IO)- ReadRowWithAlt) = x -> {
+        let DuckDBResultSetHandle.DuckDBResultSetHandle(jresults) = results;
+        run {
+            Ok(f(x))
+        } with handler ReadRow {
+        
+            def getStringByIndex(ix, k) = try {
+                let ans = jresults.getString(ix + 1);
+                k(ans)
+            } catch {
+                case ex: SQLException => Alt.failure(ex.getMessage())
             }
 
+            def getStringByName(name, k) = try {
+                let ans = unsafe IO as {} { jresults.getString(name) };
+                k(ans)
+            } catch {
+                case ex: SQLException => Alt.failure(ex.getMessage())
+            }
+            
+            def getBoolByIndex(ix, k) = try {
+                let ans = unsafe IO as {} { jresults.getBoolean(ix + 1) };
+                k(ans)
+            } catch {
+                case ex: SQLException => Alt.failure(ex.getMessage())
+            }
+            
+            def getBoolByName(name, k) = try {
+                let ans = unsafe IO as {} { jresults.getBoolean(name) };
+                k(ans)
+            } catch {
+                case ex: SQLException => Alt.failure(ex.getMessage())
+            }
+
+
+            def getInt8ByIndex(ix, k) = try {
+                let ans = unsafe IO as {} { jresults.getByte(ix + 1) };
+                k(ans)
+            } catch {
+                case ex: SQLException => Alt.failure(ex.getMessage())
+            }
+
+            def getInt8ByName(name, k) = try {
+                let ans = unsafe IO as {} { jresults.getByte(name) };
+                k(ans)
+            } catch {
+                case ex: SQLException => Alt.failure(ex.getMessage())
+            }
+
+            def getInt16ByIndex(ix, k) = try {
+                let ans = unsafe IO as {} { jresults.getShort(ix + 1) };
+                k(ans)
+            } catch {
+                case ex: SQLException => Alt.failure(ex.getMessage())
+            }
+
+            def getInt16ByName(name, k) = try {
+                let ans = unsafe IO as {} { jresults.getShort(name) };
+                k(ans)
+            } catch {
+                case ex: SQLException => Alt.failure(ex.getMessage())
+            }
+
+            def getInt32ByIndex(ix, k) = try {
+                let ans = unsafe IO as {} { jresults.getInt(ix + 1) };
+                k(ans)
+            } catch {
+                case ex: SQLException => Alt.failure(ex.getMessage())
+            }
+
+            def getInt32ByName(name, k) = try {
+                let ans = unsafe IO as {} { jresults.getInt(name) };
+                k(ans)
+            } catch {
+                case ex: SQLException => Alt.failure(ex.getMessage())
+            }
+
+            def getInt64ByIndex(ix, k) = try {
+                let ans = unsafe IO as {} {  jresults.getLong(ix + 1) };
+                k(ans)
+            } catch {
+                case ex: SQLException => Alt.failure(ex.getMessage())
+            }
+
+            def getInt64ByName(name, k) = try {
+                let ans = unsafe IO as {} { jresults.getLong(name) };
+                k(ans)
+            } catch {
+                case ex: SQLException => Alt.failure(ex.getMessage())
+            }
+
+            def getBigIntByIndex(ix, k) = try {
+                let ans = unsafe IO as {} { jresults.getHugeint(ix + 1) };
+                k(ans)
+            } catch {
+                case ex: SQLException => Alt.failure(ex.getMessage())
+            }
+
+            def getFloat32ByIndex(ix, k) = try {
+                let ans = unsafe IO as {} { jresults.getFloat(ix + 1) };
+                k(ans)
+            } catch {
+                case ex: SQLException => Alt.failure(ex.getMessage())
+            }
+
+            def getFloat32ByName(name, k) = try {
+                let ans = unsafe IO as {} { jresults.getFloat(name) };
+                k(ans)
+            } catch {
+                case ex: SQLException => Alt.failure(ex.getMessage())
+            }
+
+            def getFloat64ByIndex(ix, k) = try {
+                let ans = unsafe IO as {} { jresults.getDouble(ix + 1) };
+                k(ans)
+            } catch {
+                case ex: SQLException => Alt.failure(ex.getMessage())
+            }
+
+            def getFloat64ByName(name, k) = try {
+                let ans = unsafe IO as {} { jresults.getDouble(name) };
+                k(ans)
+            } catch {
+                case ex: SQLException => Alt.failure(ex.getMessage())
+            }
+
+            def getBigDecimalByIndex(ix, k) = try {
+                let ans = unsafe IO as {} { jresults.getBigDecimal(ix + 1) };
+                k(ans)
+            } catch {
+                case ex: SQLException => Alt.failure(ex.getMessage())
+            }
+
+            def getBigDecimalByName(name, k) = try {
+                let ans = unsafe IO as {} { jresults.getBigDecimal(name) };
+                k(ans)
+            } catch {
+                case ex: SQLException => Alt.failure(ex.getMessage())
+            }
+
+            def getStructByIndex(ix, k) = try {
+                let ans = unsafe IO as {} { jresults.getStruct(ix) };
+                k(StructHandle.StructHandle(ans))
+            } catch {
+                case ex: SQLException => Alt.failure(ex.getMessage())
+            }
+        
+        } with handler Alt {
+
+            def alternative(k) =  match k(true) {
+                case Ok(ans) => Ok(ans)
+                case Err(_) => k(false)
+            }
+
+            def failure(e, _) = Err(e)
+    
         }
 
-    pub def runWithIO(rset: DuckDBResultSetHandle, f: Unit -> a \ ef): Result[IoError, a] \ {IO + ef} - ReadRow = 
-        handle(rset, f)()
+    }
+
+    pub def runWithIO(rset: DuckDBResultSetHandle, f: Unit -> a \ ef): Result[IoError, a] \ (ef + IO) - ReadRowWithAlt = 
+        handle(rset, f)() |> Result.mapErr(s -> IoError(ErrorKind.Other, s))
 
 }

@@ -26,7 +26,7 @@ pub mod BasicDuckDB.DuckDBConnection {
     use BasicDuckDB.JDBC.Statement.{Statement}
     use BasicDuckDB.JDBC.Statement.StatementHandle
     use BasicDuckDB.RowAppender.AppendRow
-    use BasicDuckDB.RowReader.ReadRow
+    use BasicDuckDB.RowReader.ReadRowWithAlt
     use IoError.ErrorKind
     use IoError.IoError
     
@@ -212,7 +212,7 @@ pub mod BasicDuckDB.DuckDBConnection {
         } with BasicDuckDB.DuckDBPreparedStatement.runWithIO(stmt)
         
 
-    pub def queryFold(f: a -> a \ ReadRow + ef, s: a, sql: String): Result[IoError, a] \ {IO + ef + DuckDBConnection} - {Statement + DuckDBResultSet}  = 
+    pub def queryFold(f: a -> a \ ReadRowWithAlt + ef, s: a, sql: String): Result[IoError, a] \ {IO + ef + DuckDBConnection} - {Statement + DuckDBResultSet}  = 
         let stmt = DuckDBConnection.createStatement();
         Result.flatten(run {
             let results = Statement.executeQuery(sql);
@@ -234,7 +234,7 @@ pub mod BasicDuckDB.DuckDBConnection {
         } with BasicDuckDB.JDBC.Statement.runWithIO(stmt))
 
 
-    pub def queryForEach(reader: Unit -> a \ ReadRow + ef, sql: String): Result[IoError, Unit] \ {IO + ef + DuckDBConnection} - {Statement + DuckDBResultSet} = 
+    pub def queryForEach(reader: Unit -> a \ ReadRowWithAlt + ef, sql: String): Result[IoError, Unit] \ {IO + ef + DuckDBConnection} - {Statement + DuckDBResultSet + ReadRowWithAlt} = 
         let stmt = DuckDBConnection.createStatement();
         run {
             let results = Statement.executeQuery(sql);

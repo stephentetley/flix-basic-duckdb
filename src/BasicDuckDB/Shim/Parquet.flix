@@ -21,14 +21,14 @@ pub mod BasicDuckDB.Shim.Parquet {
     use BasicDuckDB.DuckDBDriver.{DuckDBDriver}
     use BasicDuckDB.DuckDBConnection.{DuckDBConnection}
     use BasicDuckDB.DuckDBResultSet.{DuckDBResultSet}
-    use BasicDuckDB.RowReader.ReadRow
+    use BasicDuckDB.RowReader.ReadRowWithAlt
     use BasicDuckDB.JDBC.Statement.{Statement}
     use BasicDuckDB.Shim.ParquetOption.ParquetOption
     use BasicDuckDB.Shim.Internal.Utils.{printOptions}
     
     // TODO multiple files... Output...
 
-    pub def forEach(reader: Unit -> a \ ReadRow + ef, file_name: String, opts: List[ParquetOption]): Result[IoError, Unit] \ {IO + ef} - {DuckDBConnection + DuckDBDriver + DuckDBResultSet + Statement} = 
+    pub def forEach(reader: Unit -> a \ ReadRowWithAlt + ef, file_name: String, opts: List[ParquetOption]): Result[IoError, Unit] \ {IO + ef} - {DuckDBConnection + DuckDBDriver + DuckDBResultSet + Statement + ReadRowWithAlt} = 
         let url = "jdbc:duckdb:";
         let sql = "SELECT * FROM read_parquet('${file_name}'${printOptions(opts)});";
         Result.flatten(Result.flatten(run {
@@ -37,7 +37,10 @@ pub mod BasicDuckDB.Shim.Parquet {
             }) 
         } with BasicDuckDB.DuckDBDriver.runWithIO))
     
-    pub def fold(reader: a -> a \ ReadRow + ef, s: a, file_name: String, opts: List[ParquetOption]): Result[IoError, a] \ {IO + ef} - {DuckDBConnection + DuckDBDriver + DuckDBResultSet + Statement} = 
+    pub def fold(reader: a -> a \ ReadRowWithAlt + ef, 
+                    s: a, 
+                    file_name: String, 
+                    opts: List[ParquetOption]): Result[IoError, a] \ {IO + ef} - {DuckDBConnection + DuckDBDriver + DuckDBResultSet + Statement} = 
         let url = "jdbc:duckdb:";
         let sql = "SELECT * FROM read_parquet('${file_name}')${printOptions(opts)};";
         Result.flatten(Result.flatten(run {
@@ -47,7 +50,7 @@ pub mod BasicDuckDB.Shim.Parquet {
         } with BasicDuckDB.DuckDBDriver.runWithIO))
 
 
-    pub def load_facts(reader: Unit -> #{ | r } \ ReadRow + ef, file_name: String, opts: List[ParquetOption]): Result[IoError, #{ | r }] \ {IO + ef} - {DuckDBConnection + DuckDBDriver + DuckDBResultSet + Statement} = 
+    pub def load_facts(reader: Unit -> #{ | r } \ ReadRowWithAlt + ef, file_name: String, opts: List[ParquetOption]): Result[IoError, #{ | r }] \ {IO + ef} - {DuckDBConnection + DuckDBDriver + DuckDBResultSet + Statement} = 
         fold(acc -> { let row1 = reader(); acc <+> row1 }, #{}, file_name, opts)
 
 
