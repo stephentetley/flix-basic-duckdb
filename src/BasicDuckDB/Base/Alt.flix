@@ -31,4 +31,5 @@ pub mod BasicDuckDB.Base.Alt {
 
     pub def withDefault(p: Unit -> a \ ef, d: a): a \ Alt + ef = 
         alt(p, _ -> d)
+
 }

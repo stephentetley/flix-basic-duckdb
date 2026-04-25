@@ -216,7 +216,7 @@ pub mod BasicDuckDB.RowReader {
 
     }
 
-    pub def runWithIO(rset: DuckDBResultSetHandle, f: Unit -> a \ ef): Result[IoError, a] \ (ef + IO) - ReadRowWithAlt = 
-        handle(rset, f)() |> Result.mapErr(s -> IoError(ErrorKind.Other, s))
+    pub def runWithIO(rset: DuckDBResultSetHandle, f: Unit -> a \ ef): Result[String, a] \ (ef + IO) - ReadRowWithAlt = 
+        handle(rset, f)()
 
 }

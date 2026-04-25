@@ -23,25 +23,27 @@ pub mod Test03 {
     // needs a rewrite, not very compelling
     @Test
     def test01(): Unit \ {Assert + IO} =
+        let ans = run {
+            forM (
+                dir <- FileWrite.mkTempDir("flix_test03");
+                url <- Ok("jdbc:duckdb:${dir}/test03_db.duckdb");
+                _ <- DuckDBDriver.execDuckDBConnection(url, () -> {
+                    let _ = DuckDBConnection.execStatement(() -> {
+                        discard Statement.executeUpdate("CREATE SCHEMA IF NOT EXISTS facts;");
+                        Statement.executeUpdate("CREATE TABLE IF NOT EXISTS facts.databases (name VARCHAR NOT NULL, year INTEGER, PRIMARY KEY(name));")
+                    });
+                    let _ = DuckDBConnection.execRowAppender("facts", 
+                                "databases", 
+                                xy -> { let (x, y) = xy; appender(x, y) }, 
+                                List#{("DuckDB", 2019), ("SQLite", 2000)});
+                    BasicDuckDB.DuckDBConnection.queryFold(acc -> { let i = dbReader()(); Int32.max(acc, i) }, 0, "SELECT * FROM facts.databases;") |> println
+            })) yield true
+        } with DuckDBDriver.runWithIO 
+            with FileWrite.runWithIO;
+        
         assertEq(
             expected = Ok(true),
-            Result.flatten(run {
-                forM (
-                    dir <- FileWrite.mkTempDir("flix_test03");
-                    url <- Ok("jdbc:duckdb:${dir}/test03_db.duckdb");
-                    _ <- DuckDBDriver.execDuckDBConnection(url, () -> {
-                        let _ = DuckDBConnection.execStatement(() -> {
-                            discard Statement.executeUpdate("CREATE SCHEMA IF NOT EXISTS facts;");
-                            Statement.executeUpdate("CREATE TABLE IF NOT EXISTS facts.databases (name VARCHAR NOT NULL, year INTEGER, PRIMARY KEY(name));")
-                        });
-                        let _ = DuckDBConnection.execRowAppender("facts", 
-                                    "databases", 
-                                    xy -> { let (x, y) = xy; appender(x, y) }, 
-                                    List#{("DuckDB", 2019), ("SQLite", 2000)});
-                        BasicDuckDB.DuckDBConnection.queryFold(acc -> { let i = dbReader()(); Int32.max(acc, i) }, 0, "SELECT * FROM facts.databases;") |> println
-                })) yield true
-            } with DuckDBDriver.runWithIO 
-              with FileWrite.runWithIO)
+            Result.flatten()
         )
 
 

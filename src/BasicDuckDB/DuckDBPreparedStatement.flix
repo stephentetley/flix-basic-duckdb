@@ -22,8 +22,6 @@ pub mod BasicDuckDB.DuckDBPreparedStatement {
     use BasicDuckDB.PreparedStatementSetter
     use BasicDuckDB.PreparedStatementSetter.PreparedStatementSetter
     use BasicDuckDB.PreparedStatementSetter.SetPreparedStatement
-    use IoError.ErrorKind
-    use IoError.IoError
 
     import java.sql.{SQLException, SQLTimeoutException, SQLFeatureNotSupportedException}
     import org.duckdb.{DuckDBResultSet => JDuckDBResultSet}
@@ -44,7 +42,8 @@ pub mod BasicDuckDB.DuckDBPreparedStatement {
         def clearParameters(): Unit
     }
 
-    pub def handle(stmt: DuckDBPreparedStatementHandle, f: a -> b \ ef): a -> Result[IoError, b] \ {IO + ef} - DuckDBPreparedStatement =
+    pub def handle(stmt: DuckDBPreparedStatementHandle, 
+                    f: a -> b \ ef): a -> Result[String, b] \ {IO + ef} - DuckDBPreparedStatement =
         x -> {
             let DuckDBPreparedStatementHandle.DuckDBPreparedStatementHandle(jstmt) = stmt;
             run {
@@ -57,28 +56,28 @@ pub mod BasicDuckDB.DuckDBPreparedStatement {
                     jstmt.close();
                     k()
                 } catch {
-                    case ex: SQLException => Err(IoError(ErrorKind.Other, ex.getMessage()))
+                    case ex: SQLException => Err(ex.getMessage())
                 }
 
                 def execute(k) = try {
                     let ans = jstmt.execute();
                     k(ans)
                 } catch {
-                    case ex: SQLException => Err(IoError(ErrorKind.Other, ex.getMessage()))
+                    case ex: SQLException => Err(ex.getMessage())
                 }
 
                 def addBatch(k) = try {
                     jstmt.addBatch();
                     k()
                 } catch {
-                    case ex: SQLException => Err(IoError(ErrorKind.Other, ex.getMessage()))
+                    case ex: SQLException => Err(ex.getMessage())
                 }
 
                 def executeBatch(k) = try {
                     let _ = jstmt.executeBatch();
                     k()
                 } catch {
-                    case ex: SQLException => Err(IoError(ErrorKind.Other, ex.getMessage()))
+                    case ex: SQLException => Err(ex.getMessage())
                 }
 
                 def executeQuery(k) = try {
@@ -87,30 +86,30 @@ pub mod BasicDuckDB.DuckDBPreparedStatement {
                     let ans2 = DuckDBResultSetHandle.DuckDBResultSetHandle(ans1);
                     k(ans2)
                 } catch {
-                    case ex: SQLTimeoutException => Err(IoError(ErrorKind.Other, ex.getMessage()))
-                    case ex: SQLException => Err(IoError(ErrorKind.Other, ex.getMessage()))
+                    case ex: SQLException => Err(ex.getMessage())
                 }
 
                 def executeUpdate(k) = try {
                     let ans = jstmt.executeUpdate();
                     k(ans)
                 } catch {
-                    case ex: SQLException => Err(IoError(ErrorKind.Other, ex.getMessage()))
+                    case ex: SQLException => Err(ex.getMessage())
                 }
 
                 def clearParameters(k) = try {
                     jstmt.clearParameters();
                     k()
                 } catch {
-                    case ex: SQLException => Err(IoError(ErrorKind.Other, ex.getMessage()))
+                    case ex: SQLException => Err(ex.getMessage())
                 }
             }
        }
 
-    pub def runWithIO(stmt: DuckDBPreparedStatementHandle, f: Unit -> a \ ef): Result[IoError, a] \ {IO + ef} - DuckDBPreparedStatement =
+    pub def runWithIO(stmt: DuckDBPreparedStatementHandle, 
+                        f: Unit -> a \ ef): Result[String, a] \ {IO + ef} - DuckDBPreparedStatement =
         handle(stmt, f)() 
 
-    pub def execPreparedStatementSetter(setter: PreparedStatementSetter[a, ef]): Result[IoError, a] \ {IO + ef + DuckDBPreparedStatement} - SetPreparedStatement = 
+    pub def execPreparedStatementSetter(setter: PreparedStatementSetter[a, ef]): Result[String, a] \ {IO + ef + DuckDBPreparedStatement} - SetPreparedStatement = 
         let stmt = DuckDBPreparedStatement.askDuckDBPreparedStatementHandle();
         let PreparedStatementSetter.PreparedStatementSetter(f) = setter;
         run {

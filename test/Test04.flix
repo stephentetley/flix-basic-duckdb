@@ -11,27 +11,29 @@ pub mod Test04 {
     use Assert.{assertEq}
     use BasicDuckDB.DuckDBDriver
     use BasicDuckDB.DuckDBConnection
-    use BasicDuckDB.Shim.Script
     
     use Fs.FileWrite
     use Fs.WriteFile
     use Fs.FileRead
 
-    @Test
-    def test01(): Unit \ {Assert + FileRead + IO} =
-        assertEq(
-            expected = Ok(true),
-            Result.flatten(run {
-                forM (
-                    dir <- FileWrite.mkTempDir("flix_test04");
-                    url <- Ok("jdbc:duckdb:${dir}/test04_db.duckdb");
-                    _   <- DuckDBDriver.execDuckDBConnection(url, () -> {
-                            Script.executeFile("./testdata/setup_test04_db.sql")
-                        })
-                ) yield true
-            } with DuckDBDriver.runWithIO 
-              with FileWrite.runWithIO) 
-        )
+    // TODO chnage to use ".read '<filename>' inside DuckDB"
+
+    // @Test
+    // def test01(): Unit \ {Assert + FileRead + IO} =
+    // let ans = run {
+    //     forM (
+    //             dir <- FileWrite.mkTempDir("flix_test04");
+    //             url <- Ok("jdbc:duckdb:${dir}/test04_db.duckdb");
+    //             _   <- DuckDBDriver.execDuckDBConnection(url, () -> {
+    //                         Script.executeFile("./testdata/setup_test04_db.sql")
+    //                     })
+    //             ) yield true
+    //     } with DuckDBDriver.runWithIO 
+    //       with FileWrite.runWithIO;
+    //     assertEq(
+    //         expected = Ok(true),
+    //         ans 
+    //     )
 
 }
 

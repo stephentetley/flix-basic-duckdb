@@ -21,8 +21,6 @@ pub mod BasicDuckDB.JDBC.Statement {
     
 
     use BasicDuckDB.JDBC.ResultSet.ResultSetHandle
-    use IoError.ErrorKind
-    use IoError.IoError
 
     import java.sql.SQLException
     import java.sql.{Statement => JStatement}
@@ -44,7 +42,7 @@ pub mod BasicDuckDB.JDBC.Statement {
         def isCloseOnCompletion(): Bool
     }
 
-    pub def handle(stmt: StatementHandle, f: a -> b \ ef): a -> Result[IoError, b] \ {IO + ef} - Statement =
+    pub def handle(stmt: StatementHandle, f: a -> b \ ef): a -> Result[String, b] \ {IO + ef} - Statement =
         x -> {
             let StatementHandle.StatementHandle(jstmt) = stmt; 
             run {
@@ -55,88 +53,88 @@ pub mod BasicDuckDB.JDBC.Statement {
                     jstmt.close();
                     k()
                 } catch {
-                    case ex: SQLException => Err(IoError(ErrorKind.Other, ex.getMessage()))
+                    case ex: SQLException => Err(ex.getMessage())
                 }
 
                 def getMaxRows(k) = try {
                     let ans = jstmt.getMaxRows();
                     k(ans)
                 } catch {
-                    case ex: SQLException => Err(IoError(ErrorKind.Other, ex.getMessage()))
+                    case ex: SQLException => Err(ex.getMessage())
                 }
 
                 def setMaxRows(maxRows, k) = try {
                     jstmt.setMaxRows(maxRows);
                     k()
                 } catch {
-                    case ex: SQLException => Err(IoError(ErrorKind.Other, ex.getMessage()))
+                    case ex: SQLException => Err(ex.getMessage())
                 }
 
                 def cancel(k) = try {
                     jstmt.cancel();
                     k()
                 } catch {
-                    case ex: SQLException => Err(IoError(ErrorKind.Other, ex.getMessage()))
+                    case ex: SQLException => Err(ex.getMessage())
                 }
                 
                 def execute(sql, k) = try {
                     let ans = jstmt.execute(sql);
                     k(ans)
                 } catch {
-                    case ex: SQLException => Err(IoError(ErrorKind.Other, ex.getMessage()))
+                    case ex: SQLException => Err(ex.getMessage())
                 }
                 
                 def executeUpdate(sql, k) = try {
                     let ans = jstmt.executeUpdate(sql);
                     k(ans)
                 } catch {
-                    case ex: SQLException => Err(IoError(ErrorKind.Other, ex.getMessage()))
+                    case ex: SQLException => Err(ex.getMessage())
                 }
                 
                 def executeLargeUpdate(sql, k) = try {
                     let ans = jstmt.executeLargeUpdate(sql);
                     k(ans)
                 } catch {
-                    case ex: SQLException => Err(IoError(ErrorKind.Other, ex.getMessage()))
+                    case ex: SQLException => Err(ex.getMessage())
                 }
                 
                 def executeQuery(sql, k) = try {
                     let ans = ResultSetHandle.ResultSetHandle(jstmt.executeQuery(sql));
                     k(ans)
                 } catch {
-                    case ex: SQLException => Err(IoError(ErrorKind.Other, ex.getMessage()))
+                    case ex: SQLException => Err(ex.getMessage())
                 }
 
                 // def getResultSet(k) = try {
                 //     let ans = ResultSetHandle(jstmt.getResultSet());
                 //     k(ans)
                 // } catch {
-                //     case ex: SQLException => Err(IoError(ErrorKind.Other, ex.getMessage()))
+                //     case ex: SQLException => Err(ex.getMessage())
                 // }
 
                 def enquoteLiteral(sql, k) = try {
                     let ans = jstmt.enquoteLiteral(sql);
                     k(ans)
                 } catch {
-                    case ex: SQLException => Err(IoError(ErrorKind.Other, ex.getMessage()))
+                    case ex: SQLException => Err(ex.getMessage())
                 }
 
                 def isClosed(k) = try {
                     let ans = jstmt.isClosed();
                     k(ans)
                 } catch {
-                    case ex: SQLException => Err(IoError(ErrorKind.Other, ex.getMessage()))
+                    case ex: SQLException => Err(ex.getMessage())
                 }
     
                 def isCloseOnCompletion(k) = try {
                     let ans = jstmt.isCloseOnCompletion();
                     k(ans)
                 } catch {
-                    case ex: SQLException => Err(IoError(ErrorKind.Other, ex.getMessage()))
+                    case ex: SQLException => Err(ex.getMessage())
                 }
             }
         }
 
-    pub def runWithIO(stmt: StatementHandle, f: Unit -> a \ ef): Result[IoError, a] \ {IO + ef} - Statement = 
+    pub def runWithIO(stmt: StatementHandle, f: Unit -> a \ ef): Result[String, a] \ {IO + ef} - Statement = 
         handle(stmt, f)()
 }

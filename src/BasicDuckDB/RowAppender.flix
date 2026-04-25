@@ -19,8 +19,6 @@
 pub mod BasicDuckDB.RowAppender {
 
     use BasicDuckDB.DuckDBAppender.{DuckDBAppenderHandle}
-    use IoError.ErrorKind
-    use IoError.IoError
 
     import java.sql.SQLException
     import java.lang.Throwable
@@ -41,7 +39,7 @@ pub mod BasicDuckDB.RowAppender {
         def appendString(value: String): Unit
     }
 
-    pub def handle(appender: DuckDBAppenderHandle, f: a -> b \ ef): a -> Result[IoError, b] \ {IO + ef} - {AppendRow} =
+    pub def handle(appender: DuckDBAppenderHandle, f: a -> b \ ef): a -> Result[String, b] \ {IO + ef} - {AppendRow} =
         x -> {
             let DuckDBAppenderHandle.DuckDBAppenderHandle(jappender) = appender;
             run {
@@ -52,90 +50,91 @@ pub mod BasicDuckDB.RowAppender {
                     let _ = jappender.appendNull();
                     k()
                 } catch {
-                    case ex: SQLException => Err(IoError(ErrorKind.Other, ex.getMessage()))
+                    case ex: SQLException => Err(ex.getMessage())
                 }
 
                 def appendBool(value, k) = try {
                     let _ = jappender.append(value);
                     k()
                 } catch {
-                    case ex: SQLException => Err(IoError(ErrorKind.Other, ex.getMessage()))
+                    case ex: SQLException => Err(ex.getMessage())
                 }
 
                 def appendInt8(value, k) = try {
                     let _ = jappender.append(value);
                     k()
                 } catch {
-                    case ex: SQLException => Err(IoError(ErrorKind.Other, ex.getMessage()))
+                    case ex: SQLException => Err(ex.getMessage())
                 }
 
                 def appendInt16(value, k) = try {
                     let _ = jappender.append(value);
                     k()
                 } catch {
-                    case ex: SQLException => Err(IoError(ErrorKind.Other, ex.getMessage()))
+                    case ex: SQLException => Err(ex.getMessage())
                 }
 
                 def appendInt32(value, k) = try {
                     let _ = jappender.append(value);
                     k()
                 } catch {
-                    case ex: SQLException => Err(IoError(ErrorKind.Other, ex.getMessage()))
+                    case ex: SQLException => Err(ex.getMessage())
                 }
 
                 def appendInt64(value, k) = try {
                     let _ = jappender.append(value);
                     k()
                 } catch {
-                    case ex: SQLException => Err(IoError(ErrorKind.Other, ex.getMessage()))
+                    case ex: SQLException => Err(ex.getMessage())
                 }
 
                 def appendBigInt(value, k) = try {
                     let _ = jappender.append(value);
                     k()
                 } catch {
-                    case ex: SQLException => Err(IoError(ErrorKind.Other, ex.getMessage()))
+                    case ex: SQLException => Err(ex.getMessage())
                 }
 
                 def appendFloat32(value, k) = try {
                     let _ = jappender.append(value);
                     k()
                 } catch {
-                    case ex: SQLException => Err(IoError(ErrorKind.Other, ex.getMessage()))
+                    case ex: SQLException => Err(ex.getMessage())
                 }
 
                 def appendFloat64(value, k) = try {
                     let _ = jappender.append(value);
                     k()
                 } catch {
-                    case ex: SQLException => Err(IoError(ErrorKind.Other, ex.getMessage()))
+                    case ex: SQLException => Err(ex.getMessage())
                 }
 
                 def appendBigDecimal(value, k) = try {
                     let _ = jappender.append(value);
                     k()
                 } catch {
-                    case ex: SQLException => Err(IoError(ErrorKind.Other, ex.getMessage()))
+                    case ex: SQLException => Err(ex.getMessage())
                 }
 
                 def appendChar(value, k) = try {
                     let _ = jappender.append(value);
                     k()
                 } catch {
-                    case ex: SQLException => Err(IoError(ErrorKind.Other, ex.getMessage()))
+                    case ex: SQLException => Err(ex.getMessage())
                 }
 
                 def appendString(value, k) = try {
                     let _ = jappender.append(value);
                     k()
                 } catch {
-                    case ex: SQLException => Err(IoError(ErrorKind.Other, ex.getMessage()))
+                    case ex: SQLException => Err(ex.getMessage())
                 }
 
             }
         }
 
-    pub def runWithIO(appender: DuckDBAppenderHandle, f: Unit -> a \ ef): Result[IoError, a] \ {IO + ef} - {AppendRow} = 
+    pub def runWithIO(appender: DuckDBAppenderHandle, 
+                        f: Unit -> a \ ef): Result[String, a] \ {IO + ef} - {AppendRow} = 
         handle(appender, f)()
 
 }

@@ -19,8 +19,7 @@
 pub mod BasicDuckDB.PreparedStatementSetter {
     
     use BasicDuckDB.DuckDBPreparedStatement.{DuckDBPreparedStatementHandle}
-    use IoError.ErrorKind
-    use IoError.IoError
+
 
     import java.sql.{SQLException, SQLTimeoutException, SQLFeatureNotSupportedException}
 
@@ -43,7 +42,8 @@ pub mod BasicDuckDB.PreparedStatementSetter {
     }
 
 
-    pub def handle(stmt: DuckDBPreparedStatementHandle, f: a -> b \ ef): a -> Result[IoError, b] \ {IO + ef} - SetPreparedStatement =
+    pub def handle(stmt: DuckDBPreparedStatementHandle, 
+                    f: a -> b \ ef): a -> Result[String, b] \ {IO + ef} - SetPreparedStatement =
         x -> {
             let DuckDBPreparedStatementHandle.DuckDBPreparedStatementHandle(jstmt) = stmt;
             run {
@@ -55,77 +55,77 @@ pub mod BasicDuckDB.PreparedStatementSetter {
                     jstmt.setNull(paramIx + 1, sqlType);
                     k()
                 } catch {
-                    case ex: SQLFeatureNotSupportedException => Err(IoError(ErrorKind.Other, ex.getMessage()))
-                    case ex: SQLException => Err(IoError(ErrorKind.Other, ex.getMessage()))
+                    case ex: SQLException => Err(ex.getMessage())
                 }
                 
                 def setBool(paramIx, value, k) = try {
                     jstmt.setBoolean(paramIx + 1, value);
                     k()
                 } catch {
-                    case ex: SQLException => Err(IoError(ErrorKind.Other, ex.getMessage()))
+                    case ex: SQLException => Err(ex.getMessage())
                 }
                 
                 def setInt8(paramIx, value, k) = try {
                     jstmt.setByte(paramIx + 1, value);
                     k()
                 } catch {
-                    case ex: SQLException => Err(IoError(ErrorKind.Other, ex.getMessage()))
+                    case ex: SQLException => Err(ex.getMessage())
                 }
                 
                 def setInt16(paramIx, value, k) = try {
                     jstmt.setShort(paramIx + 1, value);
                     k()
                 } catch {
-                    case ex: SQLException => Err(IoError(ErrorKind.Other, ex.getMessage()))
+                    case ex: SQLException => Err(ex.getMessage())
                 }
                 
                 def setInt32(paramIx, value, k) = try {
                     jstmt.setInt(paramIx + 1, value);
                     k()
                 } catch {
-                    case ex: SQLException => Err(IoError(ErrorKind.Other, ex.getMessage()))
+                    case ex: SQLException => Err(ex.getMessage())
                 }
                 
                 def setInt64(paramIx, value, k) = try {
                     jstmt.setLong(paramIx + 1, value);
                     k()
                 } catch {
-                    case ex: SQLException => Err(IoError(ErrorKind.Other, ex.getMessage()))
+                    case ex: SQLException => Err(ex.getMessage())
                 }
                 
                 def setFloat32(paramIx, value, k) = try {
                     jstmt.setFloat(paramIx + 1, value);
                     k()
                 } catch {
-                    case ex: SQLException => Err(IoError(ErrorKind.Other, ex.getMessage()))
+                    case ex: SQLException => Err(ex.getMessage())
                 }
                             
                 def setFloat64(paramIx, value, k) = try {
                     jstmt.setDouble(paramIx + 1, value);
                     k()
                 } catch {
-                    case ex: SQLException => Err(IoError(ErrorKind.Other, ex.getMessage()))
+                    case ex: SQLException => Err(ex.getMessage())
                 }
 
                 def setBigDecimal(paramIx, value, k) = try {
                     jstmt.setBigDecimal(paramIx + 1, value);
                     k()
                 } catch {
-                    case ex: SQLException => Err(IoError(ErrorKind.Other, ex.getMessage()))
+                    case ex: SQLException => Err(ex.getMessage())
                 }
 
                 def setString(paramIx, value, k) = try {
                     jstmt.setString(paramIx + 1, value);
                     k()
                 } catch {
-                    case ex: SQLException => Err(IoError(ErrorKind.Other, ex.getMessage()))
+                    case ex: SQLException => Err(ex.getMessage())
                 }
 
             }
        }
 
-    pub def runWithIO(stmt: DuckDBPreparedStatementHandle, f: Unit -> a \ ef): Result[IoError, a] \ {IO + ef} - SetPreparedStatement  =
+    pub def runWithIO(stmt: DuckDBPreparedStatementHandle, 
+                        f: Unit -> a \ ef): Result[String, a] \ {IO + ef} - SetPreparedStatement  =
         handle(stmt, f)()
 
 }

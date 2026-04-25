@@ -19,8 +19,7 @@
 pub mod BasicDuckDB.DuckDBAppender {
 
     use BasicDuckDB.RowAppender.AppendRow
-    use IoError.ErrorKind
-    use IoError.IoError
+    use BasicDuckDB.Base.Fail.Fail
 
     import java.sql.SQLException
     import java.lang.Throwable
@@ -39,7 +38,8 @@ pub mod BasicDuckDB.DuckDBAppender {
         def close(): Unit
     }
 
-    pub def handle(appender: DuckDBAppenderHandle, f: a -> b \ ef): a -> Result[IoError, b] \ {IO + ef} - DuckDBAppender =
+    pub def handle(appender: DuckDBAppenderHandle, 
+                    f: a -> b \ ef): a -> b \ {IO + Fail + ef} - DuckDBAppender =
         x -> {
             let DuckDBAppenderHandle.DuckDBAppenderHandle(jappender) = appender;
             run {
@@ -52,46 +52,45 @@ pub mod BasicDuckDB.DuckDBAppender {
                     let _ = jappender.beginRow();
                     k()
                 } catch {
-                    case ex: SQLException => Err(IoError(ErrorKind.Other, ex.getMessage()))
+                    case ex: SQLException => Fail.report(ex.getMessage())
                 }
                 
                 def endRow(k) = try {
                     let _ = jappender.endRow();
                     k()
                 } catch {
-                    case ex: SQLException => Err(IoError(ErrorKind.Other, ex.getMessage()))
+                    case ex: SQLException => Fail.report(ex.getMessage())
                 }
                 
                 def flush(k) = try {
                     let _ = jappender.flush();
                     k()
                 } catch {
-                    case ex: SQLException => Err(IoError(ErrorKind.Other, ex.getMessage()))
+                    case ex: SQLException => Fail.report(ex.getMessage())
                 }
                 
-
-
                 // def finalize(k) = try {
                 //     let _ = jappender.finalize();
                 //     k()
                 // } catch {
-                //     case ex: Throwable => Err(IoError(ErrorKind.Other, ex.getMessage()))
+                //     case ex: Throwable => Fail.report(ex.getMessage())
                 // }
 
                 def close(k) = try {
                     let _ = jappender.close();
                     k()
                 } catch {
-                    case ex: SQLException => Err(IoError(ErrorKind.Other, ex.getMessage()))
+                    case ex: SQLException => Fail.report(ex.getMessage())
                 }
 
             }
         }
 
-    pub def runWithIO(appender: DuckDBAppenderHandle, f: Unit -> a \ ef): Result[IoError, a] \ {IO + ef} - DuckDBAppender = 
+    pub def runWithIO(appender: DuckDBAppenderHandle, 
+                        f: Unit -> a \ ef):  a \ {IO + Fail + ef} - DuckDBAppender = 
         handle(appender, f)()
 
-    pub def execRowAppender(appender: Unit -> a \ AppendRow + ef): Result[IoError, a] \ {IO + ef + DuckDBAppender} - {AppendRow} = 
+    pub def execRowAppender(appender: Unit -> a \ AppendRow + ef): Result[String, a] \ {IO + ef + DuckDBAppender} - {AppendRow} = 
         let hndl = DuckDBAppender.askDuckDBAppenderHandle();
         run {
             appender()

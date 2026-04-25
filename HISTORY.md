@@ -1,6 +1,9 @@
 ### v0.5.0
-   Added UDFs.
+   Work towards UDFs.
+   Added `Alt` effect for error recovery.
    Removed `RowReader` and `RowAppender` wrapper enums.
+   Chaged error type from `IoError` to `String`.
+   Removed `Shim.Script` - should use `.read` command inside DuckDB instead.
 
 ### v0.4.0
    Updated to work with Flix 0.70.0.
