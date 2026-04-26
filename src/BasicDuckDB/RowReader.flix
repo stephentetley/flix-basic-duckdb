@@ -52,16 +52,10 @@ pub mod BasicDuckDB.RowReader {
     pub type alias ReadRowWithAlt = ReadRow + Alt
 
 
-    pub enum RowHandle(JDuckDBResultSet)
 
-
-    pub def getRowHandle(rset: DuckDBResultSetHandle): RowHandle = 
-        let DuckDBResultSetHandle.DuckDBResultSetHandle(jrset) = rset;
-        RowHandle.RowHandle(jrset)
-
-    pub def handle(results: RowHandle, 
+    pub def handle(results: DuckDBResultSetHandle, 
                     f: a -> b \ ef): a -> b \ {ef + Fail} - ReadRowWithAlt = x -> {
-        let RowHandle.RowHandle(jresults) = results;
+        let DuckDBResultSetHandle.DuckDBResultSetHandle(jresults) = results;
         let result = run {
             // Wrap in Ok for the duration of this function
             Ok(f(x))
@@ -225,7 +219,7 @@ pub mod BasicDuckDB.RowReader {
 
     }
 
-    pub def runRowReader(dbrow: RowHandle, f: Unit -> a \ ef): a \ (Fail + ef) - ReadRowWithAlt = 
-        handle(dbrow, f)()
+    pub def runRowReader(rset: DuckDBResultSetHandle, f: Unit -> a \ ef): a \ (Fail + ef) - ReadRowWithAlt = 
+        handle(rset, f)()
 
 }

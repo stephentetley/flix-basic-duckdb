@@ -18,12 +18,13 @@
 
 
 pub mod BasicDuckDB.DuckDBResultSet {
+    use BasicDuckDB.RowReader.ReadRow
 
     use BasicDuckDB.Base.Fail.Fail
     use BasicDuckDB.RowReader
     use BasicDuckDB.RowReader.ReadRowWithAlt
     use BasicDuckDB.JDBC.ResultSet.{ResultSetHandle}
-    use BasicDuckDB.RowReader.RowHandle
+
 
     
     import java.sql.{Connection => JConnection}
@@ -184,11 +185,11 @@ pub mod BasicDuckDB.DuckDBResultSet {
         handle(results, f)()
 
 
-    pub def execReadRow(reader: Unit -> a \ ef): a \ {ef + Fail + DuckDBResultSet} - ReadRowWithAlt = 
-        let DuckDBResultSetHandle.DuckDBResultSetHandle(row) = DuckDBResultSet.askDuckDBResultSetHandle();
+    pub def execReadRow(reader: Unit -> a \ ReadRowWithAlt + ef): a \ {ef + Fail + DuckDBResultSet} - ReadRowWithAlt = 
+        let row = DuckDBResultSet.askDuckDBResultSetHandle();
         run {
             reader()
-        } with BasicDuckDB.RowReader.runRowReader(RowHandle.RowHandle(row))
+        } with BasicDuckDB.RowReader.runRowReader(row)
 
 
 }
