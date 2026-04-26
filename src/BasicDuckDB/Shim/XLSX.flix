@@ -17,7 +17,7 @@
 
 pub mod BasicDuckDB.Shim.XLSX {
 
-    
+    use BasicDuckDB.Base.Fail.Fail
     use BasicDuckDB.DuckDBDriver.{DuckDBDriver}
     use BasicDuckDB.DuckDBConnection.{DuckDBConnection}
     use BasicDuckDB.DuckDBResultSet.{DuckDBResultSet}
@@ -26,33 +26,34 @@ pub mod BasicDuckDB.Shim.XLSX {
     use BasicDuckDB.Shim.XLSXOption.XLSXOption
     use BasicDuckDB.Shim.Internal.Utils.{printOptions}
     
-    pub def forEach(reader: Unit -> a \ ReadRowWithAlt + ef, 
+    pub def forEach(reader: Unit -> Unit \ ReadRowWithAlt + ef, 
                     file_name: String, 
-                    opts: List[XLSXOption]): Result[IoError, Unit] \ {IO + ef} - {DuckDBConnection + DuckDBDriver + DuckDBResultSet + Statement + ReadRowWithAlt}  = 
+                    opts: List[XLSXOption]): Result[IoError, Unit] \ {IO + ef} - DuckDBDriver - Fail - DuckDBConnection - Statement - DuckDBResultSet = 
         let url = "jdbc:duckdb:";
         let sql = "SELECT * FROM read_xlsx('${file_name}'${printOptions(opts)});";
-        Result.flatten(Result.flatten(run {
+        run {
             BasicDuckDB.DuckDBDriver.execDuckDBConnection(url, () -> {
                 BasicDuckDB.DuckDBConnection.queryForEach(reader, sql)
             }) 
-        } with BasicDuckDB.DuckDBDriver.runWithIO))
+        } with BasicDuckDB.DuckDBDriver.runWithIOAndFail 
     
+
     pub def fold(reader: a -> a \ ReadRowWithAlt + ef, 
                     s: a, 
                     file_name: String, 
-                    opts: List[XLSXOption]): Result[IoError, a] \ {IO + ef} - {DuckDBConnection + DuckDBDriver + DuckDBResultSet + Statement} = 
+                    opts: List[XLSXOption]): Result[IoError, a] \ {IO + ef} - DuckDBDriver - Fail - DuckDBConnection - Statement - DuckDBResultSet = 
         let url = "jdbc:duckdb:";
         let sql = "SELECT * FROM read_xlsx('${file_name}')${printOptions(opts)};";
-        Result.flatten(Result.flatten(run {
+        run {
             BasicDuckDB.DuckDBDriver.execDuckDBConnection(url, () -> {
                 BasicDuckDB.DuckDBConnection.queryFold(reader, s, sql)
             }) 
-        } with BasicDuckDB.DuckDBDriver.runWithIO))
+        }  with BasicDuckDB.DuckDBDriver.runWithIOAndFail 
 
 
     pub def load_facts(reader: Unit -> #{ | r } \ ReadRowWithAlt + ef, 
                         file_name: String, 
-                        opts: List[XLSXOption]): Result[IoError, #{ | r }] \ {IO + ef} - {DuckDBConnection + DuckDBDriver + DuckDBResultSet + Statement} = 
+                        opts: List[XLSXOption]): Result[IoError, #{ | r }] \ {IO + ef} - DuckDBDriver - Fail - DuckDBConnection - Statement - DuckDBResultSet = 
         fold(acc -> { let row1 = reader(); acc <+> row1 }, #{}, file_name, opts)
     
 

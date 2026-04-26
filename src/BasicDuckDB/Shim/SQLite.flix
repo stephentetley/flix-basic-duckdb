@@ -16,7 +16,7 @@
 
 
 pub mod BasicDuckDB.Shim.SQLite {
-    import org.duckdb.DuckDBStruct
+    
 
     
     use BasicDuckDB.Base.Fail.Fail
