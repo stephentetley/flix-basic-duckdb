@@ -178,8 +178,8 @@ pub mod BasicDuckDB.DuckDBResultSet {
 
 
     
-    pub def runWithIO(results: DuckDBResultSetHandle, 
-                        f: Unit -> a \ ef): a \ {Fail + ef} - DuckDBResultSet =
+    pub def runDuckDBResultSet(results: DuckDBResultSetHandle, 
+                                f: Unit -> a \ ef): a \ {Fail + ef} - DuckDBResultSet =
         handle(results, f)()
 
 
@@ -187,7 +187,7 @@ pub mod BasicDuckDB.DuckDBResultSet {
         let results = DuckDBResultSet.askDuckDBResultSetHandle();
         run {
             reader()
-        } with BasicDuckDB.RowReader.runWithIO(results)
+        } with BasicDuckDB.RowReader.runRowReader(results)
 
 
 }

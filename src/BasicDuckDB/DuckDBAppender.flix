@@ -90,11 +90,11 @@ pub mod BasicDuckDB.DuckDBAppender {
                         f: Unit -> a \ ef):  a \ Fail + ef - DuckDBAppender = 
         handle(appender, f)()
 
-    // pub def execRowAppender(appender: Unit -> a \ AppendRow + ef): Result[String, a] \ {IO + ef + DuckDBAppender} - {AppendRow} = 
-    //     let hndl = DuckDBAppender.askDuckDBAppenderHandle();
-    //     run {
-    //         appender()
-    //     } with BasicDuckDB.RowAppender.runWithIO(hndl)
+    pub def execRowAppender(appender: Unit -> a \ AppendRow + ef): a \ {Fail + ef + DuckDBAppender} - {AppendRow} = 
+        let hndl = DuckDBAppender.askDuckDBAppenderHandle();
+        run {
+            appender()
+        } with BasicDuckDB.RowAppender.runAppendRow(hndl)
 
 
 }

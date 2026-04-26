@@ -195,80 +195,84 @@ pub mod BasicDuckDB.DuckDBConnection {
         handle(conn, f)()
 
     
-    // pub def execStatement(f: Unit -> a \ ef): Result[String, a] \ {IO + ef + DuckDBConnection} - Statement = 
-    //     let stmt = DuckDBConnection.createStatement();
-    //     run {
-    //         let ans = f();
-    //         Statement.close();
-    //         ans
-    //     } with BasicDuckDB.JDBC.Statement.runWithIO(stmt)
+    pub def execStatement(f: Unit -> a \ Statement + ef): a \ {Fail + ef + DuckDBConnection} - Statement = 
+        let stmt = DuckDBConnection.createStatement();
+        run {
+            let ans = f();
+            Statement.close();
+            ans
+        } with BasicDuckDB.JDBC.Statement.runStatement(stmt)
 
-    // pub def execDuckDBPreparedStatement(sql: String, f: Unit -> a \ ef): Result[String, a] \ {IO + ef + DuckDBConnection} - DuckDBPreparedStatement = 
-    //     let stmt = DuckDBConnection.prepareStatement(sql);
-    //     run {
-    //         let ans = f();
-    //         DuckDBPreparedStatement.close();
-    //         ans
-    //     } with BasicDuckDB.DuckDBPreparedStatement.runWithIO(stmt)
-        
+    pub def execDuckDBPreparedStatement(sql: String, f: Unit -> a \ ef): a \ {Fail + ef + DuckDBConnection} - DuckDBPreparedStatement = 
+        let stmt = DuckDBConnection.prepareStatement(sql);
+        run {
+            let ans = f();
+            DuckDBPreparedStatement.close();
+            ans
+        } with BasicDuckDB.DuckDBPreparedStatement.runDuckDBPreparedStatement(stmt)
 
-    // pub def queryFold(f: a -> a \ ReadRowWithAlt + ef, s: a, sql: String): Result[String, a] \ {IO + ef + DuckDBConnection} - {Statement + DuckDBResultSet}  = 
-    //     let stmt = DuckDBConnection.createStatement();
-    //     Result.flatten(run {
-    //         let results = Statement.executeQuery(sql);
-    //         let results1 = BasicDuckDB.DuckDBResultSet.castResultSetHandle(results);
-    //         let ans = Result.flatten(run {
-    //             def loop(acc, fk, sk) = {
-    //                 let more = DuckDBResultSet.next();
-    //                 if (more) {
-    //                     match BasicDuckDB.DuckDBResultSet.execReadRow(_ -> f(acc)) {
-    //                         case Ok(acc1) => loop(acc1, fk, sk)
-    //                         case Err(err) => fk(err)
-    //                     }
-    //                 } else sk(acc)
-    //             };
-    //             loop(s, e -> Err(e), a -> Ok(a))
-    //         } with BasicDuckDB.DuckDBResultSet.runWithIO(results1));
-    //         Statement.close();
-    //         ans
-    //     } with BasicDuckDB.JDBC.Statement.runWithIO(stmt))
+    // forEach has a strange effect on the effect signature
+    pub def execRowAppender(schema: String, 
+                            table: String, 
+                            appendf: a -> Unit \ AppendRow + ef, t: t): Unit \ ({Fail + ef + DuckDBConnection} - AppendRow) + {DuckDBAppender + DuckDBAppender + DuckDBAppender + ForEach.Aef[t]} - {DuckDBAppender} with ForEach[t] where ForEach.Elm[t] ~ a = 
+        let hndl = DuckDBConnection.createAppender(schema, table);
+        run { 
+            ForEach.forEach(a -> {
+                    DuckDBAppender.beginRow();
+                    BasicDuckDB.DuckDBAppender.execRowAppender(_ -> appendf(a));
+                    DuckDBAppender.endRow()
+                }, 
+                t);
+                DuckDBAppender.close()
+        } with BasicDuckDB.DuckDBAppender.runDuckDBAppender(hndl)
 
 
-    // pub def queryForEach(reader: Unit -> a \ ReadRowWithAlt + ef, sql: String): Result[String, Unit] \ {IO + ef + DuckDBConnection} - {Statement + DuckDBResultSet + ReadRowWithAlt} = 
-    //     let stmt = DuckDBConnection.createStatement();
-    //     run {
-    //         let results = Statement.executeQuery(sql);
-    //         let results1 = BasicDuckDB.DuckDBResultSet.castResultSetHandle(results);
-    //         let _ = run {
-    //             def loop(fk, sk) = {
-    //                 let more = DuckDBResultSet.next();
-    //                 if (more) {
-    //                     match BasicDuckDB.DuckDBResultSet.execReadRow(reader) {
-    //                         case Ok(_) => loop(fk, sk)
-    //                         case Err(err) => fk(err)
-    //                     }
-    //                 } else sk()
-    //             };
-    //             loop(e -> Err(e), a -> Ok(a))
-    //         } with BasicDuckDB.DuckDBResultSet.runWithIO(results1);
-    //         Statement.close();
-    //         ()
-    //     } with BasicDuckDB.JDBC.Statement.runWithIO(stmt)
+    pub def queryFold(f: a -> a \ ReadRowWithAlt + ef, s: a, sql: String): a \ {Fail + ef + DuckDBConnection} - {Statement + DuckDBResultSet}  = 
+        let stmt = DuckDBConnection.createStatement();
+        run {
+            let results = Statement.executeQuery(sql);
+            let results1 = BasicDuckDB.DuckDBResultSet.castResultSetHandle(results);
+            let ans = run {
+                def loop(acc, sk) = {
+                    let more = DuckDBResultSet.next();
+                    if (more) {
+                        let row1 = BasicDuckDB.Base.Fail.handleAsResult(_ -> BasicDuckDB.DuckDBResultSet.execReadRow(_ -> f(acc)))();
+                        match row1 {
+                            case Ok(acc1) => loop(acc1, sk)
+                            case Err(err) => Fail.report(err)
+                        }
+                    } else sk(acc)
+                };
+                loop(s, a -> a)
+            } with BasicDuckDB.DuckDBResultSet.runDuckDBResultSet(results1);
+            Statement.close();
+            ans
+        } with BasicDuckDB.JDBC.Statement.runStatement(stmt)
 
-    // // forEach has a strange effect on the effect signature
-    // pub def execRowAppender(schema: String, 
-    //                         table: String, 
-    //                         appendf: a -> Unit \ AppendRow + ef, t: t): Unit \ ({IO + Fail + ef + DuckDBConnection} - AppendRow) + {IO + DuckDBAppender + DuckDBAppender + DuckDBAppender + ForEach.Aef[t]} - {DuckDBAppender} with ForEach[t] where ForEach.Elm[t] ~ a = 
-    //     let hndl = DuckDBConnection.createAppender(schema, table);
-    //     run { 
-    //         ForEach.forEach(a -> {
-    //             DuckDBAppender.beginRow();
-    //             discard BasicDuckDB.DuckDBAppender.execRowAppender(_ -> appendf(a));
-    //             DuckDBAppender.endRow()
-    //             }, t);
-    //             DuckDBAppender.close()
-    //     } with BasicDuckDB.DuckDBAppender.runWithIO(hndl)
 
+    pub def queryForEach(reader: Unit -> a \ ReadRowWithAlt + ef, sql: String): Unit \ {Fail + ef + DuckDBConnection} - {Statement + DuckDBResultSet + ReadRowWithAlt} = 
+        let stmt = DuckDBConnection.createStatement();
+        run {
+            let results = Statement.executeQuery(sql);
+            let results1 = BasicDuckDB.DuckDBResultSet.castResultSetHandle(results);
+            let _ = run {
+                def loop(fk, sk) = {
+                    let more = DuckDBResultSet.next();
+                    if (more) {
+                        let ans = BasicDuckDB.Base.Fail.handleAsResult(_ -> BasicDuckDB.DuckDBResultSet.execReadRow(reader))();
+                        match ans {
+                            case Ok(_) => loop(fk, sk)
+                            case Err(err) => fk(err)
+                        }
+                    } else sk()
+                };
+                loop(e -> Err(e), a -> Ok(a))
+            } with BasicDuckDB.DuckDBResultSet.runDuckDBResultSet(results1);
+            Statement.close();
+            ()
+        } with BasicDuckDB.JDBC.Statement.runStatement(stmt)
+
+    
 
 }
 
