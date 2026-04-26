@@ -28,6 +28,7 @@ pub mod BasicDuckDB.DuckDBConnection {
     use BasicDuckDB.JDBC.Statement.StatementHandle
     use BasicDuckDB.RowAppender.AppendRow
     use BasicDuckDB.RowReader.ReadRowWithAlt
+    use BasicDuckDB.RowReader.RowHandle
     use BasicDuckDB.Base.Fail.Fail
 
     import java.sql.{Connection => JConnection}
@@ -195,7 +196,7 @@ pub mod BasicDuckDB.DuckDBConnection {
         handle(conn, f)()
 
     
-    pub def execStatement(f: Unit -> a \ Statement + ef): a \ {Fail + ef + DuckDBConnection} - Statement = 
+    pub def execStatement(f: Unit -> a \ ef): a \ {Fail + ef + DuckDBConnection} - Statement = 
         let stmt = DuckDBConnection.createStatement();
         run {
             let ans = f();
@@ -214,7 +215,7 @@ pub mod BasicDuckDB.DuckDBConnection {
     // forEach has a strange effect on the effect signature
     pub def execRowAppender(schema: String, 
                             table: String, 
-                            appendf: a -> Unit \ AppendRow + ef, t: t): Unit \ ({Fail + ef + DuckDBConnection} - AppendRow) + {DuckDBAppender + DuckDBAppender + DuckDBAppender + ForEach.Aef[t]} - {DuckDBAppender} with ForEach[t] where ForEach.Elm[t] ~ a = 
+                            appendf: a -> Unit \ ef, t: t): Unit \ ({Fail + ef + DuckDBConnection} - AppendRow) + {DuckDBAppender + DuckDBAppender + DuckDBAppender + ForEach.Aef[t]} - {DuckDBAppender} with ForEach[t] where ForEach.Elm[t] ~ a = 
         let hndl = DuckDBConnection.createAppender(schema, table);
         run { 
             ForEach.forEach(a -> {
@@ -226,8 +227,9 @@ pub mod BasicDuckDB.DuckDBConnection {
                 DuckDBAppender.close()
         } with BasicDuckDB.DuckDBAppender.runDuckDBAppender(hndl)
 
-
-    pub def queryFold(f: a -> a \ ReadRowWithAlt + ef, s: a, sql: String): a \ {Fail + ef + DuckDBConnection} - {Statement + DuckDBResultSet}  = 
+    
+    // f: (<row>, a) -> a
+    pub def queryFold(f: (RowHandle, a) -> a \ ef, s: a, sql: String): a \ {Fail + ef + DuckDBConnection} - {Statement + DuckDBResultSet}  = 
         let stmt = DuckDBConnection.createStatement();
         run {
             let results = Statement.executeQuery(sql);
@@ -236,8 +238,9 @@ pub mod BasicDuckDB.DuckDBConnection {
                 def loop(acc, sk) = {
                     let more = DuckDBResultSet.next();
                     if (more) {
-                        let row1 = BasicDuckDB.Base.Fail.handleAsResult(_ -> BasicDuckDB.DuckDBResultSet.execReadRow(_ -> f(acc)))();
-                        match row1 {
+                        let rowHandle = BasicDuckDB.RowReader.getRowHandle(results1);
+                        let rowAnswer = BasicDuckDB.Base.Fail.handleAsResult(_ -> BasicDuckDB.DuckDBResultSet.execReadRow(_ -> f(rowHandle, acc)))();
+                        match rowAnswer {
                             case Ok(acc1) => loop(acc1, sk)
                             case Err(err) => Fail.report(err)
                         }
@@ -250,7 +253,7 @@ pub mod BasicDuckDB.DuckDBConnection {
         } with BasicDuckDB.JDBC.Statement.runStatement(stmt)
 
 
-    pub def queryForEach(reader: Unit -> a \ ReadRowWithAlt + ef, sql: String): Unit \ {Fail + ef + DuckDBConnection} - {Statement + DuckDBResultSet + ReadRowWithAlt} = 
+    pub def queryForEach(reader: RowHandle -> Unit \ ef, sql: String): Unit \ {Fail + ef + DuckDBConnection} - {Statement + DuckDBResultSet + ReadRowWithAlt} = 
         let stmt = DuckDBConnection.createStatement();
         run {
             let results = Statement.executeQuery(sql);
@@ -259,9 +262,10 @@ pub mod BasicDuckDB.DuckDBConnection {
                 def loop(fk, sk) = {
                     let more = DuckDBResultSet.next();
                     if (more) {
-                        let ans = BasicDuckDB.Base.Fail.handleAsResult(_ -> BasicDuckDB.DuckDBResultSet.execReadRow(reader))();
-                        match ans {
-                            case Ok(_) => loop(fk, sk)
+                        let rowHandle = BasicDuckDB.RowReader.getRowHandle(results1);
+                        let rowAnswer = BasicDuckDB.Base.Fail.handleAsResult(_ -> BasicDuckDB.DuckDBResultSet.execReadRow(_ -> reader(rowHandle)))();
+                        match rowAnswer {
+                            case Ok() => loop(fk, sk)
                             case Err(err) => fk(err)
                         }
                     } else sk()

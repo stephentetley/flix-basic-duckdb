@@ -13,28 +13,33 @@ pub mod Test05 {
     use BasicDuckDB.RowReader
     use BasicDuckDB.RowReader.ReadRow
     use BasicDuckDB.RowReader.ReadRowWithAlt
-    use BasicDuckDB.Shim.SQLite
+    // use BasicDuckDB.Shim.SQLite
+
+
+    use BasicDuckDB.JDBC.Statement.{Statement}
 
     @Test
     def test01(): Unit \ {Assert + IO} =
-        assertEq(expected = Ok(true),
-            (run {
-                let url = "jdbc:duckdb:";
-                let _ = DuckDBDriver.execDuckDBConnection(url, () -> {
-                    SQLite.forEach(rowReader(), 
-                        "./testdata/countries.sqlite", 
-                        table_name="country")
-                });
-                true
-            } with DuckDBDriver.runWithIO)
-        )
+        let answer = run {
+            let url = "jdbc:duckdb:";
+            DuckDBDriver.execDuckDBConnection(url, () -> {
+                    // SQLite.forEach(rowReader(), 
+                    //     "./testdata/countries.sqlite", 
+                    //     table_name="country")
+                    DuckDBConnection.execStatement(() -> {
+                        let command = "SELECT 42;";
+                        discard Statement.executeQuery(command)
+                    })                    
+                })
+        } with BasicDuckDB.DuckDBDriver.runWithIOAndFail;
+        assertEq(expected = Ok(), answer)
 
-    def rowReader(): Unit -> Unit \ ReadRowWithAlt + IO = () -> checked_ecast({
-        let country = ReadRow.getStringByIndex(0);
-        let capital = ReadRow.getStringByIndex(1);
-        let pop = ReadRow.getFloat64ByIndex(2);
-        println("${country}, capital city: ${capital}, population in millions: ${pop}")
-    })
+    // def rowReader(): Unit -> Unit \ ReadRowWithAlt + IO = () -> checked_ecast({
+    //     let country = ReadRow.getStringByIndex(0);
+    //     let capital = ReadRow.getStringByIndex(1);
+    //     let pop = ReadRow.getFloat64ByIndex(2);
+    //     println("${country}, capital city: ${capital}, population in millions: ${pop}")
+    // })
 
 }
 

@@ -23,6 +23,7 @@ pub mod BasicDuckDB.DuckDBResultSet {
     use BasicDuckDB.RowReader
     use BasicDuckDB.RowReader.ReadRowWithAlt
     use BasicDuckDB.JDBC.ResultSet.{ResultSetHandle}
+    use BasicDuckDB.RowReader.RowHandle
 
     
     import java.sql.{Connection => JConnection}
@@ -30,7 +31,7 @@ pub mod BasicDuckDB.DuckDBResultSet {
     import java.sql.{SQLException => JSQLException}
     import org.duckdb.{DuckDBResultSet => JDuckDBResultSet}
     
-    pub enum DuckDBResultSetHandle (JDuckDBResultSet)
+    pub enum DuckDBResultSetHandle(JDuckDBResultSet)
 
     pub def castResultSetHandle(results: ResultSetHandle): DuckDBResultSetHandle = 
         let ResultSetHandle.ResultSetHandle(results1) = results;
@@ -183,11 +184,11 @@ pub mod BasicDuckDB.DuckDBResultSet {
         handle(results, f)()
 
 
-    pub def execReadRow(reader: Unit -> a \ ReadRowWithAlt + ef): a \ {ef + Fail + DuckDBResultSet} - ReadRowWithAlt = 
-        let results = DuckDBResultSet.askDuckDBResultSetHandle();
+    pub def execReadRow(reader: Unit -> a \ ef): a \ {ef + Fail + DuckDBResultSet} - ReadRowWithAlt = 
+        let DuckDBResultSetHandle.DuckDBResultSetHandle(row) = DuckDBResultSet.askDuckDBResultSetHandle();
         run {
             reader()
-        } with BasicDuckDB.RowReader.runRowReader(results)
+        } with BasicDuckDB.RowReader.runRowReader(RowHandle.RowHandle(row))
 
 
 }

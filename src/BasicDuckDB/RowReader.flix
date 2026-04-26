@@ -23,6 +23,7 @@ pub mod BasicDuckDB.RowReader {
     use BasicDuckDB.JDBC.Struct.{StructHandle}
 
 
+    import org.duckdb.{DuckDBResultSet => JDuckDBResultSet}
     import java.sql.{SQLException => JSQLException}
 
     pub eff ReadRow {
@@ -51,9 +52,16 @@ pub mod BasicDuckDB.RowReader {
     pub type alias ReadRowWithAlt = ReadRow + Alt
 
 
-    pub def handle(results: DuckDBResultSetHandle, 
+    pub enum RowHandle(JDuckDBResultSet)
+
+
+    pub def getRowHandle(rset: DuckDBResultSetHandle): RowHandle = 
+        let DuckDBResultSetHandle.DuckDBResultSetHandle(jrset) = rset;
+        RowHandle.RowHandle(jrset)
+
+    pub def handle(results: RowHandle, 
                     f: a -> b \ ef): a -> b \ {ef + Fail} - ReadRowWithAlt = x -> {
-        let DuckDBResultSetHandle.DuckDBResultSetHandle(jresults) = results;
+        let RowHandle.RowHandle(jresults) = results;
         let result = run {
             // Wrap in Ok for the duration of this function
             Ok(f(x))
@@ -217,7 +225,7 @@ pub mod BasicDuckDB.RowReader {
 
     }
 
-    pub def runRowReader(rset: DuckDBResultSetHandle, f: Unit -> a \ ef): a \ (Fail + ef) - ReadRowWithAlt = 
-        handle(rset, f)()
+    pub def runRowReader(dbrow: RowHandle, f: Unit -> a \ ef): a \ (Fail + ef) - ReadRowWithAlt = 
+        handle(dbrow, f)()
 
 }

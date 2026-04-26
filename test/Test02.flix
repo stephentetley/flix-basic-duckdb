@@ -28,15 +28,15 @@ pub mod Test02 {
                 dir <- FileWrite.mkTempDir("flix_test02");
                 url <- Ok("jdbc:duckdb:${dir}/test02_db.duckdb");
                 _ <- run { 
-                        DuckDBDriver.execDuckDBConnection(url, () -> {
-                            DuckDBConnection.execStatement(() -> {
+                        BasicDuckDB.DuckDBDriver.execDuckDBConnection(url, () -> {
+                            BasicDuckDB.DuckDBConnection.execStatement(() -> {
                                 discard Statement.executeUpdate("CREATE SCHEMA IF NOT EXISTS facts;");
                                 discard Statement.executeUpdate("CREATE TABLE IF NOT EXISTS facts.databases (name VARCHAR NOT NULL, year INTEGER, PRIMARY KEY(name));")
                             });
-                            DuckDBConnection.execRowAppender("facts", "databases", 
+                            BasicDuckDB.DuckDBConnection.execRowAppender("facts", "databases", 
                                         xy -> { let (x, y) = xy; appender(x, y) }, 
                                     List#{("DuckDB", 2019), ("SQLite", 2000)});
-                            DuckDBConnection.queryForEach(rowReader(), "SELECT * FROM facts.databases;")
+                            BasicDuckDB.DuckDBConnection.queryForEach(_ -> rowReader(), "SELECT * FROM facts.databases;")
                         })
                     } with BasicDuckDB.DuckDBDriver.runWithIOAndFail
             ) yield true
@@ -50,10 +50,10 @@ pub mod Test02 {
     }
 
 
-    def rowReader(): Unit -> Unit \ ReadRowWithAlt + IO = () -> checked_ecast({
+    def rowReader(): Unit \ ReadRowWithAlt + IO = checked_ecast({
         let name = ReadRow.getStringByName("name");
         let year = ReadRow.getInt32ByName("year");
-        println("Database: ${name}, Year: ${year}")
+        println("Test02 - Database: ${name}, Year: ${year}")
     })
 
 }
