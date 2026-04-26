@@ -20,26 +20,17 @@ pub mod Test05 {
 
     @Test
     def test01(): Unit \ {Assert + IO} =
-        let answer = run {
-            let url = "jdbc:duckdb:";
-            DuckDBDriver.execDuckDBConnection(url, () -> {
-                    // SQLite.forEach(rowReader(), 
-                    //     "./testdata/countries.sqlite", 
-                    //     table_name="country")
-                    DuckDBConnection.execStatement(() -> {
-                        let command = "SELECT 42;";
-                        discard Statement.executeQuery(command)
-                    })                    
-                })
-        } with BasicDuckDB.DuckDBDriver.runWithIOAndFail;
+        let answer = BasicDuckDB.Shim.SQLite.forEach(rowReader, 
+                        "./testdata/countries.sqlite", 
+                        table_name="country");
         assertEq(expected = Ok(), answer)
 
-    // def rowReader(): Unit -> Unit \ ReadRowWithAlt + IO = () -> checked_ecast({
-    //     let country = ReadRow.getStringByIndex(0);
-    //     let capital = ReadRow.getStringByIndex(1);
-    //     let pop = ReadRow.getFloat64ByIndex(2);
-    //     println("${country}, capital city: ${capital}, population in millions: ${pop}")
-    // })
+    def rowReader(): Unit \ ReadRowWithAlt + IO = checked_ecast({
+        let country = ReadRow.getStringByIndex(0);
+        let capital = ReadRow.getStringByIndex(1);
+        let pop = ReadRow.getFloat64ByIndex(2);
+        println("Test05.test01 ${country}, capital city: ${capital}, population in millions: ${pop}")
+    })
 
 }
 

@@ -20,18 +20,18 @@ pub mod Test04 {
 
     @Test
     def test01(): Unit \ {Assert + IO} =
-    let answer = 
-        forM (
-            url <- Ok("jdbc:duckdb:");
-            _   <- run { 
-                    BasicDuckDB.DuckDBDriver.execDuckDBConnection(url, () -> {
-                        BasicDuckDB.DuckDBConnection.execStatement(() -> {
-                            let command = "SELECT 42;";
-                            discard Statement.executeQuery(command)
+        let answer = 
+            forM (
+                url <- Ok("jdbc:duckdb:");
+                _   <- run { 
+                        BasicDuckDB.DuckDBDriver.execDuckDBConnection(url, () -> {
+                            BasicDuckDB.DuckDBConnection.execStatement(() -> {
+                                let command = "SELECT 42;";
+                                discard Statement.executeQuery(command)
+                            })
                         })
-                    })
-                } with BasicDuckDB.DuckDBDriver.runWithIOAndFail 
-        ) yield true;
+                    } with BasicDuckDB.DuckDBDriver.runWithIOAndFail 
+            ) yield true;
         assertEq(expected = Ok(true), answer)
 
 }

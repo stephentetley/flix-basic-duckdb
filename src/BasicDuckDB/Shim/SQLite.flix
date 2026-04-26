@@ -36,9 +36,9 @@ pub mod BasicDuckDB.Shim.SQLite {
         let sql3 = "USE memory; DETACH temp_sqlite_db;";
         run {
             BasicDuckDB.DuckDBDriver.execDuckDBConnection(url, () -> {
-                BasicDuckDB.DuckDBConnection.execStatement(() -> discard Statement.executeQuery(sql1));
+                BasicDuckDB.DuckDBConnection.execStatement(() -> discard Statement.executeUpdate(sql1));
                 let ans = BasicDuckDB.DuckDBConnection.queryForEach(reader, sql2);
-                BasicDuckDB.DuckDBConnection.execStatement(() -> discard Statement.executeQuery(sql3));
+                BasicDuckDB.DuckDBConnection.execStatement(() -> discard Statement.executeUpdate(sql3));
                 ans
             }) 
         }  with BasicDuckDB.DuckDBDriver.runWithIOAndFail 
@@ -53,9 +53,9 @@ pub mod BasicDuckDB.Shim.SQLite {
         let sql3 = "USE memory; DETACH temp_sqlite_db;";
         run {
             BasicDuckDB.DuckDBDriver.execDuckDBConnection(url, () -> {
-                BasicDuckDB.DuckDBConnection.execStatement(() -> discard Statement.executeQuery(sql1));
+                BasicDuckDB.DuckDBConnection.execStatement(() -> discard Statement.executeUpdate(sql1));
                 let ans = BasicDuckDB.DuckDBConnection.queryFold(reader, s, sql2);
-                BasicDuckDB.DuckDBConnection.execStatement(() -> discard Statement.executeQuery(sql3));
+                BasicDuckDB.DuckDBConnection.execStatement(() -> discard Statement.executeUpdate(sql3));
                 ans
             }) 
         }  with BasicDuckDB.DuckDBDriver.runWithIOAndFail 

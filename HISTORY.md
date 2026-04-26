@@ -2,8 +2,11 @@
    Work towards UDFs.
    Added `Alt` effect for error recovery.
    Removed `RowReader` and `RowAppender` wrapper enums.
-   Chaged error type from `IoError` to `String`.
-   Removed `Shim.Script` - should use `.read` command inside DuckDB instead.
+   Changed error internal type from `IoError` to `String` and 
+   removed IO from run functions of nested effects.
+   Removed `Shim.Script`.
+   Added `Fail` effect and used it to simplify processing nested 
+   effects.
 
 ### v0.4.0
    Updated to work with Flix 0.70.0.
