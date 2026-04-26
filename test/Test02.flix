@@ -8,7 +8,7 @@
 
 pub mod Test02 {
     
-    use Assert.{assertEq}
+    
     
     use Fs.FileWrite
     use Fs.WriteFile
@@ -23,25 +23,26 @@ pub mod Test02 {
 
     @Test
     def test01(): Unit \ {Assert + IO} =
-        assertEq(
-            expected = Ok(true),
-            Result.flatten(run {
-                forM (
-                    dir <- FileWrite.mkTempDir("flix_test02");
-                    url <- Ok("jdbc:duckdb:${dir}/test02_db.duckdb");
-                    _   <- DuckDBDriver.execDuckDBConnection(url, () -> {
-                        let _ = DuckDBConnection.execStatement(() -> {
-                            discard Statement.executeUpdate("CREATE SCHEMA IF NOT EXISTS facts;");
-                            Statement.executeUpdate("CREATE TABLE IF NOT EXISTS facts.databases (name VARCHAR NOT NULL, year INTEGER, PRIMARY KEY(name));")
-                        });
-                        let _ = DuckDBConnection.execRowAppender("facts", "databases", 
-                                    xy -> { let (x, y) = xy; appender(x, y) }, 
+        let answer:Result[IoError, Bool] = run {
+            forM (
+                dir <- FileWrite.mkTempDir("flix_test02");
+                url <- Ok("jdbc:duckdb:${dir}/test02_db.duckdb");
+                _ <- run { 
+                        DuckDBDriver.execDuckDBConnection(url, () -> {
+                            DuckDBConnection.execStatement(() -> {
+                                discard Statement.executeUpdate("CREATE SCHEMA IF NOT EXISTS facts;");
+                                discard Statement.executeUpdate("CREATE TABLE IF NOT EXISTS facts.databases (name VARCHAR NOT NULL, year INTEGER, PRIMARY KEY(name));")
+                            });
+                            DuckDBConnection.execRowAppender("facts", "databases", 
+                                        xy -> { let (x, y) = xy; appender(x, y) }, 
                                     List#{("DuckDB", 2019), ("SQLite", 2000)});
-                        DuckDBConnection.queryForEach(rowReader(), "SELECT * FROM facts.databases;")
-                    })) yield true
-            } with BasicDuckDB.DuckDBDriver.runWithIO 
-              with FileWrite.runWithIO)
-        )
+                            DuckDBConnection.queryForEach(rowReader(), "SELECT * FROM facts.databases;")
+                        })
+                    } with BasicDuckDB.DuckDBDriver.runWithIOAndFail
+            ) yield true
+        } with FileWrite.runWithIO;
+        Assert.assertEq(expected = Ok(true), answer)
+        
 
     def appender(name: String, year: Int32): Unit \ AppendRow = {
         AppendRow.appendString(name);

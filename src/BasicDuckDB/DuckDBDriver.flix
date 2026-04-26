@@ -84,13 +84,20 @@ pub mod BasicDuckDB.DuckDBDriver {
             }
         }
 
-    pub def runWithIO(f: Unit -> a \ ef): Result[IoError, a] \ {IO + ef} - DuckDBDriver - Fail =
-        run {
-            Ok(handle(f)())
-        } with handler Fail {
-            def report(s, _) = Err(IoError(ErrorKind.Other, (s)))
-        }
+    // pub def runWithIO(f: Unit -> a \ ef): Result[IoError, a] \ {IO + ef} - DuckDBDriver - Fail =
+    //     run {
+    //         Ok(handle(f)())
+    //     } with handler Fail {
+    //         def report(s, _) = Err(IoError(ErrorKind.Other, (s)))
+    //     }
 
+    pub def runWithIO(f: Unit -> a \ ef): a \ {IO + Fail + ef} - DuckDBDriver =
+        handle(f)()
+
+    pub def runWithIOAndFail(f: Unit -> a \ ef): Result[IoError, a] \ {IO + ef} - DuckDBDriver - Fail =
+        run {
+             runWithIO(f)
+        } with BasicDuckDB.Base.Fail.runFailAsResultOfIoError
 
     pub def execDuckDBConnection(url: String, 
                                 f: Unit -> a \ ef): a \ {Fail + ef + DuckDBDriver} - DuckDBConnection = 

@@ -14,15 +14,13 @@ pub mod Test01 {
 
     @Test
     def test01(): Unit \ {Assert + IO} =
-        assertEq(
-            expected = Ok(true), 
-            (run {
+        let answer = run {
                 let major = DuckDBDriver.getMajorVersion();
                 let minor = DuckDBDriver.getMinorVersion();
                 println("${major}.${minor}");
                 true
-            } with BasicDuckDB.DuckDBDriver.runWithIO)
-        )
+            } with BasicDuckDB.DuckDBDriver.runWithIOAndFail;
+        assertEq(expected = Ok(true), answer)
 
 
 }
