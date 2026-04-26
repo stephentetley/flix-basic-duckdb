@@ -19,6 +19,7 @@
 
 pub mod BasicDuckDB.DuckDBResultSet {
 
+    use BasicDuckDB.Base.Fail.Fail
     use BasicDuckDB.RowReader
     use BasicDuckDB.RowReader.ReadRowWithAlt
     use BasicDuckDB.JDBC.ResultSet.{ResultSetHandle}
@@ -26,7 +27,7 @@ pub mod BasicDuckDB.DuckDBResultSet {
     
     import java.sql.{Connection => JConnection}
     import java.sql.{Statement => JStatement}
-    import java.sql.SQLException
+    import java.sql.{SQLException => JSQLException}
     import org.duckdb.{DuckDBResultSet => JDuckDBResultSet}
     
     pub enum DuckDBResultSetHandle (JDuckDBResultSet)
@@ -48,8 +49,8 @@ pub mod BasicDuckDB.DuckDBResultSet {
         def isAfterLast(): Bool
         def isFirst(): Bool
         def isLast(): Bool
-        def first(): Unit
-        def last(): Unit
+        def first(): Bool
+        def last(): Bool
         def getRow(): Int32
         def absolute(row: Int32): Bool
         def relative(rows: Int32): Bool
@@ -58,118 +59,118 @@ pub mod BasicDuckDB.DuckDBResultSet {
     }
 
 
-    pub def handle(results: DuckDBResultSetHandle, f: a -> b \ ef): a -> Result[String, b] \ {IO + ef} - DuckDBResultSet =
+    pub def handle(results: DuckDBResultSetHandle, f: a -> b \ ef): a -> b \ Fail + ef - DuckDBResultSet =
         x -> {
             let DuckDBResultSetHandle.DuckDBResultSetHandle(jresults) = results;
             run {
-                Ok(f(x))
+                f(x)
             } with handler DuckDBResultSet {
             
                 def askDuckDBResultSetHandle(k) = k(results)
 
                 def close(k) = try {
-                    jresults.close();
+                    unsafe IO as {Fail + ef - DuckDBResultSet} { jresults.close() };
                     k()
                 } catch {
-                    case ex: SQLException => Err(ex.getMessage())
+                    case ex: JSQLException => Fail.report(ex.getMessage())
                 }
 
                 def next(k) = try {
-                    let ans = jresults.next();
+                    let ans = unsafe IO as {Fail + ef - DuckDBResultSet} { jresults.next() };
                     k(ans)
                 } catch {
-                    case ex: SQLException => Err(ex.getMessage())
+                    case ex: JSQLException => Fail.report(ex.getMessage())
                 }
                 
                 def wasNull(k) = try {
-                    let ans = jresults.wasNull();
+                    let ans = unsafe IO as {Fail + ef - DuckDBResultSet} { jresults.wasNull() };
                     k(ans)
                 } catch {
-                    case ex: SQLException => Err(ex.getMessage())
+                    case ex: JSQLException => Fail.report(ex.getMessage())
                 }
 
                 def findColumn(label, k) = try {
-                    let ans = jresults.findColumn(label);
+                    let ans = unsafe IO as {Fail + ef - DuckDBResultSet} { jresults.findColumn(label) };
                     k(ans)
                 } catch {
-                    case ex: SQLException => Err(ex.getMessage())
+                    case ex: JSQLException => Fail.report(ex.getMessage())
                 }
 
                 def isBeforeFirst(k) = try {
-                    let ans = jresults.isBeforeFirst();
+                    let ans = unsafe IO as {Fail + ef - DuckDBResultSet} { jresults.isBeforeFirst() };
                     k(ans)
                 } catch {
-                    case ex: SQLException => Err(ex.getMessage())
+                    case ex: JSQLException => Fail.report(ex.getMessage())
                 }
 
                 def isAfterLast(k) = try {
-                    let ans = jresults.isAfterLast();
+                    let ans = unsafe IO as {Fail + ef - DuckDBResultSet} { jresults.isAfterLast() };
                     k(ans)
                 } catch {
-                    case ex: SQLException => Err(ex.getMessage())
+                    case ex: JSQLException => Fail.report(ex.getMessage())
                 }
 
                 def isFirst(k) = try {
-                    let ans = jresults.isFirst();
+                    let ans = unsafe IO as {Fail + ef - DuckDBResultSet} { jresults.isFirst() };
                     k(ans)
                 } catch {
-                    case ex: SQLException => Err(ex.getMessage())
+                    case ex: JSQLException => Fail.report(ex.getMessage())
                 }
 
                 def isLast(k) = try {
-                    let ans = jresults.isLast();
+                    let ans = unsafe IO as {Fail + ef - DuckDBResultSet} { jresults.isLast() };
                     k(ans)
                 } catch {
-                    case ex: SQLException => Err(ex.getMessage())
+                    case ex: JSQLException => Fail.report(ex.getMessage())
                 }
 
                 def first(k) = try {
-                    jresults.first();
-                    k()
+                    let ans = unsafe IO as {Fail + ef - DuckDBResultSet} { jresults.first() };
+                    k(ans)
                 } catch {
-                    case ex: SQLException => Err(ex.getMessage())
+                    case ex: JSQLException => Fail.report(ex.getMessage())
                 }
 
                 def last(k) = try {
-                    jresults.last();
-                    k()
+                    let ans = unsafe IO as {Fail + ef - DuckDBResultSet} { jresults.last() };
+                    k(ans)
                 } catch {
-                    case ex: SQLException => Err(ex.getMessage())
+                    case ex: JSQLException => Fail.report(ex.getMessage())
                 }
 
                 def getRow(k) = try {
-                    let ans = jresults.getRow();
+                    let ans = unsafe IO as {Fail + ef - DuckDBResultSet} { jresults.getRow() };
                     k(ans)
                 } catch {
-                    case ex: SQLException => Err(ex.getMessage())
+                    case ex: JSQLException => Fail.report(ex.getMessage())
                 }
 
                 def absolute(row, k) = try {
-                    let ans = jresults.absolute(row);
+                    let ans = unsafe IO as {Fail + ef - DuckDBResultSet} { jresults.absolute(row) };
                     k(ans)
                 } catch {
-                    case ex: SQLException => Err(ex.getMessage())
+                    case ex: JSQLException => Fail.report(ex.getMessage())
                 }
                 
                 def relative(rows, k) = try {
-                    let ans = jresults.relative(rows);
+                    let ans = unsafe IO as {Fail + ef - DuckDBResultSet} { jresults.relative(rows) };
                     k(ans)
                 } catch {
-                    case ex: SQLException => Err(ex.getMessage())
+                    case ex: JSQLException => Fail.report(ex.getMessage())
                 }
 
                 def setFetchSize(rows, k) = try {
-                    jresults.setFetchSize(rows);
+                    unsafe IO as {Fail + ef - DuckDBResultSet} { jresults.setFetchSize(rows) };
                     k()
                 } catch {
-                    case ex: SQLException => Err(ex.getMessage())
+                    case ex: JSQLException => Fail.report(ex.getMessage())
                 }
                 
                 def getFetchSize(k) = try {
-                    let ans = jresults.getFetchSize();
+                    let ans = unsafe IO as {Fail + ef - DuckDBResultSet} { jresults.getFetchSize() };
                     k(ans)
                 } catch {
-                    case ex: SQLException => Err(ex.getMessage())
+                    case ex: JSQLException => Fail.report(ex.getMessage())
                 }
 
             }
@@ -178,11 +179,11 @@ pub mod BasicDuckDB.DuckDBResultSet {
 
     
     pub def runWithIO(results: DuckDBResultSetHandle, 
-                        f: Unit -> a \ ef): Result[String, a] \ {IO + ef} - DuckDBResultSet =
+                        f: Unit -> a \ ef): a \ {Fail + ef} - DuckDBResultSet =
         handle(results, f)()
 
 
-    pub def execReadRow(reader: Unit -> a \ ReadRowWithAlt + ef): Result[String, a] \ {ef + IO + DuckDBResultSet} - ReadRowWithAlt = 
+    pub def execReadRow(reader: Unit -> a \ ReadRowWithAlt + ef): a \ {ef + Fail + DuckDBResultSet} - ReadRowWithAlt = 
         let results = DuckDBResultSet.askDuckDBResultSetHandle();
         run {
             reader()

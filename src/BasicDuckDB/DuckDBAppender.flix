@@ -39,31 +39,31 @@ pub mod BasicDuckDB.DuckDBAppender {
     }
 
     pub def handle(appender: DuckDBAppenderHandle, 
-                    f: a -> b \ ef): a -> b \ {IO + Fail + ef} - DuckDBAppender =
+                    f: a -> b \ ef): a -> b \ Fail + ef - DuckDBAppender =
         x -> {
             let DuckDBAppenderHandle.DuckDBAppenderHandle(jappender) = appender;
             run {
-                Ok(f(x))
+                f(x)
             } with handler DuckDBAppender {
 
                 def askDuckDBAppenderHandle(k) = k(appender)
 
                 def beginRow(k) = try {
-                    let _ = jappender.beginRow();
+                    unsafe IO as { Fail + ef - DuckDBAppender } { discard jappender.beginRow() };
                     k()
                 } catch {
                     case ex: SQLException => Fail.report(ex.getMessage())
                 }
                 
                 def endRow(k) = try {
-                    let _ = jappender.endRow();
+                    unsafe IO as { Fail + ef - DuckDBAppender } { discard jappender.endRow() };
                     k()
                 } catch {
                     case ex: SQLException => Fail.report(ex.getMessage())
                 }
                 
                 def flush(k) = try {
-                    let _ = jappender.flush();
+                    unsafe IO as { Fail + ef - DuckDBAppender } { discard jappender.flush() };
                     k()
                 } catch {
                     case ex: SQLException => Fail.report(ex.getMessage())
@@ -77,7 +77,7 @@ pub mod BasicDuckDB.DuckDBAppender {
                 // }
 
                 def close(k) = try {
-                    let _ = jappender.close();
+                    unsafe IO as { Fail + ef - DuckDBAppender } { jappender.close() };
                     k()
                 } catch {
                     case ex: SQLException => Fail.report(ex.getMessage())
@@ -86,15 +86,15 @@ pub mod BasicDuckDB.DuckDBAppender {
             }
         }
 
-    pub def runWithIO(appender: DuckDBAppenderHandle, 
-                        f: Unit -> a \ ef):  a \ {IO + Fail + ef} - DuckDBAppender = 
+    pub def runDuckDBAppender(appender: DuckDBAppenderHandle, 
+                        f: Unit -> a \ ef):  a \ Fail + ef - DuckDBAppender = 
         handle(appender, f)()
 
-    pub def execRowAppender(appender: Unit -> a \ AppendRow + ef): Result[String, a] \ {IO + ef + DuckDBAppender} - {AppendRow} = 
-        let hndl = DuckDBAppender.askDuckDBAppenderHandle();
-        run {
-            appender()
-        } with BasicDuckDB.RowAppender.runWithIO(hndl)
+    // pub def execRowAppender(appender: Unit -> a \ AppendRow + ef): Result[String, a] \ {IO + ef + DuckDBAppender} - {AppendRow} = 
+    //     let hndl = DuckDBAppender.askDuckDBAppenderHandle();
+    //     run {
+    //         appender()
+    //     } with BasicDuckDB.RowAppender.runWithIO(hndl)
 
 
 }

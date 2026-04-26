@@ -18,9 +18,10 @@
 
 pub mod BasicDuckDB.RowAppender {
 
+    use BasicDuckDB.Base.Fail.Fail
     use BasicDuckDB.DuckDBAppender.{DuckDBAppenderHandle}
 
-    import java.sql.SQLException
+    import java.sql.{SQLException => JSQLException}
     import java.lang.Throwable
     
 
@@ -39,102 +40,102 @@ pub mod BasicDuckDB.RowAppender {
         def appendString(value: String): Unit
     }
 
-    pub def handle(appender: DuckDBAppenderHandle, f: a -> b \ ef): a -> Result[String, b] \ {IO + ef} - {AppendRow} =
+    pub def handle(appender: DuckDBAppenderHandle, f: a -> b \ ef): a -> b \ Fail + ef - AppendRow =
         x -> {
             let DuckDBAppenderHandle.DuckDBAppenderHandle(jappender) = appender;
             run {
-                Ok(f(x))
+                f(x)
             } with handler AppendRow {
                 
                 def appendNull(k) = try {
-                    let _ = jappender.appendNull();
+                    unsafe IO as {Fail + ef - AppendRow} { discard jappender.appendNull() };
                     k()
                 } catch {
-                    case ex: SQLException => Err(ex.getMessage())
+                    case ex: JSQLException => Fail.report(ex.getMessage())
                 }
 
                 def appendBool(value, k) = try {
-                    let _ = jappender.append(value);
+                    unsafe IO as {Fail + ef - AppendRow} { discard jappender.append(value) };
                     k()
                 } catch {
-                    case ex: SQLException => Err(ex.getMessage())
+                    case ex: JSQLException => Fail.report(ex.getMessage())
                 }
 
                 def appendInt8(value, k) = try {
-                    let _ = jappender.append(value);
+                    unsafe IO as {Fail + ef - AppendRow} { discard jappender.append(value) };
                     k()
                 } catch {
-                    case ex: SQLException => Err(ex.getMessage())
+                    case ex: JSQLException => Fail.report(ex.getMessage())
                 }
 
                 def appendInt16(value, k) = try {
-                    let _ = jappender.append(value);
+                    unsafe IO as {Fail + ef - AppendRow} { discard jappender.append(value) };
                     k()
                 } catch {
-                    case ex: SQLException => Err(ex.getMessage())
+                    case ex: JSQLException => Fail.report(ex.getMessage())
                 }
 
                 def appendInt32(value, k) = try {
-                    let _ = jappender.append(value);
+                    unsafe IO as {Fail + ef - AppendRow} { discard jappender.append(value) };
                     k()
                 } catch {
-                    case ex: SQLException => Err(ex.getMessage())
+                    case ex: JSQLException => Fail.report(ex.getMessage())
                 }
 
                 def appendInt64(value, k) = try {
-                    let _ = jappender.append(value);
+                    unsafe IO as {Fail + ef - AppendRow} { discard jappender.append(value) };
                     k()
                 } catch {
-                    case ex: SQLException => Err(ex.getMessage())
+                    case ex: JSQLException => Fail.report(ex.getMessage())
                 }
 
                 def appendBigInt(value, k) = try {
-                    let _ = jappender.append(value);
+                    unsafe IO as {Fail + ef - AppendRow} { discard jappender.append(value) };
                     k()
                 } catch {
-                    case ex: SQLException => Err(ex.getMessage())
+                    case ex: JSQLException => Fail.report(ex.getMessage())
                 }
 
                 def appendFloat32(value, k) = try {
-                    let _ = jappender.append(value);
+                    unsafe IO as {Fail + ef - AppendRow} { discard jappender.append(value) };
                     k()
                 } catch {
-                    case ex: SQLException => Err(ex.getMessage())
+                    case ex: JSQLException => Fail.report(ex.getMessage())
                 }
 
                 def appendFloat64(value, k) = try {
-                    let _ = jappender.append(value);
+                    unsafe IO as {Fail + ef - AppendRow} { discard jappender.append(value) };
                     k()
                 } catch {
-                    case ex: SQLException => Err(ex.getMessage())
+                    case ex: JSQLException => Fail.report(ex.getMessage())
                 }
 
                 def appendBigDecimal(value, k) = try {
-                    let _ = jappender.append(value);
+                    unsafe IO as {Fail + ef - AppendRow} { discard jappender.append(value) };
                     k()
                 } catch {
-                    case ex: SQLException => Err(ex.getMessage())
+                    case ex: JSQLException => Fail.report(ex.getMessage())
                 }
 
                 def appendChar(value, k) = try {
-                    let _ = jappender.append(value);
+                    unsafe IO as {Fail + ef - AppendRow} { discard jappender.append(value) };
                     k()
                 } catch {
-                    case ex: SQLException => Err(ex.getMessage())
+                    case ex: JSQLException => Fail.report(ex.getMessage())
                 }
 
                 def appendString(value, k) = try {
-                    let _ = jappender.append(value);
+                    unsafe IO as {Fail + ef - AppendRow} { discard jappender.append(value) };
                     k()
                 } catch {
-                    case ex: SQLException => Err(ex.getMessage())
+                    case ex: JSQLException => Fail.report(ex.getMessage())
                 }
 
             }
         }
 
-    pub def runWithIO(appender: DuckDBAppenderHandle, 
-                        f: Unit -> a \ ef): Result[String, a] \ {IO + ef} - {AppendRow} = 
+    pub def runAppendRow(appender: DuckDBAppenderHandle, 
+                        f: Unit -> a \ ef): a \ Fail + ef - AppendRow = 
         handle(appender, f)()
 
 }

@@ -17,6 +17,7 @@
 
 pub mod BasicDuckDB.DuckDBScalarFunctionBuilder {
     
+    use BasicDuckDB.Base.Fail.Fail
     use BasicDuckDB.DuckDBFunctions.RegisteredFunction 
     use BasicDuckDB.DuckDBConnection.DuckDBConnectionHandle
     use BasicDuckDB.DuckDBColumnType.ColumnType
@@ -40,30 +41,32 @@ pub mod BasicDuckDB.DuckDBScalarFunctionBuilder {
 
     // Produce a DuckDBFunctions$RegisteredFunction ?
 
-    pub def handle(conn: DuckDBConnectionHandle, f: a -> b \ ef): a -> Result[String, (RegisteredFunction, b)] \ (ef - DuckDBScalarFunctionBuilder) = x ->
+    pub def handle(conn: DuckDBConnectionHandle, f: a -> b \ ef): a -> (RegisteredFunction, b) \ Fail + ef - DuckDBScalarFunctionBuilder = x ->
         region rc {
             handleHelper(rc, conn, f, x)
         }
 
-    pub def handleHelper(_: Region[r], conn: DuckDBConnectionHandle, f: a -> b \ ef): a -> Result[String, (RegisteredFunction, b)] \ {ef - DuckDBScalarFunctionBuilder} + r =
+    pub def handleHelper(_: Region[r], 
+                        conn: DuckDBConnectionHandle, 
+                        f: a -> b \ ef): a -> (RegisteredFunction, b) \ Fail + ef - DuckDBScalarFunctionBuilder + r =
         x -> {
-            let builder = unsafe IO as r { JDuckDBFunctions.scalarFunction() };
+            let builder = unsafe IO as {Fail + ef - DuckDBScalarFunctionBuilder + r} { JDuckDBFunctions.scalarFunction() };
             let ans = run {
-                Ok(f(x))
+                f(x)
             } with handler DuckDBScalarFunctionBuilder {
                         
                 def withName(s, k) = try {
-                    unsafe IO as r { discard builder.withName(s) };
+                    unsafe IO as {Fail + ef - DuckDBScalarFunctionBuilder + r} { discard builder.withName(s) };
                     k()
                 } catch {
-                    case ex: JSQLException => Err(ex.getMessage())
+                    case ex: JSQLException => Fail.report(ex.getMessage())
                 }
 
                 def withNullInNullOut(k) = try {
                     unsafe IO as r { discard builder.withNullInNullOut() };
                     k()
                 } catch {
-                    case ex: JSQLException => Err(ex.getMessage())
+                    case ex: JSQLException => Fail.report(ex.getMessage())
                 }
                 
                 def withParameter(p, k) = try {
@@ -71,7 +74,7 @@ pub mod BasicDuckDB.DuckDBScalarFunctionBuilder {
                     unsafe IO as r { discard builder.withParameter(jparam) };
                     k()
                 } catch {
-                    case ex: JSQLException => Err(ex.getMessage())
+                    case ex: JSQLException => Fail.report(ex.getMessage())
                 }
                 
                 def withReturnType(p, k) = try {
@@ -79,7 +82,7 @@ pub mod BasicDuckDB.DuckDBScalarFunctionBuilder {
                     unsafe IO as r { discard builder.withReturnType(jparam) };
                     k()
                 } catch {
-                    case ex: JSQLException => Err(ex.getMessage())
+                    case ex: JSQLException => Fail.report(ex.getMessage())
                 }
 
             def withUnaryInt32Function(fn, k) = try {
@@ -87,18 +90,13 @@ pub mod BasicDuckDB.DuckDBScalarFunctionBuilder {
                     unsafe IO as r { discard builder.withIntFunction(jf1) };
                     k()
                 } catch {
-                    case ex: JSQLException => Err(ex.getMessage())
+                    case ex: JSQLException => Fail.report(ex.getMessage())
                 }
 
             };
-            match ans {
-                case Ok(ans1)    => { 
-                    let DuckDBConnectionHandle.DuckDBConnectionHandle(jconn) = conn;
-                    let jfun: JRegisteredFunction = unsafe IO { builder.register(jconn) };
-                    Ok((RegisteredFunction.RegisteredFunction(jfun), ans1))
-                }
-                case Err(msg) => Err(msg)
-            }
+            let DuckDBConnectionHandle.DuckDBConnectionHandle(jconn) = conn;
+            let jfun: JRegisteredFunction = unsafe IO { builder.register(jconn) };
+            (RegisteredFunction.RegisteredFunction(jfun), ans)
         }
 
     def makeIntUnaryOperator(f: Int32 -> Int32 \ ef): JIntUnaryOperator =

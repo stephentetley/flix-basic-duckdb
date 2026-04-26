@@ -18,16 +18,16 @@
 
 pub mod BasicDuckDB.PreparedStatementSetter {
     
+    use BasicDuckDB.Base.Fail.Fail
     use BasicDuckDB.DuckDBPreparedStatement.{DuckDBPreparedStatementHandle}
 
 
-    import java.sql.{SQLException, SQLTimeoutException, SQLFeatureNotSupportedException}
+    import java.sql.{SQLException => JSQLException}
 
 
     // Note zero-indexed unlike JDBC which is one-indexed
 
-    pub enum PreparedStatementSetter[a:Type, ef: Eff](Unit -> a \ {SetPreparedStatement + ef})
-    
+
     pub eff SetPreparedStatement {
         def setNull(paramIx: Int32, sqlType: Int32): Unit
         def setBool(paramIx: Int32, value: Bool): Unit
@@ -43,89 +43,89 @@ pub mod BasicDuckDB.PreparedStatementSetter {
 
 
     pub def handle(stmt: DuckDBPreparedStatementHandle, 
-                    f: a -> b \ ef): a -> Result[String, b] \ {IO + ef} - SetPreparedStatement =
+                    f: a -> b \ ef): a -> b \ Fail + ef - SetPreparedStatement =
         x -> {
             let DuckDBPreparedStatementHandle.DuckDBPreparedStatementHandle(jstmt) = stmt;
             run {
-                Ok(f(x))
+                f(x)
             } with handler SetPreparedStatement {
             
 
                 def setNull(paramIx, sqlType, k) = try {
-                    jstmt.setNull(paramIx + 1, sqlType);
+                    unsafe IO as {Fail + ef - SetPreparedStatement} { jstmt.setNull(paramIx + 1, sqlType) };
                     k()
                 } catch {
-                    case ex: SQLException => Err(ex.getMessage())
+                    case ex: JSQLException => Fail.report(ex.getMessage())
                 }
                 
                 def setBool(paramIx, value, k) = try {
-                    jstmt.setBoolean(paramIx + 1, value);
+                    unsafe IO as {Fail + ef - SetPreparedStatement} { jstmt.setBoolean(paramIx + 1, value) };
                     k()
                 } catch {
-                    case ex: SQLException => Err(ex.getMessage())
+                    case ex: JSQLException => Fail.report(ex.getMessage())
                 }
                 
                 def setInt8(paramIx, value, k) = try {
-                    jstmt.setByte(paramIx + 1, value);
+                    unsafe IO as {Fail + ef - SetPreparedStatement} { jstmt.setByte(paramIx + 1, value) };
                     k()
                 } catch {
-                    case ex: SQLException => Err(ex.getMessage())
+                    case ex: JSQLException => Fail.report(ex.getMessage())
                 }
                 
                 def setInt16(paramIx, value, k) = try {
-                    jstmt.setShort(paramIx + 1, value);
+                    unsafe IO as {Fail + ef - SetPreparedStatement} { jstmt.setShort(paramIx + 1, value) };
                     k()
                 } catch {
-                    case ex: SQLException => Err(ex.getMessage())
+                    case ex: JSQLException => Fail.report(ex.getMessage())
                 }
                 
                 def setInt32(paramIx, value, k) = try {
-                    jstmt.setInt(paramIx + 1, value);
+                    unsafe IO as {Fail + ef - SetPreparedStatement} { jstmt.setInt(paramIx + 1, value) };
                     k()
                 } catch {
-                    case ex: SQLException => Err(ex.getMessage())
+                    case ex: JSQLException => Fail.report(ex.getMessage())
                 }
                 
                 def setInt64(paramIx, value, k) = try {
-                    jstmt.setLong(paramIx + 1, value);
+                    unsafe IO as {Fail + ef - SetPreparedStatement} { jstmt.setLong(paramIx + 1, value) };
                     k()
                 } catch {
-                    case ex: SQLException => Err(ex.getMessage())
+                    case ex: JSQLException => Fail.report(ex.getMessage())
                 }
                 
                 def setFloat32(paramIx, value, k) = try {
-                    jstmt.setFloat(paramIx + 1, value);
+                    unsafe IO as {Fail + ef - SetPreparedStatement} { jstmt.setFloat(paramIx + 1, value) };
                     k()
                 } catch {
-                    case ex: SQLException => Err(ex.getMessage())
+                    case ex: JSQLException => Fail.report(ex.getMessage())
                 }
                             
                 def setFloat64(paramIx, value, k) = try {
-                    jstmt.setDouble(paramIx + 1, value);
+                    unsafe IO as {Fail + ef - SetPreparedStatement} { jstmt.setDouble(paramIx + 1, value) };
                     k()
                 } catch {
-                    case ex: SQLException => Err(ex.getMessage())
+                    case ex: JSQLException => Fail.report(ex.getMessage())
                 }
 
                 def setBigDecimal(paramIx, value, k) = try {
-                    jstmt.setBigDecimal(paramIx + 1, value);
+                    unsafe IO as {Fail + ef - SetPreparedStatement} { jstmt.setBigDecimal(paramIx + 1, value) };
                     k()
                 } catch {
-                    case ex: SQLException => Err(ex.getMessage())
+                    case ex: JSQLException => Fail.report(ex.getMessage())
                 }
 
                 def setString(paramIx, value, k) = try {
-                    jstmt.setString(paramIx + 1, value);
+                    unsafe IO as {Fail + ef - SetPreparedStatement} { jstmt.setString(paramIx + 1, value) };
                     k()
                 } catch {
-                    case ex: SQLException => Err(ex.getMessage())
+                    case ex: JSQLException => Fail.report(ex.getMessage())
                 }
 
             }
        }
 
-    pub def runWithIO(stmt: DuckDBPreparedStatementHandle, 
-                        f: Unit -> a \ ef): Result[String, a] \ {IO + ef} - SetPreparedStatement  =
+    pub def runSetPreparedStatement(stmt: DuckDBPreparedStatementHandle, 
+                        f: Unit -> a \ ef): a \ Fail + ef - SetPreparedStatement  =
         handle(stmt, f)()
 
 }

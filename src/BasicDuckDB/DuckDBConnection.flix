@@ -17,7 +17,7 @@
 
 
 pub mod BasicDuckDB.DuckDBConnection {
-    use BasicDuckDB.Base.Alt.Alt.failure
+    
 
     use BasicDuckDB.DuckDBAppender.{DuckDBAppender}
     use BasicDuckDB.DuckDBAppender.{DuckDBAppenderHandle}
@@ -32,7 +32,7 @@ pub mod BasicDuckDB.DuckDBConnection {
 
     import java.sql.{Connection => JConnection}
     import java.sql.{Statement => JStatement}
-    import java.sql.SQLException
+    import java.sql.{SQLException => JSQLException}
     import org.duckdb.{DuckDBPreparedStatement => JDuckDBPreparedStatement}
     import org.duckdb.{DuckDBConnection => JDuckDBConnection}
     
@@ -59,216 +59,215 @@ pub mod BasicDuckDB.DuckDBConnection {
         def setTransactionIsolation(level: Int32): Unit
     }
 
-    pub def handle(conn: DuckDBConnectionHandle, f: a -> b \ ef): a -> b \ {IO + ef + Fail} - DuckDBConnection =
+    pub def handle(conn: DuckDBConnectionHandle, f: a -> b \ ef): a -> b \ Fail + ef - DuckDBConnection =
         x -> {
             let DuckDBConnectionHandle.DuckDBConnectionHandle(jconn) = conn;
             run {
-                Ok(f(x))
+                f(x)
             } with handler DuckDBConnection {
             
                 def createStatement(k) = try {
-                    let ans = StatementHandle.StatementHandle(jconn.createStatement());
-                    k(ans)
+                    let ans = unsafe IO as {Fail + ef - DuckDBConnection} { jconn.createStatement() };
+                    k(StatementHandle.StatementHandle(ans))
                 } catch {
-                    case ex: SQLException => Fail.report(ex.getMessage())
+                    case ex: JSQLException => Fail.report(ex.getMessage())
                 }
 
                 def prepareStatement(sql, k) = try {
-                    let ans = jconn.prepareStatement(sql);
+                    let ans = unsafe IO as {Fail + ef - DuckDBConnection} { jconn.prepareStatement(sql) };
                     let ans1 = unchecked_cast(ans as JDuckDBPreparedStatement);
-                    let ans2 = DuckDBPreparedStatementHandle.DuckDBPreparedStatementHandle(ans1);
-                    k(ans2)
+                    k(DuckDBPreparedStatementHandle.DuckDBPreparedStatementHandle(ans1))
                 } catch {
-                    case ex: SQLException => Fail.report(ex.getMessage())
+                    case ex: JSQLException => Fail.report(ex.getMessage())
                 }
 
                 def createAppender(schema, table, k) = try {
-                    let ans2 = DuckDBAppenderHandle.DuckDBAppenderHandle(jconn.createAppender(schema, table));
-                    k(ans2)
+                    let ans = unsafe IO as {Fail + ef - DuckDBConnection} { jconn.createAppender(schema, table) };
+                    k(DuckDBAppenderHandle.DuckDBAppenderHandle(ans))
                 } catch {
-                    case ex: SQLException => Fail.report(ex.getMessage())
+                    case ex: JSQLException => Fail.report(ex.getMessage())
                 }
 
                 def nativeSQL(sql, k) = try {
-                    let ans = jconn.nativeSQL(sql);
+                    let ans = unsafe IO as {Fail + ef - DuckDBConnection} { jconn.nativeSQL(sql) };
                     k(ans)
                 } catch {
-                    case ex: SQLException => Fail.report(ex.getMessage())
+                    case ex: JSQLException => Fail.report(ex.getMessage())
                 }
 
                 def setAutoCommit(ac, k) = try {
-                    jconn.setAutoCommit(ac);
+                    unsafe IO as {Fail + ef - DuckDBConnection} { jconn.setAutoCommit(ac) };
                     k()
                 } catch {
-                    case ex: SQLException => Fail.report(ex.getMessage())
+                    case ex: JSQLException => Fail.report(ex.getMessage())
                 }
 
                 def getAutoCommit(k) = try {
-                    let ans = jconn.getAutoCommit();
+                    let ans = unsafe IO as {Fail + ef - DuckDBConnection} { jconn.getAutoCommit() };
                     k(ans)
                 } catch {
-                    case ex: SQLException => Fail.report(ex.getMessage())
+                    case ex: JSQLException => Fail.report(ex.getMessage())
                 }
 
                 def commit(k) = try {
-                    jconn.commit();
+                    unsafe IO as {Fail + ef - DuckDBConnection} { jconn.commit() };
                     k()
                 } catch {
-                    case ex: SQLException => Fail.report(ex.getMessage())
+                    case ex: JSQLException => Fail.report(ex.getMessage())
                 }
 
                 def rollback(k) = try {
-                    jconn.rollback();
+                    unsafe IO as {Fail + ef - DuckDBConnection} { jconn.rollback() };
                     k()
                 } catch {
-                    case ex: SQLException => Fail.report(ex.getMessage())
+                    case ex: JSQLException => Fail.report(ex.getMessage())
                 }
 
                 def close(k) = try {
-                    jconn.close();
+                    unsafe IO as {Fail + ef - DuckDBConnection} { jconn.close() };
                     k()
                 } catch {
-                    case ex: SQLException => Fail.report(ex.getMessage())
+                    case ex: JSQLException => Fail.report(ex.getMessage())
                 }
 
                 def isClosed(k) = try {
-                    let ans = jconn.isClosed();
+                    let ans = unsafe IO as {Fail + ef - DuckDBConnection} { jconn.isClosed() };
                     k(ans)
                 } catch {
-                    case ex: SQLException => Fail.report(ex.getMessage())
+                    case ex: JSQLException => Fail.report(ex.getMessage())
                 }
 
                 def isValid(timeout, k) = try {
-                    let ans = jconn.isValid(timeout);
+                    let ans = unsafe IO as {Fail + ef - DuckDBConnection} { jconn.isValid(timeout) };
                     k(ans)
                 } catch {
-                    case ex: SQLException => Fail.report(ex.getMessage())
+                    case ex: JSQLException => Fail.report(ex.getMessage())
                 }
 
                 def isReadOnly(k) = try {
-                    let ans = jconn.isReadOnly();
+                    let ans = unsafe IO as {Fail + ef - DuckDBConnection} { jconn.isReadOnly() };
                     k(ans)
                 } catch {
-                    case ex: SQLException => Fail.report(ex.getMessage())
+                    case ex: JSQLException => Fail.report(ex.getMessage())
                 }
 
                 def setReadOnly(ro, k) = try {
-                    jconn.setReadOnly(ro);
+                    unsafe IO as {Fail + ef - DuckDBConnection} { jconn.setReadOnly(ro) };
                     k()
                 } catch {
-                    case ex: SQLException => Fail.report(ex.getMessage())
+                    case ex: JSQLException => Fail.report(ex.getMessage())
                 }
 
                 def getCatalog(k) = try {
-                    let ans = jconn.getCatalog();
+                    let ans = unsafe IO as {Fail + ef - DuckDBConnection} { jconn.getCatalog() };
                     k(ans)
                 } catch {
-                    case ex: SQLException => Fail.report(ex.getMessage())
+                    case ex: JSQLException => Fail.report(ex.getMessage())
                 }
 
                 def setCatalog(c, k) = try {
-                    jconn.setCatalog(c);
+                    unsafe IO as {Fail + ef - DuckDBConnection} { jconn.setCatalog(c) };
                     k()
                 } catch {
-                    case ex: SQLException => Fail.report(ex.getMessage())
+                    case ex: JSQLException => Fail.report(ex.getMessage())
                 }
 
                 def getTransactionIsolation(k) = try {
-                    let ans = jconn.getTransactionIsolation();
+                    let ans = unsafe IO as {Fail + ef - DuckDBConnection} { jconn.getTransactionIsolation() };
                     k(ans)
                 } catch {
-                    case ex: SQLException => Fail.report(ex.getMessage())
+                    case ex: JSQLException => Fail.report(ex.getMessage())
                 }
 
                 def setTransactionIsolation(l, k) = try {
-                    jconn.setTransactionIsolation(l);
+                    unsafe IO as {Fail + ef - DuckDBConnection} { jconn.setTransactionIsolation(l) };
                     k()
                 } catch {
-                    case ex: SQLException => Fail.report(ex.getMessage())
+                    case ex: JSQLException => Fail.report(ex.getMessage())
                 }
 
+            }
+
         }
-
-
     
-    pub def runWithIO(conn: DuckDBConnectionHandle, 
-                        f: Unit -> a \ ef): Result[String, a] \ {IO + ef} - DuckDBConnection = 
+    pub def runDuckDBConnection(conn: DuckDBConnectionHandle, 
+                        f: Unit -> a \ ef): a \ Fail + ef - DuckDBConnection = 
         handle(conn, f)()
 
     
-    pub def execStatement(f: Unit -> a \ ef): Result[String, a] \ {IO + ef + DuckDBConnection} - Statement = 
-        let stmt = DuckDBConnection.createStatement();
-        run {
-            let ans = f();
-            Statement.close();
-            ans
-        } with BasicDuckDB.JDBC.Statement.runWithIO(stmt)
+    // pub def execStatement(f: Unit -> a \ ef): Result[String, a] \ {IO + ef + DuckDBConnection} - Statement = 
+    //     let stmt = DuckDBConnection.createStatement();
+    //     run {
+    //         let ans = f();
+    //         Statement.close();
+    //         ans
+    //     } with BasicDuckDB.JDBC.Statement.runWithIO(stmt)
 
-    pub def execDuckDBPreparedStatement(sql: String, f: Unit -> a \ ef): Result[String, a] \ {IO + ef + DuckDBConnection} - DuckDBPreparedStatement = 
-        let stmt = DuckDBConnection.prepareStatement(sql);
-        run {
-            let ans = f();
-            DuckDBPreparedStatement.close();
-            ans
-        } with BasicDuckDB.DuckDBPreparedStatement.runWithIO(stmt)
+    // pub def execDuckDBPreparedStatement(sql: String, f: Unit -> a \ ef): Result[String, a] \ {IO + ef + DuckDBConnection} - DuckDBPreparedStatement = 
+    //     let stmt = DuckDBConnection.prepareStatement(sql);
+    //     run {
+    //         let ans = f();
+    //         DuckDBPreparedStatement.close();
+    //         ans
+    //     } with BasicDuckDB.DuckDBPreparedStatement.runWithIO(stmt)
         
 
-    pub def queryFold(f: a -> a \ ReadRowWithAlt + ef, s: a, sql: String): Result[String, a] \ {IO + ef + DuckDBConnection} - {Statement + DuckDBResultSet}  = 
-        let stmt = DuckDBConnection.createStatement();
-        Result.flatten(run {
-            let results = Statement.executeQuery(sql);
-            let results1 = BasicDuckDB.DuckDBResultSet.castResultSetHandle(results);
-            let ans = Result.flatten(run {
-                def loop(acc, fk, sk) = {
-                    let more = DuckDBResultSet.next();
-                    if (more) {
-                        match BasicDuckDB.DuckDBResultSet.execReadRow(_ -> f(acc)) {
-                            case Ok(acc1) => loop(acc1, fk, sk)
-                            case Err(err) => fk(err)
-                        }
-                    } else sk(acc)
-                };
-                loop(s, e -> Err(e), a -> Ok(a))
-            } with BasicDuckDB.DuckDBResultSet.runWithIO(results1));
-            Statement.close();
-            ans
-        } with BasicDuckDB.JDBC.Statement.runWithIO(stmt))
+    // pub def queryFold(f: a -> a \ ReadRowWithAlt + ef, s: a, sql: String): Result[String, a] \ {IO + ef + DuckDBConnection} - {Statement + DuckDBResultSet}  = 
+    //     let stmt = DuckDBConnection.createStatement();
+    //     Result.flatten(run {
+    //         let results = Statement.executeQuery(sql);
+    //         let results1 = BasicDuckDB.DuckDBResultSet.castResultSetHandle(results);
+    //         let ans = Result.flatten(run {
+    //             def loop(acc, fk, sk) = {
+    //                 let more = DuckDBResultSet.next();
+    //                 if (more) {
+    //                     match BasicDuckDB.DuckDBResultSet.execReadRow(_ -> f(acc)) {
+    //                         case Ok(acc1) => loop(acc1, fk, sk)
+    //                         case Err(err) => fk(err)
+    //                     }
+    //                 } else sk(acc)
+    //             };
+    //             loop(s, e -> Err(e), a -> Ok(a))
+    //         } with BasicDuckDB.DuckDBResultSet.runWithIO(results1));
+    //         Statement.close();
+    //         ans
+    //     } with BasicDuckDB.JDBC.Statement.runWithIO(stmt))
 
 
-    pub def queryForEach(reader: Unit -> a \ ReadRowWithAlt + ef, sql: String): Result[String, Unit] \ {IO + ef + DuckDBConnection} - {Statement + DuckDBResultSet + ReadRowWithAlt} = 
-        let stmt = DuckDBConnection.createStatement();
-        run {
-            let results = Statement.executeQuery(sql);
-            let results1 = BasicDuckDB.DuckDBResultSet.castResultSetHandle(results);
-            let _ = run {
-                def loop(fk, sk) = {
-                    let more = DuckDBResultSet.next();
-                    if (more) {
-                        match BasicDuckDB.DuckDBResultSet.execReadRow(reader) {
-                            case Ok(_) => loop(fk, sk)
-                            case Err(err) => fk(err)
-                        }
-                    } else sk()
-                };
-                loop(e -> Err(e), a -> Ok(a))
-            } with BasicDuckDB.DuckDBResultSet.runWithIO(results1);
-            Statement.close();
-            ()
-        } with BasicDuckDB.JDBC.Statement.runWithIO(stmt)
+    // pub def queryForEach(reader: Unit -> a \ ReadRowWithAlt + ef, sql: String): Result[String, Unit] \ {IO + ef + DuckDBConnection} - {Statement + DuckDBResultSet + ReadRowWithAlt} = 
+    //     let stmt = DuckDBConnection.createStatement();
+    //     run {
+    //         let results = Statement.executeQuery(sql);
+    //         let results1 = BasicDuckDB.DuckDBResultSet.castResultSetHandle(results);
+    //         let _ = run {
+    //             def loop(fk, sk) = {
+    //                 let more = DuckDBResultSet.next();
+    //                 if (more) {
+    //                     match BasicDuckDB.DuckDBResultSet.execReadRow(reader) {
+    //                         case Ok(_) => loop(fk, sk)
+    //                         case Err(err) => fk(err)
+    //                     }
+    //                 } else sk()
+    //             };
+    //             loop(e -> Err(e), a -> Ok(a))
+    //         } with BasicDuckDB.DuckDBResultSet.runWithIO(results1);
+    //         Statement.close();
+    //         ()
+    //     } with BasicDuckDB.JDBC.Statement.runWithIO(stmt)
 
-    // forEach has a strange effect on the effect signature
-    pub def execRowAppender(schema: String, 
-                            table: String, 
-                            appendf: a -> Unit \ AppendRow + ef, t: t): Unit \ ({IO + Fail + ef + DuckDBConnection} - AppendRow) + {IO + DuckDBAppender + DuckDBAppender + DuckDBAppender + ForEach.Aef[t]} - {DuckDBAppender} with ForEach[t] where ForEach.Elm[t] ~ a = 
-        let hndl = DuckDBConnection.createAppender(schema, table);
-        run { 
-            ForEach.forEach(a -> {
-                DuckDBAppender.beginRow();
-                discard BasicDuckDB.DuckDBAppender.execRowAppender(_ -> appendf(a));
-                DuckDBAppender.endRow()
-                }, t);
-                DuckDBAppender.close()
-        } with BasicDuckDB.DuckDBAppender.runWithIO(hndl)
+    // // forEach has a strange effect on the effect signature
+    // pub def execRowAppender(schema: String, 
+    //                         table: String, 
+    //                         appendf: a -> Unit \ AppendRow + ef, t: t): Unit \ ({IO + Fail + ef + DuckDBConnection} - AppendRow) + {IO + DuckDBAppender + DuckDBAppender + DuckDBAppender + ForEach.Aef[t]} - {DuckDBAppender} with ForEach[t] where ForEach.Elm[t] ~ a = 
+    //     let hndl = DuckDBConnection.createAppender(schema, table);
+    //     run { 
+    //         ForEach.forEach(a -> {
+    //             DuckDBAppender.beginRow();
+    //             discard BasicDuckDB.DuckDBAppender.execRowAppender(_ -> appendf(a));
+    //             DuckDBAppender.endRow()
+    //             }, t);
+    //             DuckDBAppender.close()
+    //     } with BasicDuckDB.DuckDBAppender.runWithIO(hndl)
 
 
 }
