@@ -24,8 +24,10 @@ pub mod Test06 {
                         BasicDuckDB.DuckDBDriver.execDuckDBConnection(url, () -> {
                             BasicDuckDB.DuckDBConnection.execDuckDBScalarFunctionBuilder(buildFun1);
                             BasicDuckDB.DuckDBConnection.execDuckDBScalarFunctionBuilder(buildFun2);
+                            BasicDuckDB.DuckDBConnection.execDuckDBScalarFunctionBuilder(buildFun3);
                             BasicDuckDB.DuckDBConnection.queryForEach(() -> { let i = rowReader(); println("Test06: ${i} ") }, "SELECT flix_add_one(42);") |> println;
-                            BasicDuckDB.DuckDBConnection.queryForEach(() -> { let i = rowReader(); println("Test06: ${i} ") }, "SELECT flix_add_n(42, 100);") |> println
+                            BasicDuckDB.DuckDBConnection.queryForEach(() -> { let i = rowReader(); println("Test06: ${i} ") }, "SELECT flix_add_n(42, 100);") |> println;
+                            BasicDuckDB.DuckDBConnection.queryForEach(() -> { let s = rowReaderS(); println("Test06 (ten): ${s} ") }, "SELECT flix_get_ten();") |> println
                         })
                     } with BasicDuckDB.DuckDBDriver.runWithIOAndFail 
             ) yield true;
@@ -34,6 +36,10 @@ pub mod Test06 {
 
     def rowReader(): Int32 \ ReadRowWithAlt = 
         BasicDuckDB.Base.Alt.withDefault(_ -> ReadRow.getInt32ByIndex(0), 0)
+
+    def rowReaderS(): String \ ReadRowWithAlt = 
+        BasicDuckDB.Base.Alt.withDefault(_ -> ReadRow.getStringByIndex(0), "")
+
 
     def buildFun1(): Unit \ DuckDBScalarFunctionBuilder = {
         DuckDBScalarFunctionBuilder.withName("flix_add_one");
@@ -49,6 +55,18 @@ pub mod Test06 {
         DuckDBScalarFunctionBuilder.withReturnType(ColumnType.INTEGER);
         DuckDBScalarFunctionBuilder.withBinaryInt32Function((i, j) -> i + j)
     }
+
+    def buildFun3(): Unit \ DuckDBScalarFunctionBuilder = {
+        DuckDBScalarFunctionBuilder.withName("flix_get_ten");
+        DuckDBScalarFunctionBuilder.withReturnType(ColumnType.VARCHAR);
+        BasicDuckDB.DuckDBScalarFunctionBuilder.withSupplier(() -> "ten")
+    }
+
+    // def buildFun4(): Unit \ DuckDBScalarFunctionBuilder = {
+    //     DuckDBScalarFunctionBuilder.withName("flix_get_10");
+    //     DuckDBScalarFunctionBuilder.withReturnType(ColumnType.INTEGER);
+    //     BasicDuckDB.DuckDBScalarFunctionBuilder.withSupplier(() -> 10)
+    // }
 
 }
 
