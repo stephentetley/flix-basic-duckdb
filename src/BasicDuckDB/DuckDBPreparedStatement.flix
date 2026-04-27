@@ -43,44 +43,48 @@ pub mod BasicDuckDB.DuckDBPreparedStatement {
     }
 
     pub def handle(stmt: DuckDBPreparedStatementHandle, 
-                    f: a -> b \ ef): a -> b \ Fail + ef - DuckDBPreparedStatement =
-        x -> {
-            let DuckDBPreparedStatementHandle.DuckDBPreparedStatementHandle(jstmt) = stmt;
-            run {
-                f(x)
-            } with handler DuckDBPreparedStatement {
-                        
-                def askDuckDBPreparedStatementHandle(k) = k(stmt)
+                    f: a -> b \ ef): a -> b \ Fail + ef - DuckDBPreparedStatement = x -> {
+        let DuckDBPreparedStatementHandle.DuckDBPreparedStatementHandle(jstmt) = stmt;
+        run {
+            f(x)
+        } with handler DuckDBPreparedStatement {
+                    
+            def askDuckDBPreparedStatementHandle(k) = k(stmt)
 
-                def close(k) = try {                    
+            def close(k) = 
+                try {
                     unsafe IO as { Fail + ef - DuckDBPreparedStatement } { jstmt.close() };
                     k()
                 } catch {
                     case ex: JSQLException => Fail.report(ex.getMessage())
                 }
 
-                def execute(k) = try {
+            def execute(k) = 
+                try {
                     let ans = unsafe IO as { Fail + ef - DuckDBPreparedStatement } { jstmt.execute() };
                     k(ans)
                 } catch {
                     case ex: JSQLException => Fail.report(ex.getMessage())
                 }
 
-                def addBatch(k) = try {
+            def addBatch(k) = 
+                try {
                     unsafe IO as { Fail + ef - DuckDBPreparedStatement } { jstmt.addBatch() };
                     k()
                 } catch {
                     case ex: JSQLException => Fail.report(ex.getMessage())
                 }
 
-                def executeBatch(k) = try {
+            def executeBatch(k) = 
+                try {
                     unsafe IO as { Fail + ef - DuckDBPreparedStatement } { discard jstmt.executeBatch() };
                     k()
                 } catch {
                     case ex: JSQLException => Fail.report(ex.getMessage())
                 }
 
-                def executeQuery(k) = try {
+            def executeQuery(k) = 
+                try {
                     let ans = unsafe IO as { Fail + ef - DuckDBPreparedStatement } { jstmt.executeQuery() };
                     let ans1 = unchecked_cast(ans as JDuckDBResultSet);
                     k(DuckDBResultSetHandle.DuckDBResultSetHandle(ans1))
@@ -88,21 +92,23 @@ pub mod BasicDuckDB.DuckDBPreparedStatement {
                     case ex: JSQLException => Fail.report(ex.getMessage())
                 }
 
-                def executeUpdate(k) = try {
+            def executeUpdate(k) = 
+                try {
                     let ans = unsafe IO as { Fail + ef - DuckDBPreparedStatement } { jstmt.executeUpdate() };
                     k(ans)
                 } catch {
                     case ex: JSQLException => Fail.report(ex.getMessage())
                 }
 
-                def clearParameters(k) = try {
+            def clearParameters(k) = 
+                try {
                     unsafe IO as { Fail + ef - DuckDBPreparedStatement } { jstmt.clearParameters() };
                     k()
                 } catch {
                     case ex: JSQLException => Fail.report(ex.getMessage())
                 }
-            }
-       }
+        }
+    }
 
     pub def runDuckDBPreparedStatement(stmt: DuckDBPreparedStatementHandle, 
                                         f: Unit -> a \ ef): a \ Fail + ef - DuckDBPreparedStatement =

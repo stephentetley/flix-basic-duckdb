@@ -42,98 +42,110 @@ pub mod BasicDuckDB.JDBC.Statement {
         def isCloseOnCompletion(): Bool
     }
 
-    pub def handle(stmt: StatementHandle, f: a -> b \ ef): a -> b \ {Fail + ef} - Statement =
-        x -> {
-            let StatementHandle.StatementHandle(jstmt) = stmt; 
-            run {
-                f(x)
-            } with handler Statement {
-            
-                def close(k) = try {
+    pub def handle(stmt: StatementHandle, 
+                    f: a -> b \ ef): a -> b \ {Fail + ef} - Statement = x -> {
+        let StatementHandle.StatementHandle(jstmt) = stmt; 
+        run {
+            f(x)
+        } with handler Statement {
+        
+            def close(k) = 
+                try {
                     unsafe IO as {Fail + ef - Statement} { jstmt.close() };
                     k()
                 } catch {
                     case ex: JSQLException => Fail.report(ex.getMessage())
                 }
 
-                def getMaxRows(k) = try {
+            def getMaxRows(k) = 
+                try {
                     let ans = unsafe IO as {Fail + ef - Statement} { jstmt.getMaxRows() };
                     k(ans)
                 } catch {
                     case ex: JSQLException => Fail.report(ex.getMessage())
                 }
 
-                def setMaxRows(maxRows, k) = try {
+            def setMaxRows(maxRows, k) = 
+                try {
                     unsafe IO as {Fail + ef - Statement} { jstmt.setMaxRows(maxRows) };
                     k()
                 } catch {
                     case ex: JSQLException => Fail.report(ex.getMessage())
                 }
 
-                def cancel(k) = try {
+            def cancel(k) = 
+                try {
                     unsafe IO as {Fail + ef - Statement} { jstmt.cancel() };
                     k()
                 } catch {
                     case ex: JSQLException => Fail.report(ex.getMessage())
                 }
-                
-                def execute(sql, k) = try {
+            
+            def execute(sql, k) = 
+                try {
                     let ans = unsafe IO as {Fail + ef - Statement} { jstmt.execute(sql) };
                     k(ans)
                 } catch {
                     case ex: JSQLException => Fail.report(ex.getMessage())
                 }
-                
-                def executeUpdate(sql, k) = try {
+            
+            def executeUpdate(sql, k) = 
+                try {
                     let ans = unsafe IO as {Fail + ef - Statement} { jstmt.executeUpdate(sql) };
                     k(ans)
                 } catch {
                     case ex: JSQLException => Fail.report(ex.getMessage())
                 }
-                
-                def executeLargeUpdate(sql, k) = try {
+            
+            def executeLargeUpdate(sql, k) = 
+                try {
                     let ans = unsafe IO as {Fail + ef - Statement} { jstmt.executeLargeUpdate(sql) };
                     k(ans)
                 } catch {
                     case ex: JSQLException => Fail.report(ex.getMessage())
                 }
-                
-                def executeQuery(sql, k) = try {
+            
+            def executeQuery(sql, k) = 
+                try {
                     let ans = unsafe IO as {Fail + ef - Statement} { jstmt.executeQuery(sql) };
                     k(ResultSetHandle.ResultSetHandle(ans))
                 } catch {
                     case ex: JSQLException => Fail.report(ex.getMessage())
                 }
 
-                // def getResultSet(k) = try {
-                //     let ans = ResultSetHandle(jstmt.getResultSet());
-                //     k(ans)
-                // } catch {
-                //     case ex: JSQLException => Fail.report(ex.getMessage())
-                // }
+            // def getResultSet(k) = 
+            //     try {
+            //         let ans = ResultSetHandle(jstmt.getResultSet());
+            //         k(ans)
+            //     } catch {
+            //         case ex: JSQLException => Fail.report(ex.getMessage())
+            //     }
 
-                def enquoteLiteral(sql, k) = try {
+            def enquoteLiteral(sql, k) = 
+                try {
                     let ans = unsafe IO as {Fail + ef - Statement} { jstmt.enquoteLiteral(sql) };
                     k(ans)
                 } catch {
                     case ex: JSQLException => Fail.report(ex.getMessage())
                 }
 
-                def isClosed(k) = try {
+            def isClosed(k) = 
+                try {
                     let ans = unsafe IO as {Fail + ef - Statement} { jstmt.isClosed() };
                     k(ans)
                 } catch {
                     case ex: JSQLException => Fail.report(ex.getMessage())
                 }
-    
-                def isCloseOnCompletion(k) = try {
+
+            def isCloseOnCompletion(k) = 
+                try {
                     let ans = unsafe IO as {Fail + ef - Statement} { jstmt.isCloseOnCompletion() };
                     k(ans)
                 } catch {
                     case ex: JSQLException => Fail.report(ex.getMessage())
                 }
-            }
         }
+    }
 
     pub def runStatement(stmt: StatementHandle, f: Unit -> a \ ef): a \ {Fail + ef} - Statement = 
         handle(stmt, f)()

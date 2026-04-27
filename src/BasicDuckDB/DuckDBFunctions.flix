@@ -19,7 +19,7 @@ pub mod BasicDuckDB.DuckDBFunctions {
     
     import org.duckdb.{DuckDBFunctions$RegisteredFunction => JRegisteredFunction}
 
-
+    // Not needed...
     pub enum RegisteredFunction(JRegisteredFunction)
 
 

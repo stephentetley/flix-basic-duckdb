@@ -36,14 +36,14 @@ pub mod BasicDuckDB.DuckDBDriver {
         def getMinorVersion(): Int32
     }
 
-    pub def handle(f: a -> b \ ef): a -> b \ {IO + Fail + ef} - DuckDBDriver =
-        x -> {
-            let jdriver = new JDuckDBDriver();
-            run {
-                f(x)
-            } with handler DuckDBDriver {
-            
-                def connect(url, k) = try {
+    pub def handle(f: a -> b \ ef): a -> b \ {IO + Fail + ef} - DuckDBDriver = x -> {
+        let jdriver = new JDuckDBDriver();
+        run {
+            f(x)
+        } with handler DuckDBDriver {
+        
+            def connect(url, k) = 
+                try {
                     let props = new JProperties();
                     let ans = jdriver.connect(url, props);
                     let ans1 = unchecked_cast(ans as JDuckDBConnection);
@@ -52,37 +52,41 @@ pub mod BasicDuckDB.DuckDBDriver {
                 } catch {
                     case ex: JSQLException => Fail.report(ex.getMessage())
                 }
-                
-                def acceptsURL(url, k) = try {
+            
+            def acceptsURL(url, k) = 
+                try {
                     let ans = jdriver.acceptsURL(url);
                     k(ans)
                 } catch {
                     case ex: JSQLException => Fail.report(ex.getMessage())
                 }
-                
-                def jdbcCompliant(k) = try {
+            
+            def jdbcCompliant(k) = 
+                try {
                     let ans = jdriver.jdbcCompliant();
                     k(ans)
                 } catch {
                     case ex: JSQLException => Fail.report(ex.getMessage())
                 }
-                
-                def getMajorVersion(k) = try {
+            
+            def getMajorVersion(k) = 
+                try {
                     let ans = jdriver.getMajorVersion();
                     k(ans)
                 } catch {
                     case ex: JSQLException => Fail.report(ex.getMessage())
                 }
-                
-                def getMinorVersion(k) = try {
+            
+            def getMinorVersion(k) = 
+                try {
                     let ans = jdriver.getMinorVersion();
                     k(ans)
                 } catch {
                     case ex: JSQLException => Fail.report(ex.getMessage())
                 }
 
-            }
         }
+    }
 
     // pub def runWithIO(f: Unit -> a \ ef): Result[IoError, a] \ {IO + ef} - DuckDBDriver - Fail =
     //     run {

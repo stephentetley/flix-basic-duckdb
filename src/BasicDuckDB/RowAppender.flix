@@ -40,99 +40,111 @@ pub mod BasicDuckDB.RowAppender {
         def appendString(value: String): Unit
     }
 
-    pub def handle(appender: DuckDBAppenderHandle, f: a -> b \ ef): a -> b \ Fail + ef - AppendRow =
-        x -> {
-            let DuckDBAppenderHandle.DuckDBAppenderHandle(jappender) = appender;
-            run {
-                f(x)
-            } with handler AppendRow {
-                
-                def appendNull(k) = try {
+    pub def handle(appender: DuckDBAppenderHandle, 
+                    f: a -> b \ ef): a -> b \ Fail + ef - AppendRow = x -> {
+        let DuckDBAppenderHandle.DuckDBAppenderHandle(jappender) = appender;
+        run {
+            f(x)
+        } with handler AppendRow {
+            
+            def appendNull(k) = 
+                try {
                     unsafe IO as {Fail + ef - AppendRow} { discard jappender.appendNull() };
                     k()
                 } catch {
                     case ex: JSQLException => Fail.report(ex.getMessage())
                 }
 
-                def appendBool(value, k) = try {
+            def appendBool(value, k) = 
+                try {
                     unsafe IO as {Fail + ef - AppendRow} { discard jappender.append(value) };
                     k()
                 } catch {
                     case ex: JSQLException => Fail.report(ex.getMessage())
                 }
 
-                def appendInt8(value, k) = try {
+            def appendInt8(value, k) = 
+                try {
                     unsafe IO as {Fail + ef - AppendRow} { discard jappender.append(value) };
                     k()
                 } catch {
                     case ex: JSQLException => Fail.report(ex.getMessage())
                 }
 
-                def appendInt16(value, k) = try {
+            def appendInt16(value, k) = 
+                try {
                     unsafe IO as {Fail + ef - AppendRow} { discard jappender.append(value) };
                     k()
                 } catch {
                     case ex: JSQLException => Fail.report(ex.getMessage())
                 }
 
-                def appendInt32(value, k) = try {
+            def appendInt32(value, k) = 
+                try {
                     unsafe IO as {Fail + ef - AppendRow} { discard jappender.append(value) };
                     k()
                 } catch {
                     case ex: JSQLException => Fail.report(ex.getMessage())
                 }
 
-                def appendInt64(value, k) = try {
+            def appendInt64(value, k) = 
+                try {
                     unsafe IO as {Fail + ef - AppendRow} { discard jappender.append(value) };
                     k()
                 } catch {
                     case ex: JSQLException => Fail.report(ex.getMessage())
                 }
 
-                def appendBigInt(value, k) = try {
+            def appendBigInt(value, k) = 
+                try {
                     unsafe IO as {Fail + ef - AppendRow} { discard jappender.append(value) };
                     k()
                 } catch {
                     case ex: JSQLException => Fail.report(ex.getMessage())
                 }
 
-                def appendFloat32(value, k) = try {
+            def appendFloat32(value, k) = 
+                try {
                     unsafe IO as {Fail + ef - AppendRow} { discard jappender.append(value) };
                     k()
                 } catch {
                     case ex: JSQLException => Fail.report(ex.getMessage())
                 }
 
-                def appendFloat64(value, k) = try {
+            def appendFloat64(value, k) = 
+                try {
                     unsafe IO as {Fail + ef - AppendRow} { discard jappender.append(value) };
                     k()
                 } catch {
                     case ex: JSQLException => Fail.report(ex.getMessage())
                 }
 
-                def appendBigDecimal(value, k) = try {
+            def appendBigDecimal(value, k) = 
+                try {
                     unsafe IO as {Fail + ef - AppendRow} { discard jappender.append(value) };
                     k()
                 } catch {
                     case ex: JSQLException => Fail.report(ex.getMessage())
                 }
 
-                def appendChar(value, k) = try {
+            def appendChar(value, k) = 
+                try {
                     unsafe IO as {Fail + ef - AppendRow} { discard jappender.append(value) };
                     k()
                 } catch {
                     case ex: JSQLException => Fail.report(ex.getMessage())
                 }
 
-                def appendString(value, k) = try {
+            def appendString(value, k) = 
+                try {
                     unsafe IO as {Fail + ef - AppendRow} { discard jappender.append(value) };
                     k()
                 } catch {
                     case ex: JSQLException => Fail.report(ex.getMessage())
                 }
 
-            }
         }
+    }
 
     pub def runAppendRow(appender: DuckDBAppenderHandle, 
                         f: Unit -> a \ ef): a \ Fail + ef - AppendRow = 

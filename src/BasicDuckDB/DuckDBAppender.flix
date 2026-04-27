@@ -39,52 +39,55 @@ pub mod BasicDuckDB.DuckDBAppender {
     }
 
     pub def handle(appender: DuckDBAppenderHandle, 
-                    f: a -> b \ ef): a -> b \ Fail + ef - DuckDBAppender =
-        x -> {
-            let DuckDBAppenderHandle.DuckDBAppenderHandle(jappender) = appender;
-            run {
-                f(x)
-            } with handler DuckDBAppender {
+                    f: a -> b \ ef): a -> b \ Fail + ef - DuckDBAppender = x -> {
+        let DuckDBAppenderHandle.DuckDBAppenderHandle(jappender) = appender;
+        run {
+            f(x)
+        } with handler DuckDBAppender {
 
-                def askDuckDBAppenderHandle(k) = k(appender)
+            def askDuckDBAppenderHandle(k) = k(appender)
 
-                def beginRow(k) = try {
+            def beginRow(k) = 
+                try {
                     unsafe IO as { Fail + ef - DuckDBAppender } { discard jappender.beginRow() };
                     k()
                 } catch {
                     case ex: SQLException => Fail.report(ex.getMessage())
                 }
-                
-                def endRow(k) = try {
+            
+            def endRow(k) = 
+                try {
                     unsafe IO as { Fail + ef - DuckDBAppender } { discard jappender.endRow() };
                     k()
                 } catch {
                     case ex: SQLException => Fail.report(ex.getMessage())
                 }
-                
-                def flush(k) = try {
+            
+            def flush(k) = 
+                try {
                     unsafe IO as { Fail + ef - DuckDBAppender } { discard jappender.flush() };
                     k()
                 } catch {
                     case ex: SQLException => Fail.report(ex.getMessage())
                 }
-                
-                // def finalize(k) = try {
-                //     let _ = jappender.finalize();
-                //     k()
-                // } catch {
-                //     case ex: Throwable => Fail.report(ex.getMessage())
-                // }
+            
+            // def finalize(k) = try {
+            //     let _ = jappender.finalize();
+            //     k()
+            // } catch {
+            //     case ex: Throwable => Fail.report(ex.getMessage())
+            // }
 
-                def close(k) = try {
+            def close(k) = 
+                try {
                     unsafe IO as { Fail + ef - DuckDBAppender } { jappender.close() };
                     k()
                 } catch {
                     case ex: SQLException => Fail.report(ex.getMessage())
                 }
 
-            }
         }
+    }
 
     pub def runDuckDBAppender(appender: DuckDBAppenderHandle, 
                         f: Unit -> a \ ef):  a \ Fail + ef - DuckDBAppender = 

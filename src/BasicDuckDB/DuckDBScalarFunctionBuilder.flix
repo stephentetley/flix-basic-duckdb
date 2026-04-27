@@ -36,42 +36,45 @@ pub mod BasicDuckDB.DuckDBScalarFunctionBuilder {
         // def withParameterLogicalType(ltype: LogicalType): Unit
         def withReturnType(ctype: ColumnType): Unit
         def withUnaryInt32Function(f: Int32 -> Int32): Unit
+        def withVolatile(): Unit
     }
 
 
     // Registers the function - doesn't need to return it
-
     pub def handle(conn: DuckDBConnectionHandle, 
-                    f: a -> b \ ef): a -> b \ Fail + ef - DuckDBScalarFunctionBuilder = 
-        x -> {
-            let builder = unsafe IO as {Fail + ef - DuckDBScalarFunctionBuilder} { JDuckDBFunctions.scalarFunction() };
-            let ans = run {
-                f(x)
-            } with handler DuckDBScalarFunctionBuilder {
+                    f: a -> b \ ef): a -> b \ Fail + ef - DuckDBScalarFunctionBuilder = x -> {
+        let builder = unsafe IO as {Fail + ef - DuckDBScalarFunctionBuilder} { JDuckDBFunctions.scalarFunction() };
+        let ans = run {
+            f(x)
+        } with handler DuckDBScalarFunctionBuilder {
                         
-                def withName(s, k) = try {
+            def withName(s, k) = 
+                try {
                     unsafe IO as {Fail + ef - DuckDBScalarFunctionBuilder} { discard builder.withName(s) };
                     k()
                 } catch {
                     case ex: JSQLException => Fail.report(ex.getMessage())
                 }
 
-                def withNullInNullOut(k) = try {
+            def withNullInNullOut(k) = 
+                try {
                     unsafe IO as {Fail + ef - DuckDBScalarFunctionBuilder} { discard builder.withNullInNullOut() };
                     k()
                 } catch {
                     case ex: JSQLException => Fail.report(ex.getMessage())
                 }
-                
-                def withParameter(p, k) = try {
+            
+            def withParameter(p, k) = 
+                try {
                     let jparam = BasicDuckDB.DuckDBColumnType.marshalColumnType(p) ;
                     unsafe IO as {Fail + ef - DuckDBScalarFunctionBuilder} { discard builder.withParameter(jparam) };
                     k()
                 } catch {
                     case ex: JSQLException => Fail.report(ex.getMessage())
                 }
-                
-                def withReturnType(p, k) = try {
+            
+            def withReturnType(p, k) = 
+                try {
                     let jparam = BasicDuckDB.DuckDBColumnType.marshalColumnType(p) ;
                     unsafe IO as {Fail + ef - DuckDBScalarFunctionBuilder} { discard builder.withReturnType(jparam) };
                     k()
@@ -79,7 +82,17 @@ pub mod BasicDuckDB.DuckDBScalarFunctionBuilder {
                     case ex: JSQLException => Fail.report(ex.getMessage())
                 }
 
-            def withUnaryInt32Function(fn, k) = try {
+            def withUnaryInt32Function(fn, k) = 
+                try {
+                    let jf1: JIntUnaryOperator = makeIntUnaryOperator(fn);
+                    unsafe IO as {Fail + ef - DuckDBScalarFunctionBuilder} { discard builder.withIntFunction(jf1) };
+                    k()
+                } catch {
+                    case ex: JSQLException => Fail.report(ex.getMessage())
+                }
+            
+            def withUnaryInt32Function(fn, k) = 
+                try {
                     let jf1: JIntUnaryOperator = makeIntUnaryOperator(fn);
                     unsafe IO as {Fail + ef - DuckDBScalarFunctionBuilder} { discard builder.withIntFunction(jf1) };
                     k()
@@ -87,11 +100,19 @@ pub mod BasicDuckDB.DuckDBScalarFunctionBuilder {
                     case ex: JSQLException => Fail.report(ex.getMessage())
                 }
 
-            };
-            let DuckDBConnectionHandle.DuckDBConnectionHandle(jconn) = conn;
-            discard unsafe IO as {Fail + ef - DuckDBScalarFunctionBuilder} { builder.register(jconn) };
-            ans
-        }
+            def withVolatile(k) = 
+                try {
+                    unsafe IO as {Fail + ef - DuckDBScalarFunctionBuilder} { discard builder.withVolatile() };
+                    k()
+                } catch {
+                    case ex: JSQLException => Fail.report(ex.getMessage())
+                }
+
+        };
+        let DuckDBConnectionHandle.DuckDBConnectionHandle(jconn) = conn;
+        discard unsafe IO as {Fail + ef - DuckDBScalarFunctionBuilder} { builder.register(jconn) };
+        ans
+    }
 
     def makeIntUnaryOperator(f: Int32 -> Int32 \ ef): JIntUnaryOperator =
         i -> unchecked_cast(f(i) as _ \ IO)

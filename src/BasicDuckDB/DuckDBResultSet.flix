@@ -61,122 +61,137 @@ pub mod BasicDuckDB.DuckDBResultSet {
     }
 
 
-    pub def handle(results: DuckDBResultSetHandle, f: a -> b \ ef): a -> b \ Fail + ef - DuckDBResultSet =
-        x -> {
-            let DuckDBResultSetHandle.DuckDBResultSetHandle(jresults) = results;
-            run {
-                f(x)
-            } with handler DuckDBResultSet {
-            
-                def askDuckDBResultSetHandle(k) = k(results)
+    pub def handle(results: DuckDBResultSetHandle, 
+                    f: a -> b \ ef): a -> b \ Fail + ef - DuckDBResultSet = x -> {
+        let DuckDBResultSetHandle.DuckDBResultSetHandle(jresults) = results;
+        run {
+            f(x)
+        } with handler DuckDBResultSet {
+        
+            def askDuckDBResultSetHandle(k) = k(results)
 
-                def close(k) = try {
+            def close(k) = 
+                try {
                     unsafe IO as {Fail + ef - DuckDBResultSet} { jresults.close() };
                     k()
                 } catch {
                     case ex: JSQLException => Fail.report(ex.getMessage())
                 }
 
-                def next(k) = try {
+            def next(k) = 
+                try {
                     let ans = unsafe IO as {Fail + ef - DuckDBResultSet} { jresults.next() };
                     k(ans)
                 } catch {
                     case ex: JSQLException => Fail.report(ex.getMessage())
                 }
-                
-                def wasNull(k) = try {
+            
+            def wasNull(k) = 
+                try {
                     let ans = unsafe IO as {Fail + ef - DuckDBResultSet} { jresults.wasNull() };
                     k(ans)
                 } catch {
                     case ex: JSQLException => Fail.report(ex.getMessage())
                 }
 
-                def findColumn(label, k) = try {
+            def findColumn(label, k) = 
+                try {
                     let ans = unsafe IO as {Fail + ef - DuckDBResultSet} { jresults.findColumn(label) };
                     k(ans)
                 } catch {
                     case ex: JSQLException => Fail.report(ex.getMessage())
                 }
 
-                def isBeforeFirst(k) = try {
+            def isBeforeFirst(k) = 
+                try {
                     let ans = unsafe IO as {Fail + ef - DuckDBResultSet} { jresults.isBeforeFirst() };
                     k(ans)
                 } catch {
                     case ex: JSQLException => Fail.report(ex.getMessage())
                 }
 
-                def isAfterLast(k) = try {
+            def isAfterLast(k) = 
+                try {
                     let ans = unsafe IO as {Fail + ef - DuckDBResultSet} { jresults.isAfterLast() };
                     k(ans)
                 } catch {
                     case ex: JSQLException => Fail.report(ex.getMessage())
                 }
 
-                def isFirst(k) = try {
+            def isFirst(k) = 
+                try {
                     let ans = unsafe IO as {Fail + ef - DuckDBResultSet} { jresults.isFirst() };
                     k(ans)
                 } catch {
                     case ex: JSQLException => Fail.report(ex.getMessage())
                 }
 
-                def isLast(k) = try {
+            def isLast(k) = 
+                try {
                     let ans = unsafe IO as {Fail + ef - DuckDBResultSet} { jresults.isLast() };
                     k(ans)
                 } catch {
                     case ex: JSQLException => Fail.report(ex.getMessage())
                 }
 
-                def first(k) = try {
+            def first(k) = 
+                try {
                     let ans = unsafe IO as {Fail + ef - DuckDBResultSet} { jresults.first() };
                     k(ans)
                 } catch {
                     case ex: JSQLException => Fail.report(ex.getMessage())
                 }
 
-                def last(k) = try {
+            def last(k) = 
+                try {
                     let ans = unsafe IO as {Fail + ef - DuckDBResultSet} { jresults.last() };
                     k(ans)
                 } catch {
                     case ex: JSQLException => Fail.report(ex.getMessage())
                 }
 
-                def getRow(k) = try {
+            def getRow(k) = 
+                try {
                     let ans = unsafe IO as {Fail + ef - DuckDBResultSet} { jresults.getRow() };
                     k(ans)
                 } catch {
                     case ex: JSQLException => Fail.report(ex.getMessage())
                 }
 
-                def absolute(row, k) = try {
+            def absolute(row, k) = 
+                try {
                     let ans = unsafe IO as {Fail + ef - DuckDBResultSet} { jresults.absolute(row) };
                     k(ans)
                 } catch {
                     case ex: JSQLException => Fail.report(ex.getMessage())
                 }
-                
-                def relative(rows, k) = try {
+            
+            def relative(rows, k) = 
+                try {
                     let ans = unsafe IO as {Fail + ef - DuckDBResultSet} { jresults.relative(rows) };
                     k(ans)
                 } catch {
                     case ex: JSQLException => Fail.report(ex.getMessage())
                 }
 
-                def setFetchSize(rows, k) = try {
+            def setFetchSize(rows, k) = 
+                try {
                     unsafe IO as {Fail + ef - DuckDBResultSet} { jresults.setFetchSize(rows) };
                     k()
                 } catch {
                     case ex: JSQLException => Fail.report(ex.getMessage())
                 }
-                
-                def getFetchSize(k) = try {
+            
+            def getFetchSize(k) = 
+                try {
                     let ans = unsafe IO as {Fail + ef - DuckDBResultSet} { jresults.getFetchSize() };
                     k(ans)
                 } catch {
                     case ex: JSQLException => Fail.report(ex.getMessage())
                 }
 
-            }
         }
+    }
 
 
     

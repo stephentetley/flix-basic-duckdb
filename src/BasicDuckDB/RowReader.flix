@@ -61,146 +61,166 @@ pub mod BasicDuckDB.RowReader {
             Ok(f(x))
         } with handler ReadRow {
         
-            def getStringByIndex(ix, k) = try {
-                let ans = unsafe IO as {ef + Fail - ReadRowWithAlt} { jresults.getString(ix + 1) };
-                k(ans)
-            } catch {
-                case ex: JSQLException => Alt.failure(ex.getMessage())
-            }
+            def getStringByIndex(ix, k) = 
+                try {
+                    let ans = unsafe IO as {ef + Fail - ReadRowWithAlt} { jresults.getString(ix + 1) };
+                    k(ans)
+                } catch {
+                    case ex: JSQLException => Alt.failure(ex.getMessage())
+                }
 
-            def getStringByName(name, k) = try {
-                let ans = unsafe IO as {ef + Fail - ReadRowWithAlt} { jresults.getString(name) };
-                k(ans)
-            } catch {
-                case ex: JSQLException => Alt.failure(ex.getMessage())
-            }
+            def getStringByName(name, k) = 
+                try {
+                    let ans = unsafe IO as {ef + Fail - ReadRowWithAlt} { jresults.getString(name) };
+                    k(ans)
+                } catch {
+                    case ex: JSQLException => Alt.failure(ex.getMessage())
+                }
             
-            def getBoolByIndex(ix, k) = try {
-                let ans = unsafe IO as {ef + Fail - ReadRowWithAlt} { jresults.getBoolean(ix + 1) };
-                k(ans)
-            } catch {
-                case ex: JSQLException => Alt.failure(ex.getMessage())
-            }
+            def getBoolByIndex(ix, k) = 
+                try {
+                    let ans = unsafe IO as {ef + Fail - ReadRowWithAlt} { jresults.getBoolean(ix + 1) };
+                    k(ans)
+                } catch {
+                    case ex: JSQLException => Alt.failure(ex.getMessage())
+                }
             
-            def getBoolByName(name, k) = try {
-                let ans = unsafe IO as {ef + Fail - ReadRowWithAlt} { jresults.getBoolean(name) };
-                k(ans)
-            } catch {
-                case ex: JSQLException => Alt.failure(ex.getMessage())
-            }
+            def getBoolByName(name, k) = 
+                try {
+                    let ans = unsafe IO as {ef + Fail - ReadRowWithAlt} { jresults.getBoolean(name) };
+                    k(ans)
+                } catch {
+                    case ex: JSQLException => Alt.failure(ex.getMessage())
+                }
 
 
-            def getInt8ByIndex(ix, k) = try {
-                let ans = unsafe IO as {ef + Fail - ReadRowWithAlt} { jresults.getByte(ix + 1) };
-                k(ans)
-            } catch {
-                case ex: JSQLException => Alt.failure(ex.getMessage())
-            }
+            def getInt8ByIndex(ix, k) = 
+                try {
+                    let ans = unsafe IO as {ef + Fail - ReadRowWithAlt} { jresults.getByte(ix + 1) };
+                    k(ans)
+                } catch {
+                    case ex: JSQLException => Alt.failure(ex.getMessage())
+                }
 
-            def getInt8ByName(name, k) = try {
-                let ans = unsafe IO as {ef + Fail - ReadRowWithAlt} { jresults.getByte(name) };
-                k(ans)
-            } catch {
-                case ex: JSQLException => Alt.failure(ex.getMessage())
-            }
+            def getInt8ByName(name, k) = 
+                try {
+                    let ans = unsafe IO as {ef + Fail - ReadRowWithAlt} { jresults.getByte(name) };
+                    k(ans)
+                } catch {
+                    case ex: JSQLException => Alt.failure(ex.getMessage())
+                }
 
-            def getInt16ByIndex(ix, k) = try {
-                let ans = unsafe IO as {ef + Fail - ReadRowWithAlt} { jresults.getShort(ix + 1) };
-                k(ans)
-            } catch {
-                case ex: JSQLException => Alt.failure(ex.getMessage())
-            }
+            def getInt16ByIndex(ix, k) = 
+                try {
+                    let ans = unsafe IO as {ef + Fail - ReadRowWithAlt} { jresults.getShort(ix + 1) };
+                    k(ans)
+                } catch {
+                    case ex: JSQLException => Alt.failure(ex.getMessage())
+                }
 
-            def getInt16ByName(name, k) = try {
-                let ans = unsafe IO as {ef + Fail - ReadRowWithAlt} { jresults.getShort(name) };
-                k(ans)
-            } catch {
-                case ex: JSQLException => Alt.failure(ex.getMessage())
-            }
+            def getInt16ByName(name, k) = 
+                try {
+                    let ans = unsafe IO as {ef + Fail - ReadRowWithAlt} { jresults.getShort(name) };
+                    k(ans)
+                } catch {
+                    case ex: JSQLException => Alt.failure(ex.getMessage())
+                }
 
-            def getInt32ByIndex(ix, k) = try {
-                let ans = unsafe IO as {ef + Fail - ReadRowWithAlt} { jresults.getInt(ix + 1) };
-                k(ans)
-            } catch {
-                case ex: JSQLException => Alt.failure(ex.getMessage())
-            }
+            def getInt32ByIndex(ix, k) = 
+                try {
+                    let ans = unsafe IO as {ef + Fail - ReadRowWithAlt} { jresults.getInt(ix + 1) };
+                    k(ans)
+                } catch {
+                    case ex: JSQLException => Alt.failure(ex.getMessage())
+                }
 
-            def getInt32ByName(name, k) = try {
-                let ans = unsafe IO as {ef + Fail - ReadRowWithAlt} { jresults.getInt(name) };
-                k(ans)
-            } catch {
-                case ex: JSQLException => Alt.failure(ex.getMessage())
-            }
+            def getInt32ByName(name, k) = 
+                try {
+                    let ans = unsafe IO as {ef + Fail - ReadRowWithAlt} { jresults.getInt(name) };
+                    k(ans)
+                } catch {
+                    case ex: JSQLException => Alt.failure(ex.getMessage())
+                }
 
-            def getInt64ByIndex(ix, k) = try {
-                let ans = unsafe IO as {ef + Fail - ReadRowWithAlt} {  jresults.getLong(ix + 1) };
-                k(ans)
-            } catch {
-                case ex: JSQLException => Alt.failure(ex.getMessage())
-            }
+            def getInt64ByIndex(ix, k) = 
+                try {
+                    let ans = unsafe IO as {ef + Fail - ReadRowWithAlt} {  jresults.getLong(ix + 1) };
+                    k(ans)
+                } catch {
+                    case ex: JSQLException => Alt.failure(ex.getMessage())
+                }
 
-            def getInt64ByName(name, k) = try {
-                let ans = unsafe IO as {ef + Fail - ReadRowWithAlt} { jresults.getLong(name) };
-                k(ans)
-            } catch {
-                case ex: JSQLException => Alt.failure(ex.getMessage())
-            }
+            def getInt64ByName(name, k) = 
+                try {
+                    let ans = unsafe IO as {ef + Fail - ReadRowWithAlt} { jresults.getLong(name) };
+                    k(ans)
+                } catch {
+                    case ex: JSQLException => Alt.failure(ex.getMessage())
+                }
 
-            def getBigIntByIndex(ix, k) = try {
-                let ans = unsafe IO as {ef + Fail - ReadRowWithAlt} { jresults.getHugeint(ix + 1) };
-                k(ans)
-            } catch {
-                case ex: JSQLException => Alt.failure(ex.getMessage())
-            }
+            def getBigIntByIndex(ix, k) = 
+                try {
+                    let ans = unsafe IO as {ef + Fail - ReadRowWithAlt} { jresults.getHugeint(ix + 1) };
+                    k(ans)
+                } catch {
+                    case ex: JSQLException => Alt.failure(ex.getMessage())
+                }
 
-            def getFloat32ByIndex(ix, k) = try {
-                let ans = unsafe IO as {ef + Fail - ReadRowWithAlt} { jresults.getFloat(ix + 1) };
-                k(ans)
-            } catch {
-                case ex: JSQLException => Alt.failure(ex.getMessage())
-            }
+            def getFloat32ByIndex(ix, k) = 
+                try {
+                    let ans = unsafe IO as {ef + Fail - ReadRowWithAlt} { jresults.getFloat(ix + 1) };
+                    k(ans)
+                } catch {
+                    case ex: JSQLException => Alt.failure(ex.getMessage())
+                }
 
-            def getFloat32ByName(name, k) = try {
-                let ans = unsafe IO as {ef + Fail - ReadRowWithAlt} { jresults.getFloat(name) };
-                k(ans)
-            } catch {
-                case ex: JSQLException => Alt.failure(ex.getMessage())
-            }
+            def getFloat32ByName(name, k) = 
+                try {
+                    let ans = unsafe IO as {ef + Fail - ReadRowWithAlt} { jresults.getFloat(name) };
+                    k(ans)
+                } catch {
+                    case ex: JSQLException => Alt.failure(ex.getMessage())
+                }
 
-            def getFloat64ByIndex(ix, k) = try {
-                let ans = unsafe IO as {ef + Fail - ReadRowWithAlt} { jresults.getDouble(ix + 1) };
-                k(ans)
-            } catch {
-                case ex: JSQLException => Alt.failure(ex.getMessage())
-            }
+            def getFloat64ByIndex(ix, k) = 
+                try {
+                    let ans = unsafe IO as {ef + Fail - ReadRowWithAlt} { jresults.getDouble(ix + 1) };
+                    k(ans)
+                } catch {
+                    case ex: JSQLException => Alt.failure(ex.getMessage())
+                }
 
-            def getFloat64ByName(name, k) = try {
-                let ans = unsafe IO as {ef + Fail - ReadRowWithAlt} { jresults.getDouble(name) };
-                k(ans)
-            } catch {
-                case ex: JSQLException => Alt.failure(ex.getMessage())
-            }
+            def getFloat64ByName(name, k) = 
+                try {
+                    let ans = unsafe IO as {ef + Fail - ReadRowWithAlt} { jresults.getDouble(name) };
+                    k(ans)
+                } catch {
+                    case ex: JSQLException => Alt.failure(ex.getMessage())
+                }
 
-            def getBigDecimalByIndex(ix, k) = try {
-                let ans = unsafe IO as {ef + Fail - ReadRowWithAlt} { jresults.getBigDecimal(ix + 1) };
-                k(ans)
-            } catch {
-                case ex: JSQLException => Alt.failure(ex.getMessage())
-            }
+            def getBigDecimalByIndex(ix, k) = 
+                try {
+                    let ans = unsafe IO as {ef + Fail - ReadRowWithAlt} { jresults.getBigDecimal(ix + 1) };
+                    k(ans)
+                } catch {
+                    case ex: JSQLException => Alt.failure(ex.getMessage())
+                }
 
-            def getBigDecimalByName(name, k) = try {
-                let ans = unsafe IO as {ef + Fail - ReadRowWithAlt} { jresults.getBigDecimal(name) };
-                k(ans)
-            } catch {
-                case ex: JSQLException => Alt.failure(ex.getMessage())
-            }
+            def getBigDecimalByName(name, k) = 
+                try {
+                    let ans = unsafe IO as {ef + Fail - ReadRowWithAlt} { jresults.getBigDecimal(name) };
+                    k(ans)
+                } catch {
+                    case ex: JSQLException => Alt.failure(ex.getMessage())
+                }
 
-            def getStructByIndex(ix, k) = try {
-                let ans = unsafe IO as {ef + Fail - ReadRowWithAlt} { jresults.getStruct(ix) };
-                k(StructHandle.StructHandle(ans))
-            } catch {
-                case ex: JSQLException => Alt.failure(ex.getMessage())
-            }
+            def getStructByIndex(ix, k) = 
+                try {
+                    let ans = unsafe IO as {ef + Fail - ReadRowWithAlt} { jresults.getStruct(ix) };
+                    k(StructHandle.StructHandle(ans))
+                } catch {
+                    case ex: JSQLException => Alt.failure(ex.getMessage())
+                }
         
         } with handler Alt {
 
