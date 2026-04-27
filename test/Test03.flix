@@ -37,7 +37,7 @@ pub mod Test03 {
                                 "databases", 
                                 xy -> { let (x, y) = xy; appender(x, y) }, 
                                 List#{("DuckDB", 2019), ("SQLite", 2000)});
-                            BasicDuckDB.DuckDBConnection.queryFold(acc -> { let i = dbReader(); Int32.max(acc, i) }, 0, "SELECT * FROM facts.databases;") |> println
+                            BasicDuckDB.DuckDBConnection.queryFold(acc -> { let i = rowReader(); Int32.max(acc, i) }, 0, "SELECT * FROM facts.databases;") |> println
                         })
                 } with BasicDuckDB.DuckDBDriver.runWithIOAndFail 
             ) yield true
@@ -45,7 +45,7 @@ pub mod Test03 {
         assertEq(expected = Ok(true), answer)
 
 
-    def dbReader(): Int32 \ ReadRowWithAlt = 
+    def rowReader(): Int32 \ ReadRowWithAlt = 
         BasicDuckDB.Base.Alt.withDefault(_ -> ReadRow.getInt32ByName("year"), 1970)
     
     def appender(name: String, year: Int32): Unit \ AppendRow = {

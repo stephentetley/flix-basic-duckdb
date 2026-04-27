@@ -8,13 +8,12 @@
 
 pub mod Test04 {
     use Assert.{assertEq}
-    use Fs.FileWrite
-    use Fs.WriteFile
-    use Fs.FileRead
 
     use BasicDuckDB.DuckDBDriver
     use BasicDuckDB.DuckDBConnection
     use BasicDuckDB.JDBC.Statement.{Statement}
+    use BasicDuckDB.RowReader.ReadRowWithAlt
+    use BasicDuckDB.RowReader.ReadRow
     
     
 
@@ -25,14 +24,15 @@ pub mod Test04 {
                 url <- Ok("jdbc:duckdb:");
                 _   <- run { 
                         BasicDuckDB.DuckDBDriver.execDuckDBConnection(url, () -> {
-                            BasicDuckDB.DuckDBConnection.execStatement(() -> {
-                                let command = "SELECT 42;";
-                                discard Statement.executeQuery(command)
-                            })
+                            BasicDuckDB.DuckDBConnection.queryForEach(() -> { let i = rowReader(); println("Test04: ${i} ") }, "SELECT 42;") |> println
                         })
                     } with BasicDuckDB.DuckDBDriver.runWithIOAndFail 
             ) yield true;
         assertEq(expected = Ok(true), answer)
+
+
+    def rowReader(): Int32 \ ReadRowWithAlt = 
+        BasicDuckDB.Base.Alt.withDefault(_ -> ReadRow.getInt32ByIndex(0), 0)
 
 }
 

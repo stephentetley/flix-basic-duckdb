@@ -29,6 +29,7 @@ pub mod BasicDuckDB.DuckDBConnection {
     use BasicDuckDB.RowAppender.AppendRow
     use BasicDuckDB.RowReader.ReadRowWithAlt
     use BasicDuckDB.Base.Fail.Fail
+    use BasicDuckDB.DuckDBScalarFunctionBuilder.DuckDBScalarFunctionBuilder
 
     import java.sql.{Connection => JConnection}
     import java.sql.{Statement => JStatement}
@@ -40,6 +41,9 @@ pub mod BasicDuckDB.DuckDBConnection {
 
 
     pub eff DuckDBConnection {
+        // `DuckDBConnectionHandle` should not be used in user code
+        // It is a hack until we can run local effects polymorphically
+        def askDuckDBConnectionHandle(): DuckDBConnectionHandle        
         def createStatement(): StatementHandle
         def prepareStatement(sql: String): DuckDBPreparedStatementHandle
         def createAppender(schemaName: String, tableName: String): DuckDBAppenderHandle
@@ -66,6 +70,8 @@ pub mod BasicDuckDB.DuckDBConnection {
                 f(x)
             } with handler DuckDBConnection {
             
+                def askDuckDBConnectionHandle(k) = k(conn)
+
                 def createStatement(k) = try {
                     let ans = unsafe IO as {Fail + ef - DuckDBConnection} { jconn.createStatement() };
                     k(StatementHandle.StatementHandle(ans))
@@ -203,6 +209,7 @@ pub mod BasicDuckDB.DuckDBConnection {
             ans
         } with BasicDuckDB.JDBC.Statement.runStatement(stmt)
 
+
     pub def execDuckDBPreparedStatement(sql: String, f: Unit -> a \ ef): a \ {Fail + ef + DuckDBConnection} - DuckDBPreparedStatement = 
         let stmt = DuckDBConnection.prepareStatement(sql);
         run {
@@ -227,6 +234,15 @@ pub mod BasicDuckDB.DuckDBConnection {
         } with BasicDuckDB.DuckDBAppender.runDuckDBAppender(hndl)
 
     
+    pub def execDuckDBScalarFunctionBuilder(f: Unit -> a \ DuckDBScalarFunctionBuilder + ef): a \ {Fail + ef + DuckDBConnection} - DuckDBScalarFunctionBuilder= 
+        let conn = DuckDBConnection.askDuckDBConnectionHandle();
+        run {
+            let ans = f();
+            ans
+        } with BasicDuckDB.DuckDBScalarFunctionBuilder.runDuckDBScalarFunctionBuilder(conn)
+        
+
+
     // cf. ```f: (<row>, a) -> a``` but <row> is implicit
     pub def queryFold(f: a -> a \ ReadRowWithAlt + ef, s: a, sql: String): a \ {Fail + ef + DuckDBConnection} - {Statement + DuckDBResultSet}  = 
         let stmt = DuckDBConnection.createStatement();
