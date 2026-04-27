@@ -27,7 +27,10 @@ pub mod BasicDuckDB.DuckDBScalarFunctionBuilder {
     import org.duckdb.{DuckDBFunctions => JDuckDBFunctions}
     import org.duckdb.{DuckDBFunctions$RegisteredFunction => JRegisteredFunction}
     import java.sql.{SQLException => JSQLException}
-    import java.util.function.{IntUnaryOperator => JIntUnaryOperator}
+    import java.util.function.{IntUnaryOperator => JIntUnaryOperator,
+        IntBinaryOperator => JIntBinaryOperator,
+        LongUnaryOperator => JLongUnaryOperator,
+        DoubleUnaryOperator => JDoubleUnaryOperator}
 
     pub eff DuckDBScalarFunctionBuilder {
         def withName(s: String): Unit
@@ -36,6 +39,9 @@ pub mod BasicDuckDB.DuckDBScalarFunctionBuilder {
         // def withParameterLogicalType(ltype: LogicalType): Unit
         def withReturnType(ctype: ColumnType): Unit
         def withUnaryInt32Function(f: Int32 -> Int32): Unit
+        def withBinaryInt32Function(f: Int32 -> Int32 -> Int32): Unit
+        def withUnaryInt64Function(f: Int64 -> Int64): Unit
+        def withUnaryFloat64Function(f: Float64 -> Float64): Unit
         def withVolatile(): Unit
     }
 
@@ -90,11 +96,29 @@ pub mod BasicDuckDB.DuckDBScalarFunctionBuilder {
                 } catch {
                     case ex: JSQLException => Fail.report(ex.getMessage())
                 }
-            
-            def withUnaryInt32Function(fn, k) = 
+
+            def withBinaryInt32Function(fn, k) = 
                 try {
-                    let jf1: JIntUnaryOperator = makeIntUnaryOperator(fn);
+                    let jf1: JIntBinaryOperator = makeIntBinaryOperator(fn);
                     unsafe IO as {Fail + ef - DuckDBScalarFunctionBuilder} { discard builder.withIntFunction(jf1) };
+                    k()
+                } catch {
+                    case ex: JSQLException => Fail.report(ex.getMessage())
+                }
+
+            def withUnaryInt64Function(fn, k) = 
+                try {
+                    let jf1: JLongUnaryOperator = makeLongUnaryOperator(fn);
+                    unsafe IO as {Fail + ef - DuckDBScalarFunctionBuilder} { discard builder.withLongFunction(jf1) };
+                    k()
+                } catch {
+                    case ex: JSQLException => Fail.report(ex.getMessage())
+                }
+            
+            def withUnaryFloat64Function(fn, k) = 
+                try {
+                    let jf1: JDoubleUnaryOperator = makeDoubleUnaryOperator(fn);
+                    unsafe IO as {Fail + ef - DuckDBScalarFunctionBuilder} { discard builder.withDoubleFunction(jf1) };
                     k()
                 } catch {
                     case ex: JSQLException => Fail.report(ex.getMessage())
@@ -116,6 +140,22 @@ pub mod BasicDuckDB.DuckDBScalarFunctionBuilder {
 
     def makeIntUnaryOperator(f: Int32 -> Int32 \ ef): JIntUnaryOperator =
         i -> unchecked_cast(f(i) as _ \ IO)
+
+    def makeIntBinaryOperator(f: (Int32, Int32) -> Int32 \ ef): JIntBinaryOperator =
+        unsafe IO { 
+            new JIntBinaryOperator {
+                def applyAsInt(_this: JIntBinaryOperator, u: Int32, v: Int32): Int32 \ ef = 
+                    f(u, v)
+            }
+        }
+
+        
+    def makeLongUnaryOperator(f: Int64 -> Int64 \ ef): JLongUnaryOperator =
+        i -> unchecked_cast(f(i) as _ \ IO)
+
+    def makeDoubleUnaryOperator(f: Float64 -> Float64 \ ef): JDoubleUnaryOperator =
+        i -> unchecked_cast(f(i) as _ \ IO)
+
 
     /// This takes care of registering the function
     pub def runDuckDBScalarFunctionBuilder(conn: DuckDBConnectionHandle, 
