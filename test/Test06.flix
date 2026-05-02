@@ -35,10 +35,10 @@ pub mod Test06 {
 
 
     def rowReader(): Int32 \ ReadRowWithAlt = 
-        BasicDuckDB.Base.Alt.withDefault(_ -> ReadRow.getInt32ByIndex(0), 0)
+        EffectExtras.Alt.withDefault(_ -> ReadRow.getInt32ByIndex(0), 0)
 
     def rowReaderS(): String \ ReadRowWithAlt = 
-        BasicDuckDB.Base.Alt.withDefault(_ -> ReadRow.getStringByIndex(0), "")
+        EffectExtras.Alt.withDefault(_ -> ReadRow.getStringByIndex(0), "")
 
 
     def buildFun1(): Unit \ DuckDBScalarFunctionBuilder = {

@@ -18,7 +18,7 @@
 
 pub mod BasicDuckDB.RowAppender {
 
-    use BasicDuckDB.Base.Fail.Fail
+    use EffectExtras.Fail.Fail
     use BasicDuckDB.DuckDBAppender.{DuckDBAppenderHandle}
 
     import java.sql.{SQLException => JSQLException}

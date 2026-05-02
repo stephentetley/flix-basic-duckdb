@@ -17,7 +17,7 @@
 
 pub mod BasicDuckDB.Shim.XLSX {
 
-    use BasicDuckDB.Base.Fail.Fail
+    use EffectExtras.Fail.Fail
     use BasicDuckDB.DuckDBDriver.{DuckDBDriver}
     use BasicDuckDB.DuckDBConnection.{DuckDBConnection}
     use BasicDuckDB.DuckDBResultSet.{DuckDBResultSet}

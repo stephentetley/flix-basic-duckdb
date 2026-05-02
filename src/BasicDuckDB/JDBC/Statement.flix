@@ -19,7 +19,7 @@
 
 pub mod BasicDuckDB.JDBC.Statement {
     
-    use BasicDuckDB.Base.Fail.Fail
+    use EffectExtras.Fail.Fail
     use BasicDuckDB.JDBC.ResultSet.ResultSetHandle
 
     import java.sql.{SQLException => JSQLException}

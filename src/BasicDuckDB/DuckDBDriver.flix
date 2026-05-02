@@ -17,7 +17,7 @@
 
 pub mod BasicDuckDB.DuckDBDriver {
     
-    use BasicDuckDB.Base.Fail.Fail
+    use EffectExtras.Fail.Fail
     use BasicDuckDB.DuckDBConnection.DuckDBConnection
     use BasicDuckDB.DuckDBConnection.DuckDBConnectionHandle
     use IoError.ErrorKind
@@ -101,7 +101,7 @@ pub mod BasicDuckDB.DuckDBDriver {
     pub def runWithIOAndFail(f: Unit -> a \ ef): Result[IoError, a] \ {IO + ef} - DuckDBDriver - Fail =
         run {
              runWithIO(f)
-        } with BasicDuckDB.Base.Fail.runFailAsResultOfIoError
+        } with EffectExtras.Fail.runWithResultOfIoError
 
     pub def execDuckDBConnection(url: String, 
                                 f: Unit -> a \ ef): a \ {Fail + ef + DuckDBDriver} - DuckDBConnection = 

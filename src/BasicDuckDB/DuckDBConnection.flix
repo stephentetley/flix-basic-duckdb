@@ -28,7 +28,7 @@ pub mod BasicDuckDB.DuckDBConnection {
     use BasicDuckDB.JDBC.Statement.StatementHandle
     use BasicDuckDB.RowAppender.AppendRow
     use BasicDuckDB.RowReader.ReadRowWithAlt
-    use BasicDuckDB.Base.Fail.Fail
+    use EffectExtras.Fail.Fail
     use BasicDuckDB.DuckDBScalarFunctionBuilder.DuckDBScalarFunctionBuilder
 
     import java.sql.{Connection => JConnection}
@@ -270,7 +270,7 @@ pub mod BasicDuckDB.DuckDBConnection {
                 def loop(acc, sk) = {
                     let more = DuckDBResultSet.next();
                     if (more) {
-                        let rowAnswer = BasicDuckDB.Base.Fail.handleAsResult(_ -> BasicDuckDB.DuckDBResultSet.execReadRow(_ -> f(acc)))();
+                        let rowAnswer = EffectExtras.Fail.handleWithResult(_ -> BasicDuckDB.DuckDBResultSet.execReadRow(_ -> f(acc)))();
                         match rowAnswer {
                             case Ok(acc1) => loop(acc1, sk)
                             case Err(err) => Fail.report(err)
@@ -293,7 +293,7 @@ pub mod BasicDuckDB.DuckDBConnection {
                 def loop(fk, sk) = {
                     let more = DuckDBResultSet.next();
                     if (more) {
-                        let rowAnswer = BasicDuckDB.Base.Fail.handleAsResult(_ -> BasicDuckDB.DuckDBResultSet.execReadRow(reader))();
+                        let rowAnswer = EffectExtras.Fail.handleWithResult(_ -> BasicDuckDB.DuckDBResultSet.execReadRow(reader))();
                         match rowAnswer {
                             case Ok() => loop(fk, sk)
                             case Err(err) => fk(err)

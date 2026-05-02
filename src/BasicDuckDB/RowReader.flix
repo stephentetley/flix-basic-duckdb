@@ -17,8 +17,8 @@
 
 pub mod BasicDuckDB.RowReader {
 
-    use BasicDuckDB.Base.Alt.Alt
-    use BasicDuckDB.Base.Fail.Fail
+    use EffectExtras.Alt.Alt
+    use EffectExtras.Fail.Fail
     use BasicDuckDB.DuckDBResultSet.{DuckDBResultSetHandle}
     use BasicDuckDB.JDBC.Struct.{StructHandle}
 

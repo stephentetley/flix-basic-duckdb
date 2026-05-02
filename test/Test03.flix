@@ -46,7 +46,7 @@ pub mod Test03 {
 
 
     def rowReader(): Int32 \ ReadRowWithAlt = 
-        BasicDuckDB.Base.Alt.withDefault(_ -> ReadRow.getInt32ByName("year"), 1970)
+        EffectExtras.Alt.withDefault(_ -> ReadRow.getInt32ByName("year"), 1970)
     
     def appender(name: String, year: Int32): Unit \ AppendRow = {
         AppendRow.appendString(name);

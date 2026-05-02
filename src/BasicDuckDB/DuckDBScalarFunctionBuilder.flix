@@ -17,7 +17,7 @@
 
 pub mod BasicDuckDB.DuckDBScalarFunctionBuilder {
     
-    use BasicDuckDB.Base.Fail.Fail
+    use EffectExtras.Fail.Fail
     use BasicDuckDB.DuckDBFunctions.RegisteredFunction 
     use BasicDuckDB.DuckDBConnection.DuckDBConnectionHandle
     use BasicDuckDB.DuckDBColumnType.ColumnType

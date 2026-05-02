@@ -18,7 +18,7 @@
 
 pub mod BasicDuckDB.DuckDBPreparedStatement {
     
-    use BasicDuckDB.Base.Fail.Fail
+    use EffectExtras.Fail.Fail
     use BasicDuckDB.DuckDBResultSet.DuckDBResultSetHandle
     use BasicDuckDB.PreparedStatementSetter
     use BasicDuckDB.PreparedStatementSetter.SetPreparedStatement

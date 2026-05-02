@@ -20,7 +20,7 @@
 pub mod BasicDuckDB.DuckDBResultSet {
     use BasicDuckDB.RowReader.ReadRow
 
-    use BasicDuckDB.Base.Fail.Fail
+    use EffectExtras.Fail.Fail
     use BasicDuckDB.RowReader
     use BasicDuckDB.RowReader.ReadRowWithAlt
     use BasicDuckDB.JDBC.ResultSet.{ResultSetHandle}

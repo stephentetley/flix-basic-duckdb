@@ -32,7 +32,7 @@ pub mod Test04 {
 
 
     def rowReader(): Int32 \ ReadRowWithAlt = 
-        BasicDuckDB.Base.Alt.withDefault(_ -> ReadRow.getInt32ByIndex(0), 0)
+        EffectExtras.Alt.withDefault(_ -> ReadRow.getInt32ByIndex(0), 0)
 
 }
 

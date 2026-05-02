@@ -1,12 +1,11 @@
 ### v0.5.0
-   Work towards UDFs.
-   Added `Alt` effect for error recovery.
+   Work towards UDFs - has problems with unboxed types.
+   Added dependency on `EffectExtras` and used `Alt` and `Fail` 
+   effects.
    Removed `RowReader` and `RowAppender` wrapper enums.
    Changed error internal type from `IoError` to `String` and 
    removed IO from run functions of nested effects.
    Removed `Shim.Script`.
-   Added `Fail` effect and used it to simplify processing nested 
-   effects.
 
 ### v0.4.0
    Updated to work with Flix 0.70.0.

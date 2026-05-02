@@ -8,6 +8,7 @@ authors     = ["Stephen Tetley <stephen.tetley@gmail.com>"]
 
 [dependencies]
 "github:stephentetley/flix-pretty" = { version = "0.10.2", security = "unrestricted" }
+"github:stephentetley/effect-extras" = { version = "0.1.0", security = "unrestricted" }
 
 [mvn-dependencies]
 "org.duckdb:duckdb_jdbc" = "1.5.2.0"
