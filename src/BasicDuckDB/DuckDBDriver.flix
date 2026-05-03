@@ -16,6 +16,7 @@
 
 
 pub mod BasicDuckDB.DuckDBDriver {
+    use BasicDuckDB.DuckDBDriver.DuckDBDriver
     
     use EffectExtras.Fail.Fail
     use BasicDuckDB.DuckDBConnection.DuckDBConnection
@@ -30,6 +31,7 @@ pub mod BasicDuckDB.DuckDBDriver {
 
     pub eff DuckDBDriver {
         def connect(url: String): DuckDBConnectionHandle
+        def closeConnection(conn: DuckDBConnectionHandle): Unit
         def acceptsURL(url: String): Bool
         def jdbcCompliant(): Bool
         def getMajorVersion(): Int32
@@ -53,6 +55,15 @@ pub mod BasicDuckDB.DuckDBDriver {
                     case ex: JSQLException => Fail.report(ex.getMessage())
                 }
             
+            def closeConnection(conn, k) = 
+                try {
+                    let DuckDBConnectionHandle.DuckDBConnectionHandle(jconn) = conn;
+                    jconn.close();
+                    k()
+                } catch {
+                    case ex: JSQLException => Fail.report(ex.getMessage())
+                }
+
             def acceptsURL(url, k) = 
                 try {
                     let ans = jdriver.acceptsURL(url);
@@ -88,12 +99,6 @@ pub mod BasicDuckDB.DuckDBDriver {
         }
     }
 
-    // pub def runWithIO(f: Unit -> a \ ef): Result[IoError, a] \ {IO + ef} - DuckDBDriver - Fail =
-    //     run {
-    //         Ok(handle(f)())
-    //     } with handler Fail {
-    //         def report(s, _) = Err(IoError(ErrorKind.Other, (s)))
-    //     }
 
     pub def runWithIO(f: Unit -> a \ ef): a \ {IO + Fail + ef} - DuckDBDriver =
         handle(f)()
@@ -104,14 +109,19 @@ pub mod BasicDuckDB.DuckDBDriver {
         } with EffectExtras.Fail.runWithResultOfIoError
 
     pub def execDuckDBConnection(url: String, 
-                                f: Unit -> a \ ef): a \ {Fail + ef + DuckDBDriver} - DuckDBConnection = 
+                                f: Unit -> a \ DuckDBConnection + ef): a \ {Fail + ef + DuckDBDriver} - DuckDBConnection = 
         let conn = DuckDBDriver.connect(url);
-        run {
-            let ans1 = f();
-            DuckDBConnection.close();
-            ans1
-        } with BasicDuckDB.DuckDBConnection.runDuckDBConnection(conn)
-        
+        let ans = run {
+            f()
+        } with BasicDuckDB.DuckDBConnection.runDuckDBConnection(conn);
+        DuckDBDriver.closeConnection(conn);
+        ans
 
+        
+    pub def execInMemoryDuckDBConnection(f: Unit -> a \ DuckDBConnection + ef): a \ {Fail + ef + DuckDBDriver} - DuckDBConnection = 
+        execDuckDBConnection("jdbc:duckdb:", f)
+
+    pub def execfileBackedDuckDBConnection(filePath: String, f: Unit -> a \ DuckDBConnection + ef): a \ {Fail + ef + DuckDBDriver} - DuckDBConnection = 
+        execDuckDBConnection("jdbc:duckdb:${filePath}", f)
 
 }

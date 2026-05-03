@@ -33,7 +33,6 @@ pub mod BasicDuckDB.DuckDBPreparedStatement {
         // `askDuckDBPreparedStatementHandle` should not be used in user code
         // It is a hack until we can run local effects polymorphically
         def askDuckDBPreparedStatementHandle(): DuckDBPreparedStatementHandle
-        def close(): Unit
         def execute(): Bool
         def addBatch(): Unit
         def executeBatch(): Unit
@@ -51,13 +50,6 @@ pub mod BasicDuckDB.DuckDBPreparedStatement {
                     
             def askDuckDBPreparedStatementHandle(k) = k(stmt)
 
-            def close(k) = 
-                try {
-                    unsafe IO as { Fail + ef - DuckDBPreparedStatement } { jstmt.close() };
-                    k()
-                } catch {
-                    case ex: JSQLException => Fail.report(ex.getMessage())
-                }
 
             def execute(k) = 
                 try {

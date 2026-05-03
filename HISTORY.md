@@ -1,3 +1,9 @@
+### v0.6.0
+   Pushed `close` resource functions up so they are in the same 
+   module as the function that creates the resource.
+   Removed `RowAppender` use `DuckDBAppender` instead.
+
+   
 ### v0.5.0
    Work towards UDFs - has problems with unboxed types.
    Added dependency on `EffectExtras` and used `Alt` and `Fail` 

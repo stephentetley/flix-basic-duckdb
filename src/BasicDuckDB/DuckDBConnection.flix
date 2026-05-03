@@ -17,7 +17,6 @@
 
 
 pub mod BasicDuckDB.DuckDBConnection {
-    
 
     use BasicDuckDB.DuckDBAppender.{DuckDBAppender}
     use BasicDuckDB.DuckDBAppender.{DuckDBAppenderHandle}
@@ -26,7 +25,6 @@ pub mod BasicDuckDB.DuckDBConnection {
     use BasicDuckDB.DuckDBResultSet.{DuckDBResultSet}
     use BasicDuckDB.JDBC.Statement.{Statement}
     use BasicDuckDB.JDBC.Statement.StatementHandle
-    use BasicDuckDB.RowAppender.AppendRow
     use BasicDuckDB.RowReader.ReadRowWithAlt
     use EffectExtras.Fail.Fail
     use BasicDuckDB.DuckDBScalarFunctionBuilder.DuckDBScalarFunctionBuilder
@@ -40,19 +38,23 @@ pub mod BasicDuckDB.DuckDBConnection {
     pub enum DuckDBConnectionHandle(JDuckDBConnection)
 
 
+
+
     pub eff DuckDBConnection {
         // `DuckDBConnectionHandle` should not be used in user code
         // It is a hack until we can run local effects polymorphically
         def askDuckDBConnectionHandle(): DuckDBConnectionHandle        
         def createStatement(): StatementHandle
+        def closeStatement(stmt: StatementHandle): Unit
         def prepareStatement(sql: String): DuckDBPreparedStatementHandle
+        def closePreparedStatement(stmt: DuckDBPreparedStatementHandle): Unit
         def createAppender(schemaName: String, tableName: String): DuckDBAppenderHandle
+        def closeAppender(appender: DuckDBAppenderHandle): Unit
         def nativeSQL(sql: String): String
         def setAutoCommit(autoCommit: Bool): Unit
         def getAutoCommit(): Bool
         def commit(): Unit
         def rollback(): Unit
-        def close(): Unit
         def isClosed(): Bool
         def isValid(timeout: Int32): Bool
         def isReadOnly(): Bool
@@ -79,6 +81,15 @@ pub mod BasicDuckDB.DuckDBConnection {
                 } catch {
                     case ex: JSQLException => Fail.report(ex.getMessage())
                 }
+                
+            def closeStatement(stmt, k) = 
+                try {
+                    let StatementHandle.StatementHandle(jstmt) = stmt;
+                    unsafe IO as {Fail + ef - DuckDBConnection} { jstmt.close() };
+                    k()
+                } catch {
+                    case ex: JSQLException => Fail.report(ex.getMessage())
+                }
 
             def prepareStatement(sql, k) = 
                 try {
@@ -89,6 +100,16 @@ pub mod BasicDuckDB.DuckDBConnection {
                     case ex: JSQLException => Fail.report(ex.getMessage())
                 }
 
+            def closePreparedStatement(stmt, k) = 
+                try {
+                    let DuckDBPreparedStatementHandle.DuckDBPreparedStatementHandle(jstmt) = stmt;
+                    unsafe IO as {Fail + ef - DuckDBConnection} { jstmt.close() };
+                    k()
+                } catch {
+                    case ex: JSQLException => Fail.report(ex.getMessage())
+                }
+
+
             def createAppender(schema, table, k) = 
                 try {
                     let ans = unsafe IO as {Fail + ef - DuckDBConnection} { jconn.createAppender(schema, table) };
@@ -96,6 +117,16 @@ pub mod BasicDuckDB.DuckDBConnection {
                 } catch {
                     case ex: JSQLException => Fail.report(ex.getMessage())
                 }
+
+            def closeAppender(appender, k) = 
+                try {
+                    let DuckDBAppenderHandle.DuckDBAppenderHandle(jappender) = appender;
+                    unsafe IO as {Fail + ef - DuckDBConnection} { jappender.close() };
+                    k()
+                } catch {
+                    case ex: JSQLException => Fail.report(ex.getMessage())
+                }
+
 
             def nativeSQL(sql, k) = 
                 try {
@@ -132,14 +163,6 @@ pub mod BasicDuckDB.DuckDBConnection {
             def rollback(k) = 
                 try {
                     unsafe IO as {Fail + ef - DuckDBConnection} { jconn.rollback() };
-                    k()
-                } catch {
-                    case ex: JSQLException => Fail.report(ex.getMessage())
-                }
-
-            def close(k) = 
-                try {
-                    unsafe IO as {Fail + ef - DuckDBConnection} { jconn.close() };
                     k()
                 } catch {
                     case ex: JSQLException => Fail.report(ex.getMessage())
@@ -218,37 +241,33 @@ pub mod BasicDuckDB.DuckDBConnection {
         handle(conn, f)()
 
     
-    pub def execStatement(f: Unit -> a \ ef): a \ {Fail + ef + DuckDBConnection} - Statement = 
+    pub def execStatement(f: Unit -> a \ ef + Statement): a \ {Fail + ef + DuckDBConnection} - Statement = 
         let stmt = DuckDBConnection.createStatement();
-        run {
-            let ans = f();
-            Statement.close();
-            ans
-        } with BasicDuckDB.JDBC.Statement.runStatement(stmt)
+        let ans = run { 
+            f() 
+        } with BasicDuckDB.JDBC.Statement.runStatement(stmt);
+        DuckDBConnection.closeStatement(stmt);
+        ans
 
-
-    pub def execDuckDBPreparedStatement(sql: String, f: Unit -> a \ ef): a \ {Fail + ef + DuckDBConnection} - DuckDBPreparedStatement = 
+    pub def execDuckDBPreparedStatement(sql: String, 
+                                        f: Unit -> a \ DuckDBPreparedStatement + ef): a \ {Fail + ef + DuckDBConnection} - DuckDBPreparedStatement = 
         let stmt = DuckDBConnection.prepareStatement(sql);
-        run {
-            let ans = f();
-            DuckDBPreparedStatement.close();
-            ans
-        } with BasicDuckDB.DuckDBPreparedStatement.runDuckDBPreparedStatement(stmt)
+        let ans = run {
+            f()
+        } with BasicDuckDB.DuckDBPreparedStatement.runDuckDBPreparedStatement(stmt);
+        DuckDBConnection.closePreparedStatement(stmt);
+        ans
 
-    // forEach has a strange effect on the effect signature
-    pub def execRowAppender(schema: String, 
-                            table: String, 
-                            appendf: a -> Unit \ ef, t: t): Unit \ ({Fail + ef + DuckDBConnection} - AppendRow) + {DuckDBAppender + DuckDBAppender + DuckDBAppender + ForEach.Aef[t]} - {DuckDBAppender} with ForEach[t] where ForEach.Elm[t] ~ a = 
-        let hndl = DuckDBConnection.createAppender(schema, table);
-        run { 
-            ForEach.forEach(a -> {
-                    DuckDBAppender.beginRow();
-                    BasicDuckDB.DuckDBAppender.execRowAppender(_ -> appendf(a));
-                    DuckDBAppender.endRow()
-                }, 
-                t);
-                DuckDBAppender.close()
-        } with BasicDuckDB.DuckDBAppender.runDuckDBAppender(hndl)
+
+    pub def execDuckDBAppender(schema: String, 
+                                table: String, 
+                                f: Unit -> a \ DuckDBAppender + ef): a \ {Fail + ef + DuckDBConnection} - DuckDBAppender = 
+        let app = DuckDBConnection.createAppender(schema, table);
+        let ans = run { 
+            f()
+        } with BasicDuckDB.DuckDBAppender.runDuckDBAppender(app);
+        DuckDBConnection.closeAppender(app);
+        ans 
 
     
     pub def execDuckDBScalarFunctionBuilder(f: Unit -> a \ DuckDBScalarFunctionBuilder + ef): a \ {Fail + ef + DuckDBConnection} - DuckDBScalarFunctionBuilder= 
