@@ -64,7 +64,10 @@ pub mod BasicDuckDB.RowReader {
             def getStringByIndex(ix, k) = 
                 try {
                     let ans = unsafe IO as {ef + Fail - ReadRowWithAlt} { jresults.getString(ix + 1) };
-                    k(ans)
+                    if (not Object.isNull(ans))
+                        k(ans)
+                    else 
+                        Alt.failure("getStringByName")
                 } catch {
                     case ex: JSQLException => Alt.failure(ex.getMessage())
                 }
@@ -72,7 +75,10 @@ pub mod BasicDuckDB.RowReader {
             def getStringByName(name, k) = 
                 try {
                     let ans = unsafe IO as {ef + Fail - ReadRowWithAlt} { jresults.getString(name) };
-                    k(ans)
+                    if (not Object.isNull(ans))
+                        k(ans)
+                    else 
+                        Alt.failure("getStringByName")
                 } catch {
                     case ex: JSQLException => Alt.failure(ex.getMessage())
                 }
@@ -161,7 +167,10 @@ pub mod BasicDuckDB.RowReader {
             def getBigIntByIndex(ix, k) = 
                 try {
                     let ans = unsafe IO as {ef + Fail - ReadRowWithAlt} { jresults.getHugeint(ix + 1) };
-                    k(ans)
+                    if (not Object.isNull(ans))
+                        k(ans)
+                    else 
+                        Alt.failure("getBigIntByIndex")
                 } catch {
                     case ex: JSQLException => Alt.failure(ex.getMessage())
                 }
@@ -201,7 +210,10 @@ pub mod BasicDuckDB.RowReader {
             def getBigDecimalByIndex(ix, k) = 
                 try {
                     let ans = unsafe IO as {ef + Fail - ReadRowWithAlt} { jresults.getBigDecimal(ix + 1) };
-                    k(ans)
+                    if (not Object.isNull(ans))
+                        k(ans)
+                    else 
+                        Alt.failure("getBigDecimalByIndex")
                 } catch {
                     case ex: JSQLException => Alt.failure(ex.getMessage())
                 }
@@ -209,7 +221,10 @@ pub mod BasicDuckDB.RowReader {
             def getBigDecimalByName(name, k) = 
                 try {
                     let ans = unsafe IO as {ef + Fail - ReadRowWithAlt} { jresults.getBigDecimal(name) };
-                    k(ans)
+                    if (not Object.isNull(ans))
+                        k(ans)
+                    else 
+                        Alt.failure("getBigDecimalByName")
                 } catch {
                     case ex: JSQLException => Alt.failure(ex.getMessage())
                 }

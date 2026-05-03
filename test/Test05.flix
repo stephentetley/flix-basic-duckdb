@@ -25,12 +25,12 @@ pub mod Test05 {
                         table_name="country");
         assertEq(expected = Ok(), answer)
 
-    def rowReader(): Unit \ ReadRowWithAlt + IO = checked_ecast({
+    def rowReader(): Unit \ ReadRowWithAlt + IO = {
         let country = ReadRow.getStringByIndex(0);
         let capital = ReadRow.getStringByIndex(1);
-        let pop = ReadRow.getFloat64ByIndex(2);
+        let pop = EffectExtras.Alt.withDefault(() -> ReadRow.getFloat64ByIndex(2), 0.0f64);
         println("Test05.test01 ${country}, capital city: ${capital}, population in millions: ${pop}")
-    })
+    }
 
 }
 

@@ -121,7 +121,7 @@ pub mod BasicDuckDB.DuckDBDriver {
     pub def execInMemoryDuckDBConnection(f: Unit -> a \ DuckDBConnection + ef): a \ {Fail + ef + DuckDBDriver} - DuckDBConnection = 
         execDuckDBConnection("jdbc:duckdb:", f)
 
-    pub def execfileBackedDuckDBConnection(filePath: String, f: Unit -> a \ DuckDBConnection + ef): a \ {Fail + ef + DuckDBDriver} - DuckDBConnection = 
+    pub def execFileBackedDuckDBConnection(filePath: String, f: Unit -> a \ DuckDBConnection + ef): a \ {Fail + ef + DuckDBDriver} - DuckDBConnection =
         execDuckDBConnection("jdbc:duckdb:${filePath}", f)
 
 }

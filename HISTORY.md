@@ -1,3 +1,7 @@
+### v0.6.1
+   Made `RowReader` throw `Alt.failure` when Strings and other 
+   object types are null.
+
 ### v0.6.0
    Pushed `close` resource functions up so they are in the same 
    module as the function that creates the resource.
