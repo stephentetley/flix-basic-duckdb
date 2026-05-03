@@ -223,7 +223,7 @@ pub mod BasicDuckDB.DuckDBAppender {
     }
 
     pub def runDuckDBAppender(appender: DuckDBAppenderHandle, 
-                        f: Unit -> a \ ef):  a \ Fail + ef - DuckDBAppender = 
+                                f: Unit -> a \ ef):  a \ Fail + ef - DuckDBAppender = 
         handle(appender, f)()
 
 

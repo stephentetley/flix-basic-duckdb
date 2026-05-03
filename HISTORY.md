@@ -1,7 +1,9 @@
 ### v0.6.0
    Pushed `close` resource functions up so they are in the same 
    module as the function that creates the resource.
-   Removed `RowAppender` use `DuckDBAppender` instead.
+   Removed `RowAppender`, use `DuckDBAppender` instead.
+   Removed `PreparedStatementSetter`, use `DuckDBPreparedStatement` 
+   instead.
 
    
 ### v0.5.0
