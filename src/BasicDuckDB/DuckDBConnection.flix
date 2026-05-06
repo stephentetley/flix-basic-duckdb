@@ -35,9 +35,6 @@ pub mod BasicDuckDB.DuckDBConnection {
     import org.duckdb.{DuckDBPreparedStatement => JDuckDBPreparedStatement}
     import org.duckdb.{DuckDBConnection => JDuckDBConnection}
     
-    pub enum DuckDBConnectionHandle(JDuckDBConnection)
-
-
 
 
     pub eff DuckDBConnection {
@@ -65,6 +62,8 @@ pub mod BasicDuckDB.DuckDBConnection {
         def setTransactionIsolation(level: Int32): Unit
     }
 
+    pub enum DuckDBConnectionHandle(JDuckDBConnection)
+    
     pub def handle(conn: DuckDBConnectionHandle, 
                     f: a -> b \ ef): a -> b \ Fail + ef - DuckDBConnection = x -> {
         let DuckDBConnectionHandle.DuckDBConnectionHandle(jconn) = conn;

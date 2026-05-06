@@ -25,7 +25,7 @@ pub mod BasicDuckDB.JDBC.Statement {
     import java.sql.{SQLException => JSQLException}
     import java.sql.{Statement => JStatement}
     
-    pub enum StatementHandle (JStatement)
+
 
     pub eff Statement {
         def close(): Unit
@@ -42,6 +42,8 @@ pub mod BasicDuckDB.JDBC.Statement {
         def isCloseOnCompletion(): Bool
     }
 
+    pub enum StatementHandle (JStatement)
+    
     pub def handle(stmt: StatementHandle, 
                     f: a -> b \ ef): a -> b \ {Fail + ef} - Statement = x -> {
         let StatementHandle.StatementHandle(jstmt) = stmt; 

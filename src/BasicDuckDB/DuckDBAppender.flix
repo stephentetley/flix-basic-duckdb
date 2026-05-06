@@ -25,7 +25,6 @@ pub mod BasicDuckDB.DuckDBAppender {
     import java.lang.Throwable
     import org.duckdb.{DuckDBAppender => JDuckDBAppender}
 
-    pub enum DuckDBAppenderHandle (JDuckDBAppender)
 
     pub eff DuckDBAppender {
         // `askDuckDBAppenderHandle` should not be used in user code
@@ -53,6 +52,9 @@ pub mod BasicDuckDB.DuckDBAppender {
         // def finalize(): Unit
     }
 
+
+    pub enum DuckDBAppenderHandle (JDuckDBAppender)
+    
     pub def handle(appender: DuckDBAppenderHandle, 
                     f: a -> b \ ef): a -> b \ Fail + ef - DuckDBAppender = x -> {
         let DuckDBAppenderHandle.DuckDBAppenderHandle(jappender) = appender;

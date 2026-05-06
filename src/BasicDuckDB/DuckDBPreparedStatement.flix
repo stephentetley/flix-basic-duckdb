@@ -26,7 +26,6 @@ pub mod BasicDuckDB.DuckDBPreparedStatement {
     import org.duckdb.{DuckDBResultSet => JDuckDBResultSet}
     import org.duckdb.{DuckDBPreparedStatement => JDuckDBPreparedStatement}
     
-    pub enum DuckDBPreparedStatementHandle (JDuckDBPreparedStatement)
 
     pub eff DuckDBPreparedStatement {
         // `askDuckDBPreparedStatementHandle` should not be used in user code
@@ -50,6 +49,8 @@ pub mod BasicDuckDB.DuckDBPreparedStatement {
         def setString(index: {index = Int32}, s: String): Unit        
     }
 
+    pub enum DuckDBPreparedStatementHandle (JDuckDBPreparedStatement)
+    
     pub def handle(stmt: DuckDBPreparedStatementHandle, 
                     f: a -> b \ ef): a -> b \ Fail + ef - DuckDBPreparedStatement = x -> {
         let DuckDBPreparedStatementHandle.DuckDBPreparedStatementHandle(jstmt) = stmt;

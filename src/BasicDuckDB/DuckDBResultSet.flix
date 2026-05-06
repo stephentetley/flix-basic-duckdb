@@ -32,12 +32,6 @@ pub mod BasicDuckDB.DuckDBResultSet {
     import java.sql.{SQLException => JSQLException}
     import org.duckdb.{DuckDBResultSet => JDuckDBResultSet}
     
-    pub enum DuckDBResultSetHandle(JDuckDBResultSet)
-
-    pub def castResultSetHandle(results: ResultSetHandle): DuckDBResultSetHandle = 
-        let ResultSetHandle.ResultSetHandle(results1) = results;
-        let results2 = unchecked_cast(results1 as JDuckDBResultSet);
-        DuckDBResultSetHandle.DuckDBResultSetHandle(results2)
 
     pub eff DuckDBResultSet {
         // `askDuckDBResultSetHandle` should not be used in user code
@@ -60,7 +54,14 @@ pub mod BasicDuckDB.DuckDBResultSet {
         def getFetchSize(): Int32
     }
 
+    pub enum DuckDBResultSetHandle(JDuckDBResultSet)
 
+    pub def castResultSetHandle(results: ResultSetHandle): DuckDBResultSetHandle = 
+        let ResultSetHandle.ResultSetHandle(results1) = results;
+        let results2 = unchecked_cast(results1 as JDuckDBResultSet);
+        DuckDBResultSetHandle.DuckDBResultSetHandle(results2)
+
+        
     pub def handle(results: DuckDBResultSetHandle, 
                     f: a -> b \ ef): a -> b \ Fail + ef - DuckDBResultSet = x -> {
         let DuckDBResultSetHandle.DuckDBResultSetHandle(jresults) = results;

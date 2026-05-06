@@ -1,6 +1,7 @@
 ### v0.6.1
    Made `RowReader` throw `Alt.failure` when Strings and other 
    object types are null.
+   Updated to compile with Flix 0.72.0.
 
 ### v0.6.0
    Pushed `close` resource functions up so they are in the same 

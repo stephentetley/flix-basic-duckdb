@@ -23,11 +23,3 @@ pub mod BasicDuckDB.JDBC.Timestamp {
 
 }
 
-pub mod BasicDuckDB.JDBC.Timestamp {
-
-    use BasicDuckDB.JDBC.Timestamp
-    use BasicDuckDB.JDBC.Timestamp.Timestamp
-
-    // pub def getDay()
-
-}

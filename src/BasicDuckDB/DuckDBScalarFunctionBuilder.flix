@@ -38,9 +38,6 @@ pub mod BasicDuckDB.DuckDBScalarFunctionBuilder {
     import java.lang.{Integer => JInteger}
 
 
-    pub enum DuckDBScalarFunctionBuilderHandle (JDuckDBScalarFunctionBuilder)
-
-
     pub eff DuckDBScalarFunctionBuilder {
         // `askDuckDBScalarFunctionBuilderHandle` should not be used in user code
         // It is a hack until we can run local effects polymorphically
@@ -58,6 +55,8 @@ pub mod BasicDuckDB.DuckDBScalarFunctionBuilder {
         def withBinaryFloat64Function(f: Float64 -> Float64 -> Float64): Unit
         def withVolatile(): Unit
     }
+
+    pub enum DuckDBScalarFunctionBuilderHandle (JDuckDBScalarFunctionBuilder)
 
 
     // Registers the function - doesn't need to return it
