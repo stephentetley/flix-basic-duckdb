@@ -198,11 +198,6 @@ pub mod BasicDuckDB.DuckDBPreparedStatement {
                                         f: Unit -> a \ ef): a \ Fail + ef - DuckDBPreparedStatement =
         handle(stmt, f)() 
 
-    // pub def execPreparedStatementSetter(setter: PreparedStatementSetter[a, ef]): Result[String, a] \ {IO + ef + DuckDBPreparedStatement} - DuckDBPreparedStatement = 
-    //     let stmt = DuckDBPreparedStatement.askDuckDBPreparedStatementHandle();
-    //     let PreparedStatementSetter.PreparedStatementSetter(f) = setter;
-    //     run {
-    //         f()
-    //     } with BasicDuckDB.PreparedStatementSetter.runWithIO(stmt)
 
 }
+

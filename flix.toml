@@ -11,5 +11,5 @@ authors     = ["Stephen Tetley <stephen.tetley@gmail.com>"]
 "github:stephentetley/effect-extras" = { version = "0.1.0", security = "unrestricted" }
 
 [mvn-dependencies]
-"org.duckdb:duckdb_jdbc" = "1.5.2.0"
+"org.duckdb:duckdb_jdbc" = "1.5.2.1"
 
