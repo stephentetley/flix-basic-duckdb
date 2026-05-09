@@ -27,9 +27,9 @@ pub mod BasicDuckDB.Shim.SQLite {
     use BasicDuckDB.JDBC.Statement.Statement
 
     
-    pub def forEach(reader: Unit -> Unit \ ReadRowWithAlt + ef, 
+    pub def forEach(reader: Unit -> Unit \ ef, 
                     file_name: String, 
-                    table_name: {table_name = String}): Result[IoError, Unit] \ {IO + ef} - DuckDBDriver - Fail - DuckDBConnection - Statement - DuckDBResultSet = 
+                    table_name: {table_name = String}): Result[IoError, Unit] \ {IO + ef} - DuckDBDriver - Fail - DuckDBConnection - Statement - DuckDBResultSet - ReadRowWithAlt= 
         let url = "jdbc:duckdb:";
         let sql1 = "ATTACH '${file_name}' AS temp_sqlite_db (TYPE sqlite); USE temp_sqlite_db;";
         let sql2 = "SELECT * FROM temp_sqlite_db.${table_name#table_name};";
@@ -37,16 +37,16 @@ pub mod BasicDuckDB.Shim.SQLite {
         run {
             BasicDuckDB.DuckDBDriver.execDuckDBConnection(url, () -> {
                 BasicDuckDB.DuckDBConnection.execStatement(() -> discard Statement.executeUpdate(sql1));
-                let ans = BasicDuckDB.DuckDBConnection.queryForEach(reader, sql2);
+                let ans = BasicDuckDB.DuckDBConnection.forEachQuery(sql2, reader);
                 BasicDuckDB.DuckDBConnection.execStatement(() -> discard Statement.executeUpdate(sql3));
                 ans
             }) 
         }  with BasicDuckDB.DuckDBDriver.runWithIOAndFail 
     
-    pub def fold(reader: a -> a \ ReadRowWithAlt + ef, 
+    pub def fold(reader: a -> a \ ef, 
                     s: a, 
                     file_name: String, 
-                    table_name: {table_name = String}): Result[IoError, a] \ {IO + ef} - DuckDBDriver - Fail - DuckDBConnection - Statement - DuckDBResultSet = 
+                    table_name: {table_name = String}): Result[IoError, a] \ {IO + ef} - DuckDBDriver - Fail - DuckDBConnection - Statement - DuckDBResultSet - ReadRowWithAlt= 
         let url = "jdbc:duckdb:";
         let sql1 = "ATTACH '${file_name}' AS temp_sqlite_db (TYPE sqlite); USE temp_sqlite_db;";
         let sql2 = "SELECT * FROM temp_sqlite_db.${table_name#table_name};";
@@ -54,16 +54,16 @@ pub mod BasicDuckDB.Shim.SQLite {
         run {
             BasicDuckDB.DuckDBDriver.execDuckDBConnection(url, () -> {
                 BasicDuckDB.DuckDBConnection.execStatement(() -> discard Statement.executeUpdate(sql1));
-                let ans = BasicDuckDB.DuckDBConnection.queryFold(reader, s, sql2);
+                let ans = BasicDuckDB.DuckDBConnection.foldQuery(sql2, reader, s);
                 BasicDuckDB.DuckDBConnection.execStatement(() -> discard Statement.executeUpdate(sql3));
                 ans
             }) 
         }  with BasicDuckDB.DuckDBDriver.runWithIOAndFail 
 
 
-    pub def load_facts(reader: Unit -> #{ | r } \ ReadRowWithAlt + ef, 
+    pub def load_facts(reader: Unit -> #{ | r } \ ef, 
                         file_name: String, 
-                        table_name: { table_name = String }): Result[IoError, #{ | r }] \ {IO + ef} - DuckDBDriver - Fail - DuckDBConnection - Statement - DuckDBResultSet = 
+                        table_name: { table_name = String }): Result[IoError, #{ | r }] \ {IO + ef} - DuckDBDriver - Fail - DuckDBConnection - Statement - DuckDBResultSet - ReadRowWithAlt= 
         fold(acc -> { let row = reader(); acc <+> row }, #{}, file_name, table_name)
 
 

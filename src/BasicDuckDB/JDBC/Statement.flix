@@ -20,22 +20,24 @@
 pub mod BasicDuckDB.JDBC.Statement {
     
     use EffectExtras.Fail.Fail
-    use BasicDuckDB.JDBC.ResultSet.ResultSetHandle
+    use BasicDuckDB.DuckDBResultSet.DuckDBResultSet
+    use BasicDuckDB.DuckDBResultSet.DuckDBResultSetHandle
 
+    use BasicDuckDB.RowReader.ReadRowWithAlt
     import java.sql.{SQLException => JSQLException}
     import java.sql.{Statement => JStatement}
-    
+    import org.duckdb.{DuckDBResultSet => JDuckDBResultSet}
 
 
     pub eff Statement {
-        def close(): Unit
         def getMaxRows(): Int32
         def setMaxRows(maxRows: Int32): Unit
         def cancel(): Unit
         def execute(sql: String): Bool
         def executeUpdate(sql: String): Int32
         def executeLargeUpdate(sql: String): Int64
-        def executeQuery(sql: String): ResultSetHandle
+        def executeQuery(sql: String): DuckDBResultSetHandle
+        def closeResultSet(results: DuckDBResultSetHandle): Unit
         // def getResultSet(): ResultSetHandle
         def enquoteLiteral(sql: String): String
         def isClosed(): Bool
@@ -51,13 +53,6 @@ pub mod BasicDuckDB.JDBC.Statement {
             f(x)
         } with handler Statement {
         
-            def close(k) = 
-                try {
-                    unsafe IO as {Fail + ef - Statement} { jstmt.close() };
-                    k()
-                } catch {
-                    case ex: JSQLException => Fail.report(ex.getMessage())
-                }
 
             def getMaxRows(k) = 
                 try {
@@ -109,19 +104,21 @@ pub mod BasicDuckDB.JDBC.Statement {
             
             def executeQuery(sql, k) = 
                 try {
-                    let ans = unsafe IO as {Fail + ef - Statement} { jstmt.executeQuery(sql) };
-                    k(ResultSetHandle.ResultSetHandle(ans))
+                    let jdbcResults = unsafe IO as {Fail + ef - Statement} { jstmt.executeQuery(sql) };
+                    let results = unchecked_cast(jdbcResults as JDuckDBResultSet);
+                    k(DuckDBResultSetHandle.DuckDBResultSetHandle(results))
                 } catch {
                     case ex: JSQLException => Fail.report(ex.getMessage())
                 }
 
-            // def getResultSet(k) = 
-            //     try {
-            //         let ans = ResultSetHandle(jstmt.getResultSet());
-            //         k(ans)
-            //     } catch {
-            //         case ex: JSQLException => Fail.report(ex.getMessage())
-            //     }
+            def closeResultSet(results, k) = 
+                try {
+                    let DuckDBResultSetHandle.DuckDBResultSetHandle(jresults) = results;
+                    unsafe IO as {Fail + ef - Statement} { jresults.close() };
+                    k()
+                } catch {
+                    case ex: JSQLException => Fail.report(ex.getMessage())
+                }
 
             def enquoteLiteral(sql, k) = 
                 try {
@@ -151,4 +148,18 @@ pub mod BasicDuckDB.JDBC.Statement {
 
     pub def runStatement(stmt: StatementHandle, f: Unit -> a \ ef): a \ {Fail + ef} - Statement = 
         handle(stmt, f)()
+
+    pub def forEachQuery(sql: String, 
+                            f: Unit -> Unit \ ef): Unit \ {ef + Fail + Statement} - DuckDBResultSet - ReadRowWithAlt = 
+        let results = Statement.executeQuery(sql);
+        let ans = BasicDuckDB.DuckDBResultSet.runDuckDBResultSet(results, _ -> BasicDuckDB.DuckDBResultSet.forEach(f));
+        Statement.closeResultSet(results);
+        ans
+
+    pub def foldQuery(sql: String, f: s -> s \ ef, st: s): s \ {ef + Fail + Statement} - DuckDBResultSet - ReadRowWithAlt = 
+        let results = Statement.executeQuery(sql);
+        let ans = BasicDuckDB.DuckDBResultSet.runDuckDBResultSet(results, _ -> BasicDuckDB.DuckDBResultSet.fold(f, st));
+        Statement.closeResultSet(results);
+        ans
+
 }

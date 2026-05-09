@@ -18,43 +18,43 @@
 pub mod BasicDuckDB.Shim.Parquet {
 
     use EffectExtras.Fail.Fail
-    use BasicDuckDB.DuckDBDriver.{DuckDBDriver}
-    use BasicDuckDB.DuckDBConnection.{DuckDBConnection}
-    use BasicDuckDB.DuckDBResultSet.{DuckDBResultSet}
+    use BasicDuckDB.DuckDBDriver.DuckDBDriver
+    use BasicDuckDB.DuckDBConnection.DuckDBConnection
+    use BasicDuckDB.DuckDBResultSet.DuckDBResultSet
     use BasicDuckDB.RowReader.ReadRowWithAlt
-    use BasicDuckDB.JDBC.Statement.{Statement}
+    use BasicDuckDB.JDBC.Statement.Statement
     use BasicDuckDB.Shim.ParquetOption.ParquetOption
     use BasicDuckDB.Shim.Internal.Utils.{printOptions}
     
     // TODO multiple files... Output...
 
-    pub def forEach(reader: Unit -> Unit \ ReadRowWithAlt + ef, 
+    pub def forEach(reader: Unit -> Unit \ ef, 
                     file_name: String, 
-                    opts: List[ParquetOption]): Result[IoError, Unit] \ {IO + ef} - DuckDBDriver - Fail - DuckDBConnection - Statement - DuckDBResultSet = 
+                    opts: List[ParquetOption]): Result[IoError, Unit] \ {IO + ef} - DuckDBDriver - Fail - DuckDBConnection - Statement - DuckDBResultSet - ReadRowWithAlt = 
         let url = "jdbc:duckdb:";
         let sql = "SELECT * FROM read_parquet('${file_name}'${printOptions(opts)});";
         run {
             BasicDuckDB.DuckDBDriver.execDuckDBConnection(url, () -> {
-                BasicDuckDB.DuckDBConnection.queryForEach(reader, sql)
+                BasicDuckDB.DuckDBConnection.forEachQuery(sql, reader)
             }) 
         } with BasicDuckDB.DuckDBDriver.runWithIOAndFail 
     
-    pub def fold(reader: a -> a \ ReadRowWithAlt + ef, 
+    pub def fold(reader: a -> a \ ef, 
                     s: a, 
                     file_name: String, 
-                    opts: List[ParquetOption]): Result[IoError, a] \ {IO + ef} - DuckDBDriver - Fail - DuckDBConnection - Statement - DuckDBResultSet = 
+                    opts: List[ParquetOption]): Result[IoError, a] \ {IO + ef} - DuckDBDriver - Fail - DuckDBConnection - Statement - DuckDBResultSet - ReadRowWithAlt= 
         let url = "jdbc:duckdb:";
         let sql = "SELECT * FROM read_parquet('${file_name}')${printOptions(opts)};";
         run {
             BasicDuckDB.DuckDBDriver.execDuckDBConnection(url, () -> {
-                BasicDuckDB.DuckDBConnection.queryFold(reader, s, sql)
+                BasicDuckDB.DuckDBConnection.foldQuery(sql, reader, s)
             }) 
         } with BasicDuckDB.DuckDBDriver.runWithIOAndFail 
 
 
-    pub def load_facts(reader: Unit -> #{ | r } \ ReadRowWithAlt + ef, 
+    pub def load_facts(reader: Unit -> #{ | r } \ ef, 
                         file_name: String, 
-                        opts: List[ParquetOption]): Result[IoError, #{ | r }] \ {IO + ef} - DuckDBDriver - Fail - DuckDBConnection - Statement - DuckDBResultSet = 
+                        opts: List[ParquetOption]): Result[IoError, #{ | r }] \ {IO + ef} - DuckDBDriver - Fail - DuckDBConnection - Statement - DuckDBResultSet - ReadRowWithAlt= 
         fold(acc -> { let row1 = reader(); acc <+> row1 }, #{}, file_name, opts)
 
 

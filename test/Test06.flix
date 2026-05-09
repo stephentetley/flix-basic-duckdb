@@ -25,9 +25,15 @@ pub mod Test06 {
                             BasicDuckDB.DuckDBConnection.execDuckDBScalarFunctionBuilder(buildFun1);
                             BasicDuckDB.DuckDBConnection.execDuckDBScalarFunctionBuilder(buildFun2);
                             BasicDuckDB.DuckDBConnection.execDuckDBScalarFunctionBuilder(buildFun3);
-                            BasicDuckDB.DuckDBConnection.queryForEach(() -> { let i = rowReader(); println("Test06: ${i} ") }, "SELECT flix_add_one(42);") |> println;
-                            BasicDuckDB.DuckDBConnection.queryForEach(() -> { let i = rowReader(); println("Test06: ${i} ") }, "SELECT flix_add_n(42, 100);") |> println;
-                            BasicDuckDB.DuckDBConnection.queryForEach(() -> { let s = rowReaderS(); println("Test06 (ten): ${s} ") }, "SELECT flix_get_ten();") |> println
+                            BasicDuckDB.DuckDBConnection.forEachQuery(
+                                "SELECT flix_add_one(42);", 
+                                () -> { let i = rowReader(); println("Test06: ${i} ") }) |> println;
+                            BasicDuckDB.DuckDBConnection.forEachQuery(
+                                "SELECT flix_add_n(42, 100);",
+                                () -> { let i = rowReader(); println("Test06: ${i} ") }) |> println;
+                            BasicDuckDB.DuckDBConnection.forEachQuery(
+                                "SELECT flix_get_ten();",
+                                () -> { let s = rowReaderS(); println("Test06 (ten): ${s} ") }) |> println
                         })
                     } with BasicDuckDB.DuckDBDriver.runWithIOAndFail 
             ) yield true;

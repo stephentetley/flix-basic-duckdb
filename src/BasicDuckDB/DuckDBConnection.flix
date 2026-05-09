@@ -17,7 +17,9 @@
 
 
 pub mod BasicDuckDB.DuckDBConnection {
+    use BasicDuckDB.DuckDBConnection
 
+    use EffectExtras.Fail.Fail
     use BasicDuckDB.DuckDBAppender.{DuckDBAppender}
     use BasicDuckDB.DuckDBAppender.{DuckDBAppenderHandle}
     use BasicDuckDB.DuckDBPreparedStatement.{DuckDBPreparedStatement}
@@ -26,7 +28,6 @@ pub mod BasicDuckDB.DuckDBConnection {
     use BasicDuckDB.JDBC.Statement.{Statement}
     use BasicDuckDB.JDBC.Statement.StatementHandle
     use BasicDuckDB.RowReader.ReadRowWithAlt
-    use EffectExtras.Fail.Fail
     use BasicDuckDB.DuckDBScalarFunctionBuilder.DuckDBScalarFunctionBuilder
 
     import java.sql.{Connection => JConnection}
@@ -279,50 +280,12 @@ pub mod BasicDuckDB.DuckDBConnection {
 
 
     // cf. ```f: (<row>, a) -> a``` but <row> is implicit
-    pub def queryFold(f: a -> a \ ReadRowWithAlt + ef, s: a, sql: String): a \ {Fail + ef + DuckDBConnection} - {Statement + DuckDBResultSet}  = 
-        let stmt = DuckDBConnection.createStatement();
-        run {
-            let results = Statement.executeQuery(sql);
-            let results1 = BasicDuckDB.DuckDBResultSet.castResultSetHandle(results);
-            let ans = run {
-                def loop(acc, sk) = {
-                    let more = DuckDBResultSet.next();
-                    if (more) {
-                        let rowAnswer = EffectExtras.Fail.handleWithResult(_ -> BasicDuckDB.DuckDBResultSet.execReadRow(_ -> f(acc)))();
-                        match rowAnswer {
-                            case Ok(acc1) => loop(acc1, sk)
-                            case Err(err) => Fail.report(err)
-                        }
-                    } else sk(acc)
-                };
-                loop(s, a -> a)
-            } with BasicDuckDB.DuckDBResultSet.runDuckDBResultSet(results1);
-            Statement.close();
-            ans
-        } with BasicDuckDB.JDBC.Statement.runStatement(stmt)
+    pub def foldQuery(sql: String, f: a -> a \ ef, s: a): a \ {ef + Fail + DuckDBConnection} - ReadRowWithAlt - Statement - DuckDBResultSet  = 
+        execStatement(_ -> BasicDuckDB.JDBC.Statement.foldQuery(sql, f, s))
 
 
-    pub def queryForEach(reader: Unit -> Unit \ ReadRowWithAlt + ef, sql: String): Unit \ {Fail + ef + DuckDBConnection} - {Statement + DuckDBResultSet} = 
-        let stmt = DuckDBConnection.createStatement();
-        run {
-            let results = Statement.executeQuery(sql);
-            let results1 = BasicDuckDB.DuckDBResultSet.castResultSetHandle(results);
-            let _ = run {
-                def loop(fk, sk) = {
-                    let more = DuckDBResultSet.next();
-                    if (more) {
-                        let rowAnswer = EffectExtras.Fail.handleWithResult(_ -> BasicDuckDB.DuckDBResultSet.execReadRow(reader))();
-                        match rowAnswer {
-                            case Ok() => loop(fk, sk)
-                            case Err(err) => fk(err)
-                        }
-                    } else sk()
-                };
-                loop(e -> Err(e), a -> Ok(a))
-            } with BasicDuckDB.DuckDBResultSet.runDuckDBResultSet(results1);
-            Statement.close();
-            ()
-        } with BasicDuckDB.JDBC.Statement.runStatement(stmt)
+    pub def forEachQuery(sql: String, f: Unit -> Unit \ ef): Unit \ {ef + Fail + DuckDBConnection} - ReadRowWithAlt - Statement - DuckDBResultSet  = 
+        execStatement(_ -> BasicDuckDB.JDBC.Statement.forEachQuery(sql, f))
 
     
 

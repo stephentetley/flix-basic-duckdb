@@ -37,7 +37,6 @@ pub mod BasicDuckDB.DuckDBResultSet {
         // `askDuckDBResultSetHandle` should not be used in user code
         // It is a hack until we can run local effects polymorphically
         def askDuckDBResultSetHandle(): DuckDBResultSetHandle
-        def close(): Unit
         def next(): Bool
         def wasNull(): Bool
         def findColumn(label: String): Int32
@@ -71,13 +70,6 @@ pub mod BasicDuckDB.DuckDBResultSet {
         
             def askDuckDBResultSetHandle(k) = k(results)
 
-            def close(k) = 
-                try {
-                    unsafe IO as {Fail + ef - DuckDBResultSet} { jresults.close() };
-                    k()
-                } catch {
-                    case ex: JSQLException => Fail.report(ex.getMessage())
-                }
 
             def next(k) = 
                 try {
@@ -201,11 +193,38 @@ pub mod BasicDuckDB.DuckDBResultSet {
         handle(results, f)()
 
 
-    pub def execReadRow(reader: Unit -> a \ ReadRowWithAlt + ef): a \ {ef + Fail + DuckDBResultSet} - ReadRowWithAlt = 
+    pub def execReadRow(reader: Unit -> a \ ef): a \ {ef + Fail + DuckDBResultSet} - ReadRowWithAlt = 
         let row = DuckDBResultSet.askDuckDBResultSetHandle();
         run {
             reader()
         } with BasicDuckDB.RowReader.runRowReader(row)
 
+    // Note - doesn't close resultset even though it will be exhausted
+    pub def forEach(f: Unit -> Unit \ ef): Unit \ {ef + Fail + DuckDBResultSet} - ReadRowWithAlt =
+        def loop(fk, sk) = {
+            let more = DuckDBResultSet.next();
+            if (more) {
+                let rowAnswer = EffectExtras.Fail.runWithResult(_ -> execReadRow(f));
+                match rowAnswer {
+                    case Ok()     => loop(fk, sk)
+                    case Err(err) => fk(err)
+                }
+            } else sk()
+        };
+        loop(e -> Fail.report(e), a -> a)
+
+    // fold
+    pub def fold(f: s -> s \ ef, st: s): s \ {ef + Fail + DuckDBResultSet} - ReadRowWithAlt =
+        def loop(acc, fk, sk) = {
+            let more = DuckDBResultSet.next();
+            if (more) {
+                let rowAnswer = EffectExtras.Fail.runWithResult(_ -> execReadRow(_ -> f(acc)));
+                match rowAnswer {
+                    case Ok(acc1) => loop(acc1, fk, sk)
+                    case Err(err) => fk(err)
+                }
+            } else sk(acc)
+        };
+        loop(st, e -> Fail.report(e), a -> a)
 
 }

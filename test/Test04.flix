@@ -24,7 +24,9 @@ pub mod Test04 {
                 url <- Ok("jdbc:duckdb:");
                 _   <- run { 
                         BasicDuckDB.DuckDBDriver.execDuckDBConnection(url, () -> {
-                            BasicDuckDB.DuckDBConnection.queryForEach(() -> { let i = rowReader(); println("Test04: ${i} ") }, "SELECT 42;") |> println
+                            BasicDuckDB.DuckDBConnection.forEachQuery(
+                                "SELECT 42;",
+                                () -> { let i = rowReader(); println("Test04: ${i} ") }) |> println
                         })
                     } with BasicDuckDB.DuckDBDriver.runWithIOAndFail 
             ) yield true;

@@ -54,7 +54,7 @@ pub mod BasicDuckDB.RowReader {
 
 
     pub def handle(results: DuckDBResultSetHandle, 
-                    f: a -> b \ ef): a -> b \ {ef + Fail} - ReadRowWithAlt = x -> {
+                    f: a -> b \ ef): a -> b \ {ef + Fail - ReadRowWithAlt} = x -> {
         let DuckDBResultSetHandle.DuckDBResultSetHandle(jresults) = results;
         let result = run {
             // Interpret a successful run as Ok(_)

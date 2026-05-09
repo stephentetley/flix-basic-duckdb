@@ -33,8 +33,9 @@ pub mod Test02 {
                     () -> List.forEach(xy -> { let (x, y) = xy; appender(x, y) }, 
                                         List#{("DuckDB", 2019), ("SQLite", 2000)})
                 );
-                BasicDuckDB.DuckDBConnection.queryForEach(_ -> rowReader(), 
-                                                            "SELECT * FROM facts.databases;");
+                BasicDuckDB.DuckDBConnection.forEachQuery("SELECT * FROM facts.databases;",
+                                                            _ -> rowReader()
+                                                            );
                 true
             })
         } with BasicDuckDB.DuckDBDriver.runWithIOAndFail;            

@@ -33,7 +33,10 @@ pub mod Test03 {
                     "databases", 
                     () -> List.forEach(xy -> { let (x, y) = xy; appender(x, y) }, 
                             List#{("DuckDB", 2019), ("SQLite", 2000)}));
-                BasicDuckDB.DuckDBConnection.queryFold(acc -> { let i = rowReader(); Int32.max(acc, i) }, 0, "SELECT * FROM facts.databases;") |> println
+                BasicDuckDB.DuckDBConnection.foldQuery(
+                    "SELECT * FROM facts.databases;",
+                    acc -> { let i = rowReader(); Int32.max(acc, i) }, 
+                    0) |> println
             });
             true
         } with BasicDuckDB.DuckDBDriver.runWithIOAndFail;
