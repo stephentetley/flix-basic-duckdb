@@ -66,7 +66,7 @@ pub mod BasicDuckDB.DuckDBConnection {
     pub enum DuckDBConnectionHandle(JDuckDBConnection)
     
     pub def handle(conn: DuckDBConnectionHandle, 
-                    f: a -> b \ ef): a -> b \ Fail + ef - DuckDBConnection = x -> {
+                    f: a -> b \ ef): a -> b \ ef + Fail - DuckDBConnection = x -> {
         let DuckDBConnectionHandle.DuckDBConnectionHandle(jconn) = conn;
         run {
             f(x)
@@ -76,7 +76,7 @@ pub mod BasicDuckDB.DuckDBConnection {
 
             def createStatement(k) = 
                 try {
-                    let ans = unsafe IO as {Fail + ef - DuckDBConnection} { jconn.createStatement() };
+                    let ans = unsafe IO as {ef + Fail - DuckDBConnection} { jconn.createStatement() };
                     k(StatementHandle.StatementHandle(ans))
                 } catch {
                     case ex: JSQLException => Fail.report(ex.getMessage())
@@ -85,7 +85,7 @@ pub mod BasicDuckDB.DuckDBConnection {
             def closeStatement(stmt, k) = 
                 try {
                     let StatementHandle.StatementHandle(jstmt) = stmt;
-                    unsafe IO as {Fail + ef - DuckDBConnection} { jstmt.close() };
+                    unsafe IO as {ef + Fail - DuckDBConnection} { jstmt.close() };
                     k()
                 } catch {
                     case ex: JSQLException => Fail.report(ex.getMessage())
@@ -93,7 +93,7 @@ pub mod BasicDuckDB.DuckDBConnection {
 
             def prepareStatement(sql, k) = 
                 try {
-                    let ans = unsafe IO as {Fail + ef - DuckDBConnection} { jconn.prepareStatement(sql) };
+                    let ans = unsafe IO as {ef + Fail - DuckDBConnection} { jconn.prepareStatement(sql) };
                     let ans1 = unchecked_cast(ans as JDuckDBPreparedStatement);
                     k(DuckDBPreparedStatementHandle.DuckDBPreparedStatementHandle(ans1))
                 } catch {
@@ -103,7 +103,7 @@ pub mod BasicDuckDB.DuckDBConnection {
             def closePreparedStatement(stmt, k) = 
                 try {
                     let DuckDBPreparedStatementHandle.DuckDBPreparedStatementHandle(jstmt) = stmt;
-                    unsafe IO as {Fail + ef - DuckDBConnection} { jstmt.close() };
+                    unsafe IO as {ef + Fail - DuckDBConnection} { jstmt.close() };
                     k()
                 } catch {
                     case ex: JSQLException => Fail.report(ex.getMessage())
@@ -112,7 +112,7 @@ pub mod BasicDuckDB.DuckDBConnection {
 
             def createAppender(schema, table, k) = 
                 try {
-                    let ans = unsafe IO as {Fail + ef - DuckDBConnection} { jconn.createAppender(schema, table) };
+                    let ans = unsafe IO as {ef + Fail - DuckDBConnection} { jconn.createAppender(schema, table) };
                     k(DuckDBAppenderHandle.DuckDBAppenderHandle(ans))
                 } catch {
                     case ex: JSQLException => Fail.report(ex.getMessage())
@@ -121,7 +121,7 @@ pub mod BasicDuckDB.DuckDBConnection {
             def closeAppender(appender, k) = 
                 try {
                     let DuckDBAppenderHandle.DuckDBAppenderHandle(jappender) = appender;
-                    unsafe IO as {Fail + ef - DuckDBConnection} { jappender.close() };
+                    unsafe IO as {ef + Fail - DuckDBConnection} { jappender.close() };
                     k()
                 } catch {
                     case ex: JSQLException => Fail.report(ex.getMessage())
@@ -130,7 +130,7 @@ pub mod BasicDuckDB.DuckDBConnection {
 
             def nativeSQL(sql, k) = 
                 try {
-                    let ans = unsafe IO as {Fail + ef - DuckDBConnection} { jconn.nativeSQL(sql) };
+                    let ans = unsafe IO as {ef + Fail - DuckDBConnection} { jconn.nativeSQL(sql) };
                     k(ans)
                 } catch {
                     case ex: JSQLException => Fail.report(ex.getMessage())
@@ -138,7 +138,7 @@ pub mod BasicDuckDB.DuckDBConnection {
 
             def setAutoCommit(ac, k) = 
                 try {
-                    unsafe IO as {Fail + ef - DuckDBConnection} { jconn.setAutoCommit(ac) };
+                    unsafe IO as {ef + Fail - DuckDBConnection} { jconn.setAutoCommit(ac) };
                     k()
                 } catch {
                     case ex: JSQLException => Fail.report(ex.getMessage())
@@ -146,7 +146,7 @@ pub mod BasicDuckDB.DuckDBConnection {
 
             def getAutoCommit(k) = 
                 try {
-                    let ans = unsafe IO as {Fail + ef - DuckDBConnection} { jconn.getAutoCommit() };
+                    let ans = unsafe IO as {ef + Fail - DuckDBConnection} { jconn.getAutoCommit() };
                     k(ans)
                 } catch {
                     case ex: JSQLException => Fail.report(ex.getMessage())
@@ -154,7 +154,7 @@ pub mod BasicDuckDB.DuckDBConnection {
 
             def commit(k) = 
                 try {
-                    unsafe IO as {Fail + ef - DuckDBConnection} { jconn.commit() };
+                    unsafe IO as {ef + Fail - DuckDBConnection} { jconn.commit() };
                     k()
                 } catch {
                     case ex: JSQLException => Fail.report(ex.getMessage())
@@ -162,7 +162,7 @@ pub mod BasicDuckDB.DuckDBConnection {
 
             def rollback(k) = 
                 try {
-                    unsafe IO as {Fail + ef - DuckDBConnection} { jconn.rollback() };
+                    unsafe IO as {ef + Fail - DuckDBConnection} { jconn.rollback() };
                     k()
                 } catch {
                     case ex: JSQLException => Fail.report(ex.getMessage())
@@ -170,7 +170,7 @@ pub mod BasicDuckDB.DuckDBConnection {
 
             def isClosed(k) = 
                 try {
-                    let ans = unsafe IO as {Fail + ef - DuckDBConnection} { jconn.isClosed() };
+                    let ans = unsafe IO as {ef + Fail - DuckDBConnection} { jconn.isClosed() };
                     k(ans)
                 } catch {
                     case ex: JSQLException => Fail.report(ex.getMessage())
@@ -178,7 +178,7 @@ pub mod BasicDuckDB.DuckDBConnection {
 
             def isValid(timeout, k) = 
                 try {
-                    let ans = unsafe IO as {Fail + ef - DuckDBConnection} { jconn.isValid(timeout) };
+                    let ans = unsafe IO as {ef + Fail - DuckDBConnection} { jconn.isValid(timeout) };
                     k(ans)
                 } catch {
                     case ex: JSQLException => Fail.report(ex.getMessage())
@@ -186,7 +186,7 @@ pub mod BasicDuckDB.DuckDBConnection {
 
             def isReadOnly(k) = 
                 try {
-                    let ans = unsafe IO as {Fail + ef - DuckDBConnection} { jconn.isReadOnly() };
+                    let ans = unsafe IO as {ef + Fail - DuckDBConnection} { jconn.isReadOnly() };
                     k(ans)
                 } catch {
                     case ex: JSQLException => Fail.report(ex.getMessage())
@@ -194,7 +194,7 @@ pub mod BasicDuckDB.DuckDBConnection {
 
             def setReadOnly(ro, k) = 
                 try {
-                    unsafe IO as {Fail + ef - DuckDBConnection} { jconn.setReadOnly(ro) };
+                    unsafe IO as {ef + Fail - DuckDBConnection} { jconn.setReadOnly(ro) };
                     k()
                 } catch {
                     case ex: JSQLException => Fail.report(ex.getMessage())
@@ -202,7 +202,7 @@ pub mod BasicDuckDB.DuckDBConnection {
 
             def getCatalog(k) = 
                 try {
-                    let ans = unsafe IO as {Fail + ef - DuckDBConnection} { jconn.getCatalog() };
+                    let ans = unsafe IO as {ef + Fail - DuckDBConnection} { jconn.getCatalog() };
                     k(ans)
                 } catch {
                     case ex: JSQLException => Fail.report(ex.getMessage())
@@ -210,7 +210,7 @@ pub mod BasicDuckDB.DuckDBConnection {
 
             def setCatalog(c, k) = 
                 try {
-                    unsafe IO as {Fail + ef - DuckDBConnection} { jconn.setCatalog(c) };
+                    unsafe IO as {ef + Fail - DuckDBConnection} { jconn.setCatalog(c) };
                     k()
                 } catch {
                     case ex: JSQLException => Fail.report(ex.getMessage())
@@ -218,7 +218,7 @@ pub mod BasicDuckDB.DuckDBConnection {
 
             def getTransactionIsolation(k) = 
                 try {
-                    let ans = unsafe IO as {Fail + ef - DuckDBConnection} { jconn.getTransactionIsolation() };
+                    let ans = unsafe IO as {ef + Fail - DuckDBConnection} { jconn.getTransactionIsolation() };
                     k(ans)
                 } catch {
                     case ex: JSQLException => Fail.report(ex.getMessage())
@@ -226,7 +226,7 @@ pub mod BasicDuckDB.DuckDBConnection {
 
             def setTransactionIsolation(l, k) = 
                 try {
-                    unsafe IO as {Fail + ef - DuckDBConnection} { jconn.setTransactionIsolation(l) };
+                    unsafe IO as {ef + Fail - DuckDBConnection} { jconn.setTransactionIsolation(l) };
                     k()
                 } catch {
                     case ex: JSQLException => Fail.report(ex.getMessage())
@@ -237,11 +237,11 @@ pub mod BasicDuckDB.DuckDBConnection {
     }
     
     pub def runDuckDBConnection(conn: DuckDBConnectionHandle, 
-                                f: Unit -> a \ ef): a \ Fail + ef - DuckDBConnection = 
+                                f: Unit -> a \ ef): a \ ef + Fail - DuckDBConnection = 
         handle(conn, f)()
 
     
-    pub def execStatement(f: Unit -> a \ ef + Statement): a \ {Fail + ef + DuckDBConnection} - Statement = 
+    pub def execStatement(f: Unit -> a \ ef): a \ {ef + Fail + DuckDBConnection} - Statement = 
         let stmt = DuckDBConnection.createStatement();
         let ans = run { 
             f() 
@@ -250,7 +250,7 @@ pub mod BasicDuckDB.DuckDBConnection {
         ans
 
     pub def execDuckDBPreparedStatement(sql: String, 
-                                        f: Unit -> a \ DuckDBPreparedStatement + ef): a \ {Fail + ef + DuckDBConnection} - DuckDBPreparedStatement = 
+                                        f: Unit -> a \ ef): a \ {ef + Fail + DuckDBConnection} - DuckDBPreparedStatement = 
         let stmt = DuckDBConnection.prepareStatement(sql);
         let ans = run {
             f()
@@ -261,21 +261,16 @@ pub mod BasicDuckDB.DuckDBConnection {
 
     pub def execDuckDBAppender(schema: String, 
                                 table: String, 
-                                f: Unit -> a \ DuckDBAppender + ef): a \ {Fail + ef + DuckDBConnection} - DuckDBAppender = 
+                                f: Unit -> a \ ef): a \ {ef + Fail + DuckDBConnection} - DuckDBAppender = 
         let app = DuckDBConnection.createAppender(schema, table);
-        let ans = run { 
-            f()
-        } with BasicDuckDB.DuckDBAppender.runDuckDBAppender(app);
+        let ans = BasicDuckDB.DuckDBAppender.runDuckDBAppender(app, f);
         DuckDBConnection.closeAppender(app);
         ans 
 
     
-    pub def execDuckDBScalarFunctionBuilder(f: Unit -> a \ DuckDBScalarFunctionBuilder + ef): a \ {Fail + ef + DuckDBConnection} - DuckDBScalarFunctionBuilder= 
+    pub def execDuckDBScalarFunctionBuilder(f: Unit -> a \ ef): a \ {ef + Fail + DuckDBConnection} - DuckDBScalarFunctionBuilder= 
         let conn = DuckDBConnection.askDuckDBConnectionHandle();
-        run {
-            let ans = f();
-            ans
-        } with BasicDuckDB.DuckDBScalarFunctionBuilder.runDuckDBScalarFunctionBuilder(conn)
+        BasicDuckDB.DuckDBScalarFunctionBuilder.runDuckDBScalarFunctionBuilder(conn, f)
         
 
 

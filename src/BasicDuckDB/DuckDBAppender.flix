@@ -29,7 +29,7 @@ pub mod BasicDuckDB.DuckDBAppender {
     pub eff DuckDBAppender {
         // `askDuckDBAppenderHandle` should not be used in user code
         // It is a hack until we can run local effects polymorphically
-        def askDuckDBAppenderHandle(): DuckDBAppenderHandle        
+        def askDuckDBAppender(): DuckDBAppenderHandle        
         def beginRow(): Unit
         def endRow(): Unit
         def beginStruct(): Unit
@@ -56,17 +56,17 @@ pub mod BasicDuckDB.DuckDBAppender {
     pub enum DuckDBAppenderHandle (JDuckDBAppender)
     
     pub def handle(appender: DuckDBAppenderHandle, 
-                    f: a -> b \ ef): a -> b \ Fail + ef - DuckDBAppender = x -> {
+                    f: a -> b \ ef): a -> b \ ef + Fail - DuckDBAppender = x -> {
         let DuckDBAppenderHandle.DuckDBAppenderHandle(jappender) = appender;
         run {
             f(x)
         } with handler DuckDBAppender {
 
-            def askDuckDBAppenderHandle(k) = k(appender)
+            def askDuckDBAppender(k) = k(appender)
 
             def beginRow(k) = 
                 try {
-                    unsafe IO as { Fail + ef - DuckDBAppender } { discard jappender.beginRow() };
+                    unsafe IO as { ef + Fail - DuckDBAppender } { discard jappender.beginRow() };
                     k()
                 } catch {
                     case ex: SQLException => Fail.report(ex.getMessage())
@@ -74,7 +74,7 @@ pub mod BasicDuckDB.DuckDBAppender {
             
             def endRow(k) = 
                 try {
-                    unsafe IO as { Fail + ef - DuckDBAppender } { discard jappender.endRow() };
+                    unsafe IO as { ef + Fail - DuckDBAppender } { discard jappender.endRow() };
                     k()
                 } catch {
                     case ex: SQLException => Fail.report(ex.getMessage())
@@ -82,7 +82,7 @@ pub mod BasicDuckDB.DuckDBAppender {
 
             def beginStruct(k) = 
                 try {
-                    unsafe IO as { Fail + ef - DuckDBAppender } { discard jappender.beginStruct() };
+                    unsafe IO as { ef + Fail - DuckDBAppender } { discard jappender.beginStruct() };
                     k()
                 } catch {
                     case ex: SQLException => Fail.report(ex.getMessage())
@@ -90,7 +90,7 @@ pub mod BasicDuckDB.DuckDBAppender {
             
             def endStruct(k) = 
                 try {
-                    unsafe IO as { Fail + ef - DuckDBAppender } { discard jappender.endStruct() };
+                    unsafe IO as { ef + Fail - DuckDBAppender } { discard jappender.endStruct() };
                     k()
                 } catch {
                     case ex: SQLException => Fail.report(ex.getMessage())
@@ -98,7 +98,7 @@ pub mod BasicDuckDB.DuckDBAppender {
 
             def beginUnion(tag, k) = 
                 try {
-                    unsafe IO as { Fail + ef - DuckDBAppender } { discard jappender.beginUnion(tag) };
+                    unsafe IO as { ef + Fail - DuckDBAppender } { discard jappender.beginUnion(tag) };
                     k()
                 } catch {
                     case ex: SQLException => Fail.report(ex.getMessage())
@@ -106,7 +106,7 @@ pub mod BasicDuckDB.DuckDBAppender {
             
             def endUnion(k) = 
                 try {
-                    unsafe IO as { Fail + ef - DuckDBAppender } { discard jappender.endUnion() };
+                    unsafe IO as { ef + Fail - DuckDBAppender } { discard jappender.endUnion() };
                     k()
                 } catch {
                     case ex: SQLException => Fail.report(ex.getMessage())
@@ -114,7 +114,7 @@ pub mod BasicDuckDB.DuckDBAppender {
 
             def appendNull(k) = 
                 try {
-                    unsafe IO as { Fail + ef - DuckDBAppender } { discard jappender.appendNull() };
+                    unsafe IO as { ef + Fail - DuckDBAppender } { discard jappender.appendNull() };
                     k()
                 } catch {
                     case ex: SQLException => Fail.report(ex.getMessage())
@@ -123,7 +123,7 @@ pub mod BasicDuckDB.DuckDBAppender {
 
             def appendBool(b, k) = 
                 try {
-                    unsafe IO as { Fail + ef - DuckDBAppender } { discard jappender.append(b) };
+                    unsafe IO as { ef + Fail - DuckDBAppender } { discard jappender.append(b) };
                     k()
                 } catch {
                     case ex: SQLException => Fail.report(ex.getMessage())
@@ -132,7 +132,7 @@ pub mod BasicDuckDB.DuckDBAppender {
 
             def appendInt8(i, k) = 
                 try {
-                    unsafe IO as { Fail + ef - DuckDBAppender } { discard jappender.append(i) };
+                    unsafe IO as { ef + Fail - DuckDBAppender } { discard jappender.append(i) };
                     k()
                 } catch {
                     case ex: SQLException => Fail.report(ex.getMessage())
@@ -140,7 +140,7 @@ pub mod BasicDuckDB.DuckDBAppender {
 
             def appendInt16(i, k) = 
                 try {
-                    unsafe IO as { Fail + ef - DuckDBAppender } { discard jappender.append(i) };
+                    unsafe IO as { ef + Fail - DuckDBAppender } { discard jappender.append(i) };
                     k()
                 } catch {
                     case ex: SQLException => Fail.report(ex.getMessage())
@@ -148,7 +148,7 @@ pub mod BasicDuckDB.DuckDBAppender {
 
             def appendInt32(i, k) = 
                 try {
-                    unsafe IO as { Fail + ef - DuckDBAppender } { discard jappender.append(i) };
+                    unsafe IO as { ef + Fail - DuckDBAppender } { discard jappender.append(i) };
                     k()
                 } catch {
                     case ex: SQLException => Fail.report(ex.getMessage())
@@ -156,7 +156,7 @@ pub mod BasicDuckDB.DuckDBAppender {
 
             def appendInt64(i, k) = 
                 try {
-                    unsafe IO as { Fail + ef - DuckDBAppender } { discard jappender.append(i) };
+                    unsafe IO as { ef + Fail - DuckDBAppender } { discard jappender.append(i) };
                     k()
                 } catch {
                     case ex: SQLException => Fail.report(ex.getMessage())
@@ -164,7 +164,7 @@ pub mod BasicDuckDB.DuckDBAppender {
 
             def appendBigInt(i, k) = 
                 try {
-                    unsafe IO as { Fail + ef - DuckDBAppender } { discard jappender.append(i) };
+                    unsafe IO as { ef + Fail - DuckDBAppender } { discard jappender.append(i) };
                     k()
                 } catch {
                     case ex: SQLException => Fail.report(ex.getMessage())
@@ -172,7 +172,7 @@ pub mod BasicDuckDB.DuckDBAppender {
 
             def appendFloat32(d, k) = 
                 try {
-                    unsafe IO as { Fail + ef - DuckDBAppender } { discard jappender.append(d) };
+                    unsafe IO as { ef + Fail - DuckDBAppender } { discard jappender.append(d) };
                     k()
                 } catch {
                     case ex: SQLException => Fail.report(ex.getMessage())
@@ -180,7 +180,7 @@ pub mod BasicDuckDB.DuckDBAppender {
 
             def appendFloat64(d, k) = 
                 try {
-                    unsafe IO as { Fail + ef - DuckDBAppender } { discard jappender.append(d) };
+                    unsafe IO as { ef + Fail - DuckDBAppender } { discard jappender.append(d) };
                     k()
                 } catch {
                     case ex: SQLException => Fail.report(ex.getMessage())
@@ -188,7 +188,7 @@ pub mod BasicDuckDB.DuckDBAppender {
 
             def appendBigDecimal(d, k) = 
                 try {
-                    unsafe IO as { Fail + ef - DuckDBAppender } { discard jappender.append(d) };
+                    unsafe IO as { ef + Fail - DuckDBAppender } { discard jappender.append(d) };
                     k()
                 } catch {
                     case ex: SQLException => Fail.report(ex.getMessage())
@@ -197,7 +197,7 @@ pub mod BasicDuckDB.DuckDBAppender {
 
             def appendChar(c, k) = 
                 try {
-                    unsafe IO as { Fail + ef - DuckDBAppender } { discard jappender.append(c) };
+                    unsafe IO as { ef + Fail - DuckDBAppender } { discard jappender.append(c) };
                     k()
                 } catch {
                     case ex: SQLException => Fail.report(ex.getMessage())
@@ -205,7 +205,7 @@ pub mod BasicDuckDB.DuckDBAppender {
 
             def appendString(s, k) = 
                 try {
-                    unsafe IO as { Fail + ef - DuckDBAppender } { discard jappender.append(s) };
+                    unsafe IO as { ef + Fail - DuckDBAppender } { discard jappender.append(s) };
                     k()
                 } catch {
                     case ex: SQLException => Fail.report(ex.getMessage())
@@ -213,7 +213,7 @@ pub mod BasicDuckDB.DuckDBAppender {
 
             def flush(k) = 
                 try {
-                    unsafe IO as { Fail + ef - DuckDBAppender } { discard jappender.flush() };
+                    unsafe IO as { ef + Fail - DuckDBAppender } { discard jappender.flush() };
                     k()
                 } catch {
                     case ex: SQLException => Fail.report(ex.getMessage())
@@ -225,9 +225,25 @@ pub mod BasicDuckDB.DuckDBAppender {
     }
 
     pub def runDuckDBAppender(appender: DuckDBAppenderHandle, 
-                                f: Unit -> a \ ef):  a \ Fail + ef - DuckDBAppender = 
+                                f: Unit -> a \ ef):  a \ ef + Fail - DuckDBAppender = 
         handle(appender, f)()
 
+
+    pub def execDuckDBAppender(f: Unit -> a \ ef): a \ ef + Fail + DuckDBAppender = 
+        let handle = DuckDBAppender.askDuckDBAppender();
+        run {
+            f()
+        } with runDuckDBAppender(handle)
+
+
+    pub def unfold(f: s -> Option[s] \ ef, st: s): Unit \ ef + Fail + DuckDBAppender = 
+        def loop(s, k) = {
+            match execDuckDBAppender(() -> f(s)) {
+                case Some(s1) => loop(s1, k)
+                case None => k()
+            }
+        };
+        loop(st, a -> a)
 
 
 }

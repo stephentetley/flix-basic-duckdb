@@ -52,7 +52,7 @@ pub mod BasicDuckDB.Shim.Parquet {
         } with BasicDuckDB.DuckDBDriver.runWithIOAndFail 
 
 
-    pub def load_facts(reader: Unit -> #{ | r } \ ef, 
+    pub def loadFacts(reader: Unit -> #{ | r } \ ef, 
                         file_name: String, 
                         opts: List[ParquetOption]): Result[IoError, #{ | r }] \ {IO + ef} - DuckDBDriver - Fail - DuckDBConnection - Statement - DuckDBResultSet - RowReaderWithAlt = 
         fold(acc -> { let row1 = reader(); acc <+> row1 }, #{}, file_name, opts)

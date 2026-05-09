@@ -19,6 +19,7 @@ pub mod BasicDuckDB.Shim.CSV {
 
     use EffectExtras.Fail.Fail
     use BasicDuckDB.DuckDBDriver.{DuckDBDriver}
+    use BasicDuckDB.DuckDBAppender.DuckDBAppender
     use BasicDuckDB.DuckDBConnection.{DuckDBConnection}
     use BasicDuckDB.DuckDBResultSet.{DuckDBResultSet}
     use BasicDuckDB.RowReader.RowReaderWithAlt
@@ -51,10 +52,34 @@ pub mod BasicDuckDB.Shim.CSV {
             }) 
         } with BasicDuckDB.DuckDBDriver.runWithIOAndFail 
 
-    pub def load_facts(reader: Unit -> #{ | r } \  ef, 
+    pub def loadFacts(reader: Unit -> #{ | r } \  ef, 
                         file_name: String, 
-                        opts: List[CSVOption]): Result[IoError, #{ | r }] \ {IO + ef} - DuckDBDriver - Fail - DuckDBConnection - Statement - DuckDBResultSet - RowReaderWithAlt =  
+                        opts: List[CSVOption]): Result[IoError, #{ | r }] \ {IO + ef} - Fail - DuckDBDriver - DuckDBConnection - Statement - DuckDBResultSet - RowReaderWithAlt =  
         fold(acc -> { let row1 = reader(); acc <+> row1 }, #{}, file_name, opts)
-        
+
+
+    pub def exportCSV(tableSpec: {ddl = String, schema = String, table = String },
+                        file_name: String,
+                        opts: List[CSVOption], 
+                        appender: a -> Unit \ ef,
+                        t: List[a]): Result[IoError, Unit] \ {ef + IO} - Fail - DuckDBDriver - DuckDBConnection - DuckDBAppender = 
+        let sql = "COPY ${tableSpec#schema}.${tableSpec#table} TO '${file_name}' (${printOptions(opts)});";
+        run {
+            BasicDuckDB.DuckDBDriver.execInMemoryDuckDBConnection(() -> {
+                BasicDuckDB.DuckDBConnection.execStatement(() -> 
+                    discard Statement.execute(tableSpec#ddl)
+                );
+                BasicDuckDB.DuckDBConnection.execDuckDBAppender(
+                    "facts", 
+                    "databases", 
+                    () -> List.forEach(appender, t) 
+                );
+                BasicDuckDB.DuckDBConnection.execStatement(() -> 
+                    discard Statement.execute(sql)
+                )
+            })
+        } with BasicDuckDB.DuckDBDriver.runWithIOAndFail
+
+
 }
 

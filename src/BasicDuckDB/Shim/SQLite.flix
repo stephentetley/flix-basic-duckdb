@@ -61,7 +61,7 @@ pub mod BasicDuckDB.Shim.SQLite {
         }  with BasicDuckDB.DuckDBDriver.runWithIOAndFail 
 
 
-    pub def load_facts(reader: Unit -> #{ | r } \ ef, 
+    pub def loadFacts(reader: Unit -> #{ | r } \ ef, 
                         file_name: String, 
                         table_name: { table_name = String }): Result[IoError, #{ | r }] \ {IO + ef} - DuckDBDriver - Fail - DuckDBConnection - Statement - DuckDBResultSet - RowReaderWithAlt = 
         fold(acc -> { let row = reader(); acc <+> row }, #{}, file_name, table_name)
