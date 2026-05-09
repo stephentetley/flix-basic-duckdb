@@ -22,8 +22,8 @@ pub mod BasicDuckDB.JDBC.Statement {
     use EffectExtras.Fail.Fail
     use BasicDuckDB.DuckDBResultSet.DuckDBResultSet
     use BasicDuckDB.DuckDBResultSet.DuckDBResultSetHandle
+    use BasicDuckDB.RowReader.RowReaderWithAlt
 
-    use BasicDuckDB.RowReader.ReadRowWithAlt
     import java.sql.{SQLException => JSQLException}
     import java.sql.{Statement => JStatement}
     import org.duckdb.{DuckDBResultSet => JDuckDBResultSet}
@@ -150,13 +150,13 @@ pub mod BasicDuckDB.JDBC.Statement {
         handle(stmt, f)()
 
     pub def forEachQuery(sql: String, 
-                            f: Unit -> Unit \ ef): Unit \ {ef + Fail + Statement} - DuckDBResultSet - ReadRowWithAlt = 
+                            f: Unit -> Unit \ ef): Unit \ {ef + Fail + Statement} - DuckDBResultSet - RowReaderWithAlt = 
         let results = Statement.executeQuery(sql);
         let ans = BasicDuckDB.DuckDBResultSet.runDuckDBResultSet(results, _ -> BasicDuckDB.DuckDBResultSet.forEach(f));
         Statement.closeResultSet(results);
         ans
 
-    pub def foldQuery(sql: String, f: s -> s \ ef, st: s): s \ {ef + Fail + Statement} - DuckDBResultSet - ReadRowWithAlt = 
+    pub def foldQuery(sql: String, f: s -> s \ ef, st: s): s \ {ef + Fail + Statement} - DuckDBResultSet - RowReaderWithAlt = 
         let results = Statement.executeQuery(sql);
         let ans = BasicDuckDB.DuckDBResultSet.runDuckDBResultSet(results, _ -> BasicDuckDB.DuckDBResultSet.fold(f, st));
         Statement.closeResultSet(results);

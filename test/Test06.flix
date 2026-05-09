@@ -6,9 +6,9 @@ pub mod Test06 {
 
     use BasicDuckDB.DuckDBDriver
     use BasicDuckDB.DuckDBConnection
-    use BasicDuckDB.JDBC.Statement.{Statement}
-    use BasicDuckDB.RowReader.ReadRowWithAlt
-    use BasicDuckDB.RowReader.ReadRow
+    use BasicDuckDB.JDBC.Statement.Statement
+    use BasicDuckDB.RowReader.RowReaderWithAlt
+    use BasicDuckDB.RowReader.RowReader
     use BasicDuckDB.DuckDBScalarFunctionBuilder.DuckDBScalarFunctionBuilder
     use BasicDuckDB.DuckDBColumnType.ColumnType
     
@@ -40,11 +40,11 @@ pub mod Test06 {
         assertEq(expected = Ok(true), answer)
 
 
-    def rowReader(): Int32 \ ReadRowWithAlt = 
-        EffectExtras.Alt.withDefault(_ -> ReadRow.getInt32ByIndex(0), 0)
+    def rowReader(): Int32 \ RowReaderWithAlt = 
+        EffectExtras.Alt.withDefault(_ -> RowReader.getInt32ByIndex(0), 0)
 
-    def rowReaderS(): String \ ReadRowWithAlt = 
-        EffectExtras.Alt.withDefault(_ -> ReadRow.getStringByIndex(0), "")
+    def rowReaderS(): String \ RowReaderWithAlt = 
+        EffectExtras.Alt.withDefault(_ -> RowReader.getStringByIndex(0), "")
 
 
     def buildFun1(): Unit \ DuckDBScalarFunctionBuilder = {

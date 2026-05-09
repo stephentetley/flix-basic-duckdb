@@ -8,12 +8,8 @@
 
 pub mod Test05 {
     use Assert.{assertEq}
-    use BasicDuckDB.DuckDBDriver
-    use BasicDuckDB.DuckDBConnection
-    use BasicDuckDB.RowReader
-    use BasicDuckDB.RowReader.ReadRow
-    use BasicDuckDB.RowReader.ReadRowWithAlt
-    // use BasicDuckDB.Shim.SQLite
+    use BasicDuckDB.RowReader.RowReaderWithAlt
+    use BasicDuckDB.RowReader.RowReader
 
 
     use BasicDuckDB.JDBC.Statement.{Statement}
@@ -25,10 +21,10 @@ pub mod Test05 {
                         table_name="country");
         assertEq(expected = Ok(), answer)
 
-    def rowReader(): Unit \ ReadRowWithAlt + IO = {
-        let country = ReadRow.getStringByIndex(0);
-        let capital = ReadRow.getStringByIndex(1);
-        let pop = EffectExtras.Alt.withDefault(() -> ReadRow.getFloat64ByIndex(2), 0.0f64);
+    def rowReader(): Unit \ RowReaderWithAlt + IO = {
+        let country = RowReader.getStringByIndex(0);
+        let capital = RowReader.getStringByIndex(1);
+        let pop = EffectExtras.Alt.withDefault(() -> RowReader.getFloat64ByIndex(2), 0.0f64);
         println("Test05.test01 ${country}, capital city: ${capital}, population in millions: ${pop}")
     }
 

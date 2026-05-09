@@ -1,3 +1,8 @@
+### v0.7.0
+   Changes to result set `fold` and `forEach`.
+   Renamed `ReadRow` effect to `RowReader`.
+
+   
 ### v0.6.1
    Made `RowReader` throw `Alt.failure` when Strings and other 
    object types are null.

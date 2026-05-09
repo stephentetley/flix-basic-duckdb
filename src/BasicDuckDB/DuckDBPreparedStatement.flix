@@ -19,7 +19,9 @@
 pub mod BasicDuckDB.DuckDBPreparedStatement {
     
     use EffectExtras.Fail.Fail
+    use BasicDuckDB.DuckDBResultSet.DuckDBResultSet
     use BasicDuckDB.DuckDBResultSet.DuckDBResultSetHandle
+    use BasicDuckDB.RowReader.RowReaderWithAlt
     
 
     import java.sql.{SQLException => JSQLException}
@@ -35,6 +37,7 @@ pub mod BasicDuckDB.DuckDBPreparedStatement {
         def addBatch(): Unit
         def executeBatch(): Unit
         def executeQuery(): DuckDBResultSetHandle
+        def closeResultSet(results: DuckDBResultSetHandle): Unit
         def executeUpdate(): Int32
         def clearParameters(): Unit
         def setNull(index: {index = Int32}, sqlType: Int32): Unit
@@ -52,7 +55,7 @@ pub mod BasicDuckDB.DuckDBPreparedStatement {
     pub enum DuckDBPreparedStatementHandle (JDuckDBPreparedStatement)
     
     pub def handle(stmt: DuckDBPreparedStatementHandle, 
-                    f: a -> b \ ef): a -> b \ Fail + ef - DuckDBPreparedStatement = x -> {
+                    f: a -> b \ ef): a -> b \ ef + Fail - DuckDBPreparedStatement = x -> {
         let DuckDBPreparedStatementHandle.DuckDBPreparedStatementHandle(jstmt) = stmt;
         run {
             f(x)
@@ -63,7 +66,7 @@ pub mod BasicDuckDB.DuckDBPreparedStatement {
 
             def execute(k) = 
                 try {
-                    let ans = unsafe IO as { Fail + ef - DuckDBPreparedStatement } { jstmt.execute() };
+                    let ans = unsafe IO as { ef + Fail - DuckDBPreparedStatement } { jstmt.execute() };
                     k(ans)
                 } catch {
                     case ex: JSQLException => Fail.report(ex.getMessage())
@@ -71,7 +74,7 @@ pub mod BasicDuckDB.DuckDBPreparedStatement {
 
             def addBatch(k) = 
                 try {
-                    unsafe IO as { Fail + ef - DuckDBPreparedStatement } { jstmt.addBatch() };
+                    unsafe IO as { ef + Fail - DuckDBPreparedStatement } { jstmt.addBatch() };
                     k()
                 } catch {
                     case ex: JSQLException => Fail.report(ex.getMessage())
@@ -79,7 +82,7 @@ pub mod BasicDuckDB.DuckDBPreparedStatement {
 
             def executeBatch(k) = 
                 try {
-                    unsafe IO as { Fail + ef - DuckDBPreparedStatement } { discard jstmt.executeBatch() };
+                    unsafe IO as { ef + Fail - DuckDBPreparedStatement } { discard jstmt.executeBatch() };
                     k()
                 } catch {
                     case ex: JSQLException => Fail.report(ex.getMessage())
@@ -87,16 +90,26 @@ pub mod BasicDuckDB.DuckDBPreparedStatement {
 
             def executeQuery(k) = 
                 try {
-                    let ans = unsafe IO as { Fail + ef - DuckDBPreparedStatement } { jstmt.executeQuery() };
+                    let ans = unsafe IO as { ef + Fail - DuckDBPreparedStatement } { jstmt.executeQuery() };
                     let ans1 = unchecked_cast(ans as JDuckDBResultSet);
                     k(DuckDBResultSetHandle.DuckDBResultSetHandle(ans1))
                 } catch {
                     case ex: JSQLException => Fail.report(ex.getMessage())
                 }
 
+            def closeResultSet(results, k) = 
+                try {
+                    let DuckDBResultSetHandle.DuckDBResultSetHandle(jresults) = results;
+                    unsafe IO as {ef + Fail - DuckDBPreparedStatement} { jresults.close() };
+                    k()
+                } catch {
+                    case ex: JSQLException => Fail.report(ex.getMessage())
+                }
+
+
             def executeUpdate(k) = 
                 try {
-                    let ans = unsafe IO as { Fail + ef - DuckDBPreparedStatement } { jstmt.executeUpdate() };
+                    let ans = unsafe IO as { ef + Fail - DuckDBPreparedStatement } { jstmt.executeUpdate() };
                     k(ans)
                 } catch {
                     case ex: JSQLException => Fail.report(ex.getMessage())
@@ -104,7 +117,7 @@ pub mod BasicDuckDB.DuckDBPreparedStatement {
 
             def clearParameters(k) = 
                 try {
-                    unsafe IO as { Fail + ef - DuckDBPreparedStatement } { jstmt.clearParameters() };
+                    unsafe IO as { ef + Fail - DuckDBPreparedStatement } { jstmt.clearParameters() };
                     k()
                 } catch {
                     case ex: JSQLException => Fail.report(ex.getMessage())
@@ -112,7 +125,7 @@ pub mod BasicDuckDB.DuckDBPreparedStatement {
 
             def setNull(ix, sqlType, k) = 
                 try {
-                    unsafe IO as {Fail + ef - DuckDBPreparedStatement} { jstmt.setNull(ix#index, sqlType) };
+                    unsafe IO as {ef + Fail - DuckDBPreparedStatement} { jstmt.setNull(ix#index, sqlType) };
                     k()
                 } catch {
                     case ex: JSQLException => Fail.report(ex.getMessage())
@@ -120,7 +133,7 @@ pub mod BasicDuckDB.DuckDBPreparedStatement {
             
             def setBool(ix, b, k) = 
                 try {
-                    unsafe IO as {Fail + ef - DuckDBPreparedStatement} { jstmt.setBoolean(ix#index, b) };
+                    unsafe IO as {ef + Fail - DuckDBPreparedStatement} { jstmt.setBoolean(ix#index, b) };
                     k()
                 } catch {
                     case ex: JSQLException => Fail.report(ex.getMessage())
@@ -128,7 +141,7 @@ pub mod BasicDuckDB.DuckDBPreparedStatement {
             
             def setInt8(ix, i, k) = 
                 try {
-                    unsafe IO as {Fail + ef - DuckDBPreparedStatement} { jstmt.setByte(ix#index, i) };
+                    unsafe IO as {ef + Fail - DuckDBPreparedStatement} { jstmt.setByte(ix#index, i) };
                     k()
                 } catch {
                     case ex: JSQLException => Fail.report(ex.getMessage())
@@ -136,7 +149,7 @@ pub mod BasicDuckDB.DuckDBPreparedStatement {
             
             def setInt16(ix, i, k) = 
                 try {
-                    unsafe IO as {Fail + ef - DuckDBPreparedStatement} { jstmt.setShort(ix#index, i) };
+                    unsafe IO as {ef + Fail - DuckDBPreparedStatement} { jstmt.setShort(ix#index, i) };
                     k()
                 } catch {
                     case ex: JSQLException => Fail.report(ex.getMessage())
@@ -144,7 +157,7 @@ pub mod BasicDuckDB.DuckDBPreparedStatement {
             
             def setInt32(ix, i, k) = 
                 try {
-                    unsafe IO as {Fail + ef - DuckDBPreparedStatement} { jstmt.setInt(ix#index, i) };
+                    unsafe IO as {ef + Fail - DuckDBPreparedStatement} { jstmt.setInt(ix#index, i) };
                     k()
                 } catch {
                     case ex: JSQLException => Fail.report(ex.getMessage())
@@ -152,7 +165,7 @@ pub mod BasicDuckDB.DuckDBPreparedStatement {
             
             def setInt64(ix, i, k) = 
                 try {
-                    unsafe IO as {Fail + ef - DuckDBPreparedStatement} { jstmt.setLong(ix#index, i) };
+                    unsafe IO as {ef + Fail - DuckDBPreparedStatement} { jstmt.setLong(ix#index, i) };
                     k()
                 } catch {
                     case ex: JSQLException => Fail.report(ex.getMessage())
@@ -160,7 +173,7 @@ pub mod BasicDuckDB.DuckDBPreparedStatement {
                 
             def setFloat32(ix, d, k) = 
                 try {
-                    unsafe IO as {Fail + ef - DuckDBPreparedStatement} { jstmt.setFloat(ix#index, d) };
+                    unsafe IO as {ef + Fail - DuckDBPreparedStatement} { jstmt.setFloat(ix#index, d) };
                     k()
                 } catch {
                     case ex: JSQLException => Fail.report(ex.getMessage())
@@ -168,7 +181,7 @@ pub mod BasicDuckDB.DuckDBPreparedStatement {
                         
             def setFloat64(ix, d, k) = 
                 try {
-                    unsafe IO as {Fail + ef - DuckDBPreparedStatement} { jstmt.setDouble(ix#index, d) };
+                    unsafe IO as {ef + Fail - DuckDBPreparedStatement} { jstmt.setDouble(ix#index, d) };
                     k()
                 } catch {
                     case ex: JSQLException => Fail.report(ex.getMessage())
@@ -176,7 +189,7 @@ pub mod BasicDuckDB.DuckDBPreparedStatement {
 
             def setBigDecimal(ix, d, k) = 
                 try {
-                    unsafe IO as {Fail + ef - DuckDBPreparedStatement} { jstmt.setBigDecimal(ix#index, d) };
+                    unsafe IO as {ef + Fail - DuckDBPreparedStatement} { jstmt.setBigDecimal(ix#index, d) };
                     k()
                 } catch {
                     case ex: JSQLException => Fail.report(ex.getMessage())
@@ -184,7 +197,7 @@ pub mod BasicDuckDB.DuckDBPreparedStatement {
 
             def setString(ix, s, k) = 
                 try {
-                    unsafe IO as {Fail + ef - DuckDBPreparedStatement} { jstmt.setString(ix#index, s) };
+                    unsafe IO as {ef + Fail - DuckDBPreparedStatement} { jstmt.setString(ix#index, s) };
                     k()
                 } catch {
                     case ex: JSQLException => Fail.report(ex.getMessage())
@@ -195,8 +208,20 @@ pub mod BasicDuckDB.DuckDBPreparedStatement {
     }
 
     pub def runDuckDBPreparedStatement(stmt: DuckDBPreparedStatementHandle, 
-                                        f: Unit -> a \ ef): a \ Fail + ef - DuckDBPreparedStatement =
+                                        f: Unit -> a \ ef): a \ ef + Fail - DuckDBPreparedStatement =
         handle(stmt, f)() 
+
+    pub def forEachQuery(f: Unit -> Unit \ ef): Unit \ {ef + Fail + DuckDBPreparedStatement} - DuckDBResultSet - RowReaderWithAlt = 
+        let results = DuckDBPreparedStatement.executeQuery();
+        let ans = BasicDuckDB.DuckDBResultSet.runDuckDBResultSet(results, _ -> BasicDuckDB.DuckDBResultSet.forEach(f));
+        DuckDBPreparedStatement.closeResultSet(results);
+        ans
+
+    pub def foldQuery(f: s -> s \ ef, st: s): s \ {ef + Fail + DuckDBPreparedStatement} - DuckDBResultSet - RowReaderWithAlt = 
+        let results = DuckDBPreparedStatement.executeQuery();
+        let ans = BasicDuckDB.DuckDBResultSet.runDuckDBResultSet(results, _ -> BasicDuckDB.DuckDBResultSet.fold(f, st));
+        DuckDBPreparedStatement.closeResultSet(results);
+        ans
 
 
 }

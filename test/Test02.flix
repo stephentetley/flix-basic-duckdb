@@ -17,9 +17,9 @@ pub mod Test02 {
     use BasicDuckDB.DuckDBConnection.DuckDBConnection
     use BasicDuckDB.DuckDBPreparedStatement
     use BasicDuckDB.DuckDBAppender.DuckDBAppender
-    use BasicDuckDB.RowReader.ReadRow
-    use BasicDuckDB.RowReader.ReadRowWithAlt
-    use BasicDuckDB.JDBC.Statement.{Statement}
+    use BasicDuckDB.RowReader.RowReaderWithAlt
+    use BasicDuckDB.RowReader.RowReader
+    use BasicDuckDB.JDBC.Statement.Statement
 
     @Test
     def test01(): Unit \ {Assert + IO} =
@@ -50,9 +50,9 @@ pub mod Test02 {
     }
 
 
-    def rowReader(): Unit \ ReadRowWithAlt + IO = checked_ecast({
-        let name = ReadRow.getStringByName("name");
-        let year = ReadRow.getInt32ByName("year");
+    def rowReader(): Unit \ RowReaderWithAlt + IO = checked_ecast({
+        let name = RowReader.getStringByName("name");
+        let year = RowReader.getInt32ByName("year");
         println("Test02 - Database: ${name}, Year: ${year}")
     })
 

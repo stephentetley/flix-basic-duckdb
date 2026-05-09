@@ -12,9 +12,9 @@ pub mod Test03 {
     use BasicDuckDB.DuckDBConnection.DuckDBConnection
     use BasicDuckDB.DuckDBPreparedStatement
     use BasicDuckDB.DuckDBAppender.DuckDBAppender
-    use BasicDuckDB.RowReader.ReadRowWithAlt
-    use BasicDuckDB.RowReader.ReadRow
-    use BasicDuckDB.JDBC.Statement.{Statement}
+    use BasicDuckDB.RowReader.RowReaderWithAlt
+    use BasicDuckDB.RowReader.RowReader
+    use BasicDuckDB.JDBC.Statement.Statement
     
     use Fs.FileWrite
     use Fs.WriteFile
@@ -43,8 +43,8 @@ pub mod Test03 {
         assertEq(expected = Ok(true), answer)
 
 
-    def rowReader(): Int32 \ ReadRowWithAlt = 
-        EffectExtras.Alt.withDefault(_ -> ReadRow.getInt32ByName("year"), 1970)
+    def rowReader(): Int32 \ RowReaderWithAlt = 
+        EffectExtras.Alt.withDefault(_ -> RowReader.getInt32ByName("year"), 1970)
     
     def appender(name: String, year: Int32): Unit \ DuckDBAppender = {
         DuckDBAppender.beginRow();

@@ -23,13 +23,13 @@ pub mod BasicDuckDB.Shim.SQLite {
     use BasicDuckDB.DuckDBDriver.DuckDBDriver
     use BasicDuckDB.DuckDBConnection.DuckDBConnection
     use BasicDuckDB.DuckDBResultSet.DuckDBResultSet
-    use BasicDuckDB.RowReader.ReadRowWithAlt
+    use BasicDuckDB.RowReader.RowReaderWithAlt
     use BasicDuckDB.JDBC.Statement.Statement
 
     
     pub def forEach(reader: Unit -> Unit \ ef, 
                     file_name: String, 
-                    table_name: {table_name = String}): Result[IoError, Unit] \ {IO + ef} - DuckDBDriver - Fail - DuckDBConnection - Statement - DuckDBResultSet - ReadRowWithAlt= 
+                    table_name: {table_name = String}): Result[IoError, Unit] \ {IO + ef} - DuckDBDriver - Fail - DuckDBConnection - Statement - DuckDBResultSet - RowReaderWithAlt = 
         let url = "jdbc:duckdb:";
         let sql1 = "ATTACH '${file_name}' AS temp_sqlite_db (TYPE sqlite); USE temp_sqlite_db;";
         let sql2 = "SELECT * FROM temp_sqlite_db.${table_name#table_name};";
@@ -46,7 +46,7 @@ pub mod BasicDuckDB.Shim.SQLite {
     pub def fold(reader: a -> a \ ef, 
                     s: a, 
                     file_name: String, 
-                    table_name: {table_name = String}): Result[IoError, a] \ {IO + ef} - DuckDBDriver - Fail - DuckDBConnection - Statement - DuckDBResultSet - ReadRowWithAlt= 
+                    table_name: {table_name = String}): Result[IoError, a] \ {IO + ef} - DuckDBDriver - Fail - DuckDBConnection - Statement - DuckDBResultSet - RowReaderWithAlt = 
         let url = "jdbc:duckdb:";
         let sql1 = "ATTACH '${file_name}' AS temp_sqlite_db (TYPE sqlite); USE temp_sqlite_db;";
         let sql2 = "SELECT * FROM temp_sqlite_db.${table_name#table_name};";
@@ -63,7 +63,7 @@ pub mod BasicDuckDB.Shim.SQLite {
 
     pub def load_facts(reader: Unit -> #{ | r } \ ef, 
                         file_name: String, 
-                        table_name: { table_name = String }): Result[IoError, #{ | r }] \ {IO + ef} - DuckDBDriver - Fail - DuckDBConnection - Statement - DuckDBResultSet - ReadRowWithAlt= 
+                        table_name: { table_name = String }): Result[IoError, #{ | r }] \ {IO + ef} - DuckDBDriver - Fail - DuckDBConnection - Statement - DuckDBResultSet - RowReaderWithAlt = 
         fold(acc -> { let row = reader(); acc <+> row }, #{}, file_name, table_name)
 
 

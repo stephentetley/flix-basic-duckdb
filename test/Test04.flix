@@ -11,11 +11,8 @@ pub mod Test04 {
 
     use BasicDuckDB.DuckDBDriver
     use BasicDuckDB.DuckDBConnection
-    use BasicDuckDB.JDBC.Statement.{Statement}
-    use BasicDuckDB.RowReader.ReadRowWithAlt
-    use BasicDuckDB.RowReader.ReadRow
-    
-    
+    use BasicDuckDB.RowReader.RowReaderWithAlt
+    use BasicDuckDB.RowReader.RowReader
 
     @Test
     def test01(): Unit \ {Assert + IO} =
@@ -33,8 +30,8 @@ pub mod Test04 {
         assertEq(expected = Ok(true), answer)
 
 
-    def rowReader(): Int32 \ ReadRowWithAlt = 
-        EffectExtras.Alt.withDefault(_ -> ReadRow.getInt32ByIndex(0), 0)
+    def rowReader(): Int32 \ RowReaderWithAlt = 
+        EffectExtras.Alt.withDefault(_ -> RowReader.getInt32ByIndex(0), 0)
 
 }
 

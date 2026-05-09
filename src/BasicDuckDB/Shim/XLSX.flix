@@ -21,14 +21,14 @@ pub mod BasicDuckDB.Shim.XLSX {
     use BasicDuckDB.DuckDBDriver.{DuckDBDriver}
     use BasicDuckDB.DuckDBConnection.{DuckDBConnection}
     use BasicDuckDB.DuckDBResultSet.{DuckDBResultSet}
-    use BasicDuckDB.RowReader.ReadRowWithAlt
+    use BasicDuckDB.RowReader.RowReaderWithAlt
     use BasicDuckDB.JDBC.Statement.{Statement}
     use BasicDuckDB.Shim.XLSXOption.XLSXOption
     use BasicDuckDB.Shim.Internal.Utils.{printOptions}
     
     pub def forEach(reader: Unit -> Unit \ ef, 
                     file_name: String, 
-                    opts: List[XLSXOption]): Result[IoError, Unit] \ {IO + ef} - DuckDBDriver - Fail - DuckDBConnection - Statement - DuckDBResultSet - ReadRowWithAlt = 
+                    opts: List[XLSXOption]): Result[IoError, Unit] \ {IO + ef} - DuckDBDriver - Fail - DuckDBConnection - Statement - DuckDBResultSet - RowReaderWithAlt = 
         let url = "jdbc:duckdb:";
         let sql = "SELECT * FROM read_xlsx('${file_name}'${printOptions(opts)});";
         run {
@@ -41,7 +41,7 @@ pub mod BasicDuckDB.Shim.XLSX {
     pub def fold(reader: a -> a \ ef, 
                     s: a, 
                     file_name: String, 
-                    opts: List[XLSXOption]): Result[IoError, a] \ {IO + ef} - DuckDBDriver - Fail - DuckDBConnection - Statement - DuckDBResultSet - ReadRowWithAlt= 
+                    opts: List[XLSXOption]): Result[IoError, a] \ {IO + ef} - DuckDBDriver - Fail - DuckDBConnection - Statement - DuckDBResultSet - RowReaderWithAlt = 
         let url = "jdbc:duckdb:";
         let sql = "SELECT * FROM read_xlsx('${file_name}')${printOptions(opts)};";
         run {
@@ -53,7 +53,7 @@ pub mod BasicDuckDB.Shim.XLSX {
 
     pub def load_facts(reader: Unit -> #{ | r } \ ef, 
                         file_name: String, 
-                        opts: List[XLSXOption]): Result[IoError, #{ | r }] \ {IO + ef} - DuckDBDriver - Fail - DuckDBConnection - Statement - DuckDBResultSet - ReadRowWithAlt= 
+                        opts: List[XLSXOption]): Result[IoError, #{ | r }] \ {IO + ef} - DuckDBDriver - Fail - DuckDBConnection - Statement - DuckDBResultSet - RowReaderWithAlt = 
         fold(acc -> { let row1 = reader(); acc <+> row1 }, #{}, file_name, opts)
     
 

@@ -20,14 +20,14 @@ pub mod BasicDuckDB.DuckDBConnection {
     use BasicDuckDB.DuckDBConnection
 
     use EffectExtras.Fail.Fail
-    use BasicDuckDB.DuckDBAppender.{DuckDBAppender}
-    use BasicDuckDB.DuckDBAppender.{DuckDBAppenderHandle}
-    use BasicDuckDB.DuckDBPreparedStatement.{DuckDBPreparedStatement}
-    use BasicDuckDB.DuckDBPreparedStatement.{DuckDBPreparedStatementHandle}
-    use BasicDuckDB.DuckDBResultSet.{DuckDBResultSet}
-    use BasicDuckDB.JDBC.Statement.{Statement}
+    use BasicDuckDB.DuckDBAppender.DuckDBAppender
+    use BasicDuckDB.DuckDBAppender.DuckDBAppenderHandle
+    use BasicDuckDB.DuckDBPreparedStatement.DuckDBPreparedStatement
+    use BasicDuckDB.DuckDBPreparedStatement.DuckDBPreparedStatementHandle
+    use BasicDuckDB.DuckDBResultSet.DuckDBResultSet
+    use BasicDuckDB.JDBC.Statement.Statement
     use BasicDuckDB.JDBC.Statement.StatementHandle
-    use BasicDuckDB.RowReader.ReadRowWithAlt
+    use BasicDuckDB.RowReader.RowReaderWithAlt
     use BasicDuckDB.DuckDBScalarFunctionBuilder.DuckDBScalarFunctionBuilder
 
     import java.sql.{Connection => JConnection}
@@ -280,11 +280,11 @@ pub mod BasicDuckDB.DuckDBConnection {
 
 
     // cf. ```f: (<row>, a) -> a``` but <row> is implicit
-    pub def foldQuery(sql: String, f: a -> a \ ef, s: a): a \ {ef + Fail + DuckDBConnection} - ReadRowWithAlt - Statement - DuckDBResultSet  = 
+    pub def foldQuery(sql: String, f: a -> a \ ef, s: a): a \ {ef + Fail + DuckDBConnection} - RowReaderWithAlt - Statement - DuckDBResultSet  = 
         execStatement(_ -> BasicDuckDB.JDBC.Statement.foldQuery(sql, f, s))
 
 
-    pub def forEachQuery(sql: String, f: Unit -> Unit \ ef): Unit \ {ef + Fail + DuckDBConnection} - ReadRowWithAlt - Statement - DuckDBResultSet  = 
+    pub def forEachQuery(sql: String, f: Unit -> Unit \ ef): Unit \ {ef + Fail + DuckDBConnection} - RowReaderWithAlt - Statement - DuckDBResultSet  = 
         execStatement(_ -> BasicDuckDB.JDBC.Statement.forEachQuery(sql, f))
 
     
