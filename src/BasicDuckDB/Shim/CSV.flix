@@ -62,7 +62,7 @@ pub mod BasicDuckDB.Shim.CSV {
                         file_name: String,
                         opts: List[CSVOption], 
                         appender: a -> Unit \ ef,
-                        t: List[a]): Result[IoError, Unit] \ {ef + IO} - Fail - DuckDBDriver - DuckDBConnection - DuckDBAppender = 
+                        t: t): Result[IoError, Unit] \ {ef + IO + ForEach.Aef[t]} - Fail - DuckDBDriver - DuckDBConnection - DuckDBAppender with ForEach[t]  where ForEach.Elm[t] ~ a = 
         let sql = "COPY ${tableSpec#schema}.${tableSpec#table} TO '${file_name}' (${printOptions(opts)});";
         run {
             BasicDuckDB.DuckDBDriver.execInMemoryDuckDBConnection(() -> {
@@ -70,9 +70,9 @@ pub mod BasicDuckDB.Shim.CSV {
                     discard Statement.execute(tableSpec#ddl)
                 );
                 BasicDuckDB.DuckDBConnection.execDuckDBAppender(
-                    "facts", 
-                    "databases", 
-                    () -> List.forEach(appender, t) 
+                    tableSpec#schema, 
+                    tableSpec#table, 
+                    () -> foreach (item <- t) appender(item) 
                 );
                 BasicDuckDB.DuckDBConnection.execStatement(() -> 
                     discard Statement.execute(sql)
