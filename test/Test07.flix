@@ -15,7 +15,7 @@ pub mod Test07 {
             table_name = "t1"}
     
 
-    // needs a rewrite, not very compelling
+
     @Test
     def test01(): Unit \ {Assert + IO} =
         let answer =
@@ -28,7 +28,19 @@ pub mod Test07 {
             ) |> Result.map(_ -> true);
         assertEq(expected = Ok(true), answer)
 
-    
+    @Test
+    def test02(): Unit \ {Assert + IO} =
+        let answer =
+            BasicDuckDB.Shim.Parquet.exportParquet(
+                makeTableSpec(),
+                "./testdata/output1.parquet",
+                List#{},
+                xy -> match xy { case (db, yyyy) => appender(db, yyyy) },
+                List#{("DuckDB", 2019), ("SQLite", 2000)}
+            ) |> Result.map(_ -> true);
+        assertEq(expected = Ok(true), answer)
+
+
     def appender(name: String, year: Int32): Unit \ DuckDBAppender = {
         DuckDBAppender.beginRow();
         DuckDBAppender.appendString(name);

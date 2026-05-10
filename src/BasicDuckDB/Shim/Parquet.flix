@@ -22,6 +22,7 @@ pub mod BasicDuckDB.Shim.Parquet {
     use BasicDuckDB.DuckDBConnection.DuckDBConnection
     use BasicDuckDB.DuckDBResultSet.DuckDBResultSet
     use BasicDuckDB.RowReader.RowReaderWithAlt
+    use BasicDuckDB.DuckDBAppender.DuckDBAppender
     use BasicDuckDB.JDBC.Statement.Statement
     use BasicDuckDB.Shim.ParquetOption.ParquetOption
     use BasicDuckDB.Shim.Internal.Utils.{printOptions}
@@ -58,6 +59,31 @@ pub mod BasicDuckDB.Shim.Parquet {
         fold(acc -> { let row1 = reader(); acc <+> row1 }, #{}, file_name, opts)
 
 
+pub def exportParquet(tableSpec: {create_table = String, schema_name = String, table_name = String},
+                        file_name: String,
+                        opts: List[ParquetOption], 
+                        appender: a -> Unit \ ef,
+                        t: t): Result[IoError, Unit] \ {ef + IO + ForEach.Aef[t]} - Fail - DuckDBDriver - DuckDBConnection - DuckDBAppender with ForEach[t]  where ForEach.Elm[t] ~ a = 
+        let opts1 = match opts {
+            case Nil => ""
+            case _   => " (${printOptions(opts)})"
+        };
+        let sql = "COPY ${tableSpec#schema_name}.${tableSpec#table_name} TO '${file_name}'${opts1};";
+        run {
+            BasicDuckDB.DuckDBDriver.execInMemoryDuckDBConnection(() -> {
+                BasicDuckDB.DuckDBConnection.execStatement(() -> 
+                    discard Statement.execute(tableSpec#create_table)
+                );
+                BasicDuckDB.DuckDBConnection.execDuckDBAppender(
+                    tableSpec#schema_name, 
+                    tableSpec#table_name, 
+                    () -> foreach (item <- t) appender(item) 
+                );
+                BasicDuckDB.DuckDBConnection.execStatement(() -> 
+                    discard Statement.execute(sql)
+                )
+            })
+        } with BasicDuckDB.DuckDBDriver.runWithIOAndFail
 
 
 }
