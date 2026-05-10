@@ -211,6 +211,12 @@ pub mod BasicDuckDB.DuckDBPreparedStatement {
                                         f: Unit -> a \ ef): a \ ef + Fail - DuckDBPreparedStatement =
         handle(stmt, f)() 
 
+    pub def scalarQuery(f: Unit -> a \ ef): a \ {ef + Fail + DuckDBPreparedStatement} - DuckDBResultSet - RowReaderWithAlt = 
+        let results = DuckDBPreparedStatement.executeQuery();
+        let ans = BasicDuckDB.DuckDBResultSet.runDuckDBResultSet(results, _ -> BasicDuckDB.DuckDBResultSet.execReadRow(f));
+        DuckDBPreparedStatement.closeResultSet(results);
+        ans
+
     pub def forEachQuery(f: Unit -> Unit \ ef): Unit \ {ef + Fail + DuckDBPreparedStatement} - DuckDBResultSet - RowReaderWithAlt = 
         let results = DuckDBPreparedStatement.executeQuery();
         let ans = BasicDuckDB.DuckDBResultSet.runDuckDBResultSet(results, _ -> BasicDuckDB.DuckDBResultSet.forEach(f));

@@ -149,6 +149,13 @@ pub mod BasicDuckDB.JDBC.Statement {
     pub def runStatement(stmt: StatementHandle, f: Unit -> a \ ef): a \ {ef + Fail} - Statement = 
         handle(stmt, f)()
 
+    pub def scalarQuery(sql: String, 
+                            f: Unit -> a \ ef): a \ {ef + Fail + Statement} - DuckDBResultSet - RowReaderWithAlt = 
+        let results = Statement.executeQuery(sql);
+        let ans = BasicDuckDB.DuckDBResultSet.runDuckDBResultSet(results, _ -> BasicDuckDB.DuckDBResultSet.execReadRow(f));
+        Statement.closeResultSet(results);
+        ans
+
     pub def forEachQuery(sql: String, 
                             f: Unit -> Unit \ ef): Unit \ {ef + Fail + Statement} - DuckDBResultSet - RowReaderWithAlt = 
         let results = Statement.executeQuery(sql);

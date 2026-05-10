@@ -27,7 +27,6 @@ pub mod BasicDuckDB.Shim.CSV {
     use BasicDuckDB.Shim.CSVOption.CSVOption
     use BasicDuckDB.Shim.Internal.Utils.{printOptions}
     
-    // TODO Output...
 
     pub def forEach(reader: Unit -> Unit \ ef, 
                     file_name: String, 

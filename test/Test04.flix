@@ -16,17 +16,14 @@ pub mod Test04 {
 
     @Test
     def test01(): Unit \ {Assert + IO} =
-        let answer = 
-            forM (
-                url <- Ok("jdbc:duckdb:");
-                _   <- run { 
-                        BasicDuckDB.DuckDBDriver.execDuckDBConnection(url, () -> {
-                            BasicDuckDB.DuckDBConnection.forEachQuery(
-                                "SELECT 42;",
-                                () -> { let i = rowReader(); println("Test04: ${i} ") }) |> println
-                        })
-                    } with BasicDuckDB.DuckDBDriver.runWithIOAndFail 
-            ) yield true;
+        let answer = run { 
+            BasicDuckDB.DuckDBDriver.execInMemoryDuckDBConnection(() -> {
+                BasicDuckDB.DuckDBConnection.scalarQuery(
+                    "SELECT 42;",
+                    () -> { let i = rowReader(); println("Test04: ${i} ") }) |> println
+                });
+                true
+        } with BasicDuckDB.DuckDBDriver.runWithIOAndFail;
         assertEq(expected = Ok(true), answer)
 
 
