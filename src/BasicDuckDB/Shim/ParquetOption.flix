@@ -33,7 +33,7 @@ pub mod BasicDuckDB.Shim.ParquetOption {
     }
 
     instance Pretty[ParquetOption] {
-        pub override def pPrint(o: ParquetOption): Doc = match o {
+        pub redef pPrint(o: ParquetOption): Doc = match o {
             case ParquetOption.BinaryAsString(b) => argument("binary_as_string", boolean(b))
             case ParquetOption.EncryptionConfig(xs) => argument("encryption_config", structOfVarchar(xs))
             case ParquetOption.Filename(b) => argument("filename", boolean(b))
@@ -42,7 +42,7 @@ pub mod BasicDuckDB.Shim.ParquetOption {
             case ParquetOption.UnionByName(b) => argument("union_by_name", boolean(b))
         }
         
-        pub override def pPrintList(l: PrettyLevel, xs: List[ParquetOption]) : Doc = argList(l, xs)
+        pub redef pPrintList(l: PrettyLevel, xs: List[ParquetOption]) : Doc = argList(l, xs)
             
     }
 

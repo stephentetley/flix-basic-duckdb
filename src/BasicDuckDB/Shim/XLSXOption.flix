@@ -34,7 +34,7 @@ pub mod BasicDuckDB.Shim.XLSXOption {
     }
 
     instance Pretty[XLSXOption] {
-        pub override def pPrint(o: XLSXOption): Doc = match o {
+        pub redef pPrint(o: XLSXOption): Doc = match o {
             case XLSXOption.AllVarchar(b) => argument("all_varchar", boolean(b))
             case XLSXOption.EmptyAsVarchar(b) => argument("empty_as_varchar", boolean(b))
             case XLSXOption.Header(b) => argument("header", boolean(b))
@@ -44,7 +44,7 @@ pub mod BasicDuckDB.Shim.XLSXOption {
             case XLSXOption.StopAtEmpty(b) => argument("stop_at_empty", boolean(b))
         }
         
-        pub override def pPrintList(l: PrettyLevel, xs: List[XLSXOption]) : Doc = argList(l, xs)
+        pub redef pPrintList(l: PrettyLevel, xs: List[XLSXOption]) : Doc = argList(l, xs)
             
     }
 

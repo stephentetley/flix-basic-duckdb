@@ -65,7 +65,7 @@ pub mod BasicDuckDB.Shim.CSVOption {
     }
 
     instance Pretty[CSVOption] {
-        pub override def pPrint(o: CSVOption): Doc = match o {
+        pub redef pPrint(o: CSVOption): Doc = match o {
             case CSVOption.AllVarchar(b) => argument("all_varchar", boolean(b))
             case CSVOption.AllowQuotedNulls(b) => argument("allow_quoted_nulls", boolean(b))
             case CSVOption.AutoDetect(b) => argument("auto_detect", boolean(b))
@@ -106,7 +106,7 @@ pub mod BasicDuckDB.Shim.CSVOption {
             case CSVOption.UnionByName(b) => argument("union_by_name", boolean(b))
         }
         
-        pub override def pPrintList(l: PrettyLevel, xs: List[CSVOption]) : Doc = argList(l, xs)
+        pub redef pPrintList(l: PrettyLevel, xs: List[CSVOption]) : Doc = argList(l, xs)
             
     }
 
