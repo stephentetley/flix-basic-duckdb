@@ -23,12 +23,25 @@ pub mod BasicDuckDB.DuckDBLogicalType {
 
     pub enum LogicalType(JDuckDBLogicalType)
 
+
+    instance ToJava[LogicalType] {
+        type Out = JDuckDBLogicalType
+        pub def toJava(x: LogicalType): JDuckDBLogicalType = 
+            let LogicalType.LogicalType(x1) = x;
+            x1
+    }
+
+    instance ToFlix[LogicalType] {
+        type In = JDuckDBLogicalType
+        pub def toFlix(x: JDuckDBLogicalType): LogicalType = LogicalType.LogicalType(x)
+    }
+
     pub def decimal(width: {width = Int32}, scale: {scale = Int32}): LogicalType = 
         let jtype = unsafe IO { JDuckDBLogicalType.decimal(width#width, scale#scale) };
         LogicalType.LogicalType(jtype)
 
     pub def logicalType(colType: ColumnType): LogicalType = 
-        let jctype = BasicDuckDB.DuckDBColumnType.marshalColumnType(colType);
+        let jctype = ToJava.toJava(colType);
         let jltype = unsafe IO { JDuckDBLogicalType.of(jctype) };
         LogicalType.LogicalType(jltype)
 

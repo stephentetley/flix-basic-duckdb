@@ -60,8 +60,9 @@ pub mod BasicDuckDB.DuckDBColumnType {
         case VARIANT
     }
 
-    pub def marshalColumnType(x: ColumnType): JDuckDBColumnType =
-        match x {
+    instance ToJava[ColumnType] {
+        type Out = JDuckDBColumnType
+        pub def toJava(x: ColumnType): JDuckDBColumnType = match x {
             case ColumnType.ARRAY                       => unsafe IO { JDuckDBColumnType.ARRAY }
             case ColumnType.BIGINT                      => unsafe IO { JDuckDBColumnType.BIGINT }
             case ColumnType.BIT                         => unsafe IO { JDuckDBColumnType.BIT }
@@ -101,52 +102,52 @@ pub mod BasicDuckDB.DuckDBColumnType {
             case ColumnType.VARCHAR                     => unsafe IO { JDuckDBColumnType.VARCHAR }
             case ColumnType.VARIANT                     => unsafe IO { JDuckDBColumnType.VARIANT }
         }
+    }
 
-    def primEquals(x: JDuckDBColumnType, y: JDuckDBColumnType): Bool =
-        unsafe IO { x.equals(y) }
-
-    pub def unmarshalColumnType(x: JDuckDBColumnType): ColumnType =
-        match x {
-            case x1 if primEquals(x1, unsafe IO { JDuckDBColumnType.ARRAY })                    => ColumnType.ARRAY
-            case x1 if primEquals(x1, unsafe IO { JDuckDBColumnType.BIGINT })                   => ColumnType.BIGINT
-            case x1 if primEquals(x1, unsafe IO { JDuckDBColumnType.BIT })                      => ColumnType.BIT
-            case x1 if primEquals(x1, unsafe IO { JDuckDBColumnType.BLOB })                     => ColumnType.BLOB
-            case x1 if primEquals(x1, unsafe IO { JDuckDBColumnType.BOOLEAN })                  => ColumnType.BOOLEAN
-            case x1 if primEquals(x1, unsafe IO { JDuckDBColumnType.DATE })                     => ColumnType.DATE
-            case x1 if primEquals(x1, unsafe IO { JDuckDBColumnType.DECIMAL })                  => ColumnType.DECIMAL
-            case x1 if primEquals(x1, unsafe IO { JDuckDBColumnType.DOUBLE })                   => ColumnType.DOUBLE
-            case x1 if primEquals(x1, unsafe IO { JDuckDBColumnType.ENUM })                     => ColumnType.ENUM
-            case x1 if primEquals(x1, unsafe IO { JDuckDBColumnType.FLOAT })                    => ColumnType.FLOAT
-            case x1 if primEquals(x1, unsafe IO { JDuckDBColumnType.GEOMETRY })                 => ColumnType.GEOMETRY
-            case x1 if primEquals(x1, unsafe IO { JDuckDBColumnType.HUGEINT })                  => ColumnType.HUGEINT
-            case x1 if primEquals(x1, unsafe IO { JDuckDBColumnType.INTEGER })                  => ColumnType.INTEGER
-            case x1 if primEquals(x1, unsafe IO { JDuckDBColumnType.INTERVAL })                 => ColumnType.INTERVAL
-            case x1 if primEquals(x1, unsafe IO { JDuckDBColumnType.JSON })                     => ColumnType.JSON
-            case x1 if primEquals(x1, unsafe IO { JDuckDBColumnType.LIST })                     => ColumnType.LIST
-            case x1 if primEquals(x1, unsafe IO { JDuckDBColumnType.MAP })                      => ColumnType.MAP
-            case x1 if primEquals(x1, unsafe IO { JDuckDBColumnType.SMALLINT })                 => ColumnType.SMALLINT
-            case x1 if primEquals(x1, unsafe IO { JDuckDBColumnType.STRUCT })                   => ColumnType.STRUCT
-            case x1 if primEquals(x1, unsafe IO { JDuckDBColumnType.TIME })                     => ColumnType.TIME
-            case x1 if primEquals(x1, unsafe IO { JDuckDBColumnType.TIME_NS })                  => ColumnType.TIME_NS
-            case x1 if primEquals(x1, unsafe IO { JDuckDBColumnType.TIME_WITH_TIME_ZONE })      => ColumnType.TIME_WITH_TIME_ZONE
-            case x1 if primEquals(x1, unsafe IO { JDuckDBColumnType.TIMESTAMP })                => ColumnType.TIMESTAMP
-            case x1 if primEquals(x1, unsafe IO { JDuckDBColumnType.TIMESTAMP_MS })             => ColumnType.TIMESTAMP_MS
-            case x1 if primEquals(x1, unsafe IO { JDuckDBColumnType.TIMESTAMP_NS })             => ColumnType.TIMESTAMP_NS
-            case x1 if primEquals(x1, unsafe IO { JDuckDBColumnType.TIMESTAMP_S })              => ColumnType.TIMESTAMP_S
-            case x1 if primEquals(x1, unsafe IO { JDuckDBColumnType.TIMESTAMP_WITH_TIME_ZONE }) => ColumnType.TIMESTAMP_WITH_TIME_ZONE
-            case x1 if primEquals(x1, unsafe IO { JDuckDBColumnType.TINYINT })                  => ColumnType.TINYINT
-            case x1 if primEquals(x1, unsafe IO { JDuckDBColumnType.UBIGINT })                  => ColumnType.UBIGINT
-            case x1 if primEquals(x1, unsafe IO { JDuckDBColumnType.UHUGEINT })                 => ColumnType.UHUGEINT
-            case x1 if primEquals(x1, unsafe IO { JDuckDBColumnType.UINTEGER })                 => ColumnType.UINTEGER
-            case x1 if primEquals(x1, unsafe IO { JDuckDBColumnType.UNION })                    => ColumnType.UNION
-            case x1 if primEquals(x1, unsafe IO { JDuckDBColumnType.UNKNOWN })                  => ColumnType.UNKNOWN
-            case x1 if primEquals(x1, unsafe IO { JDuckDBColumnType.USMALLINT })                => ColumnType.USMALLINT
-            case x1 if primEquals(x1, unsafe IO { JDuckDBColumnType.UTINYINT })                 => ColumnType.UTINYINT
-            case x1 if primEquals(x1, unsafe IO { JDuckDBColumnType.UUID })                     => ColumnType.UUID
-            case x1 if primEquals(x1, unsafe IO { JDuckDBColumnType.VARCHAR })                  => ColumnType.VARCHAR
-            case x1 if primEquals(x1, unsafe IO { JDuckDBColumnType.VARIANT })                  => ColumnType.VARIANT
-            case _                                                                              => bug!("unmarshalColumnType")
+    instance ToFlix[ColumnType] {
+        type In = JDuckDBColumnType
+        pub def toFlix(x: JDuckDBColumnType): ColumnType = unsafe IO {
+            if (x.equals(JDuckDBColumnType.ARRAY))                      ColumnType.ARRAY
+            else if (x.equals(JDuckDBColumnType.BIGINT))                ColumnType.BIGINT
+            else if (x.equals(JDuckDBColumnType.BIT))                   ColumnType.BIT
+            else if (x.equals(JDuckDBColumnType.BLOB))                  ColumnType.BLOB
+            else if (x.equals(JDuckDBColumnType.BOOLEAN))               ColumnType.BOOLEAN
+            else if (x.equals(JDuckDBColumnType.DATE))                  ColumnType.DATE
+            else if (x.equals(JDuckDBColumnType.DECIMAL))               ColumnType.DECIMAL
+            else if (x.equals(JDuckDBColumnType.DOUBLE))                ColumnType.DOUBLE
+            else if (x.equals(JDuckDBColumnType.ENUM))                  ColumnType.ENUM
+            else if (x.equals(JDuckDBColumnType.FLOAT))                 ColumnType.FLOAT
+            else if (x.equals(JDuckDBColumnType.GEOMETRY))              ColumnType.GEOMETRY
+            else if (x.equals(JDuckDBColumnType.HUGEINT))               ColumnType.HUGEINT
+            else if (x.equals(JDuckDBColumnType.INTEGER))               ColumnType.INTEGER
+            else if (x.equals(JDuckDBColumnType.INTERVAL))              ColumnType.INTERVAL
+            else if (x.equals(JDuckDBColumnType.JSON))                  ColumnType.JSON
+            else if (x.equals(JDuckDBColumnType.LIST))                  ColumnType.LIST
+            else if (x.equals(JDuckDBColumnType.MAP))                   ColumnType.MAP
+            else if (x.equals(JDuckDBColumnType.SMALLINT))              ColumnType.SMALLINT
+            else if (x.equals(JDuckDBColumnType.STRUCT))                ColumnType.STRUCT
+            else if (x.equals(JDuckDBColumnType.TIME))                  ColumnType.TIME
+            else if (x.equals(JDuckDBColumnType.TIME_NS))               ColumnType.TIME_NS
+            else if (x.equals(JDuckDBColumnType.TIME_WITH_TIME_ZONE))   ColumnType.TIME_WITH_TIME_ZONE
+            else if (x.equals(JDuckDBColumnType.TIMESTAMP))             ColumnType.TIMESTAMP
+            else if (x.equals(JDuckDBColumnType.TIMESTAMP_MS))          ColumnType.TIMESTAMP_MS
+            else if (x.equals(JDuckDBColumnType.TIMESTAMP_NS))          ColumnType.TIMESTAMP_NS
+            else if (x.equals(JDuckDBColumnType.TIMESTAMP_S))           ColumnType.TIMESTAMP_S
+            else if (x.equals(JDuckDBColumnType.TIMESTAMP_WITH_TIME_ZONE))  ColumnType.TIMESTAMP_WITH_TIME_ZONE
+            else if (x.equals(JDuckDBColumnType.TINYINT))               ColumnType.TINYINT
+            else if (x.equals(JDuckDBColumnType.UBIGINT))               ColumnType.UBIGINT
+            else if (x.equals(JDuckDBColumnType.UHUGEINT))              ColumnType.UHUGEINT
+            else if (x.equals(JDuckDBColumnType.UINTEGER))              ColumnType.UINTEGER
+            else if (x.equals(JDuckDBColumnType.UNION))                 ColumnType.UNION
+            else if (x.equals(JDuckDBColumnType.UNKNOWN))               ColumnType.UNKNOWN
+            else if (x.equals(JDuckDBColumnType.USMALLINT))             ColumnType.USMALLINT
+            else if (x.equals(JDuckDBColumnType.UTINYINT))              ColumnType.UTINYINT
+            else if (x.equals(JDuckDBColumnType.UUID))                  ColumnType.UUID
+            else if (x.equals(JDuckDBColumnType.VARCHAR))               ColumnType.VARCHAR
+            else if (x.equals(JDuckDBColumnType.VARIANT))               ColumnType.VARIANT
+            else bug!("toFlix[ColumnType]")
         }
+    }
 
 
 

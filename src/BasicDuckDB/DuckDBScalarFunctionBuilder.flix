@@ -88,7 +88,7 @@ pub mod BasicDuckDB.DuckDBScalarFunctionBuilder {
             
             def withParameter(p, k) = 
                 try {
-                    let jparam = BasicDuckDB.DuckDBColumnType.marshalColumnType(p) ;
+                    let jparam = ToJava.toJava(p) ;
                     unsafe IO as {Fail + ef - DuckDBScalarFunctionBuilder} { discard builder.withParameter(jparam) };
                     k()
                 } catch {
@@ -97,7 +97,7 @@ pub mod BasicDuckDB.DuckDBScalarFunctionBuilder {
             
             def withReturnType(p, k) = 
                 try {
-                    let jparam = BasicDuckDB.DuckDBColumnType.marshalColumnType(p) ;
+                    let jparam = ToJava.toJava(p) ;
                     unsafe IO as {Fail + ef - DuckDBScalarFunctionBuilder} { discard builder.withReturnType(jparam) };
                     k()
                 } catch {
