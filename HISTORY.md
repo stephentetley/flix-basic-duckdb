@@ -1,3 +1,6 @@
+### v0.7.1
+   Updated dependencies.
+   
 ### v0.7.0
    Changes to result set `fold` and `forEach`.
    Renamed `ReadRow` effect to `RowReader`.
