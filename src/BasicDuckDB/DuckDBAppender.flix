@@ -55,9 +55,21 @@ pub mod BasicDuckDB.DuckDBAppender {
 
     pub enum DuckDBAppenderHandle (JDuckDBAppender)
     
+    instance ToJava[DuckDBAppenderHandle] {
+        type Out = JDuckDBAppender
+        pub def toJava(x: DuckDBAppenderHandle): JDuckDBAppender =
+            let DuckDBAppenderHandle.DuckDBAppenderHandle(x1) = x;
+            x1
+    }
+
+    instance ToFlix[DuckDBAppenderHandle] {
+        type In = JDuckDBAppender
+        pub def toFlix(x: JDuckDBAppender): DuckDBAppenderHandle = DuckDBAppenderHandle.DuckDBAppenderHandle(x)
+    }
+
     pub def handle(appender: DuckDBAppenderHandle, 
                     f: a -> b \ ef): a -> b \ ef + Fail - DuckDBAppender = x -> {
-        let DuckDBAppenderHandle.DuckDBAppenderHandle(jappender) = appender;
+        let jappender = ToJava.toJava(appender);
         run {
             f(x)
         } with handler DuckDBAppender {

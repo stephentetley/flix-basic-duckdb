@@ -53,6 +53,18 @@ pub mod BasicDuckDB.DuckDBResultSet {
 
     pub enum DuckDBResultSetHandle(JDuckDBResultSet)
 
+    instance ToJava[DuckDBResultSetHandle] {
+        type Out = JDuckDBResultSet
+        pub def toJava(x: DuckDBResultSetHandle): JDuckDBResultSet =
+            let DuckDBResultSetHandle.DuckDBResultSetHandle(x1) = x;
+            x1
+    }
+
+    instance ToFlix[DuckDBResultSetHandle] {
+        type In = JDuckDBResultSet
+        pub def toFlix(x: JDuckDBResultSet): DuckDBResultSetHandle = DuckDBResultSetHandle.DuckDBResultSetHandle(x)
+    }
+
     pub def castResultSetHandle(results: ResultSetHandle): DuckDBResultSetHandle = 
         let ResultSetHandle.ResultSetHandle(results1) = results;
         let results2 = unchecked_cast(results1 as JDuckDBResultSet);
@@ -61,7 +73,7 @@ pub mod BasicDuckDB.DuckDBResultSet {
         
     pub def handle(results: DuckDBResultSetHandle, 
                     f: a -> b \ ef): a -> b \ ef + Fail - DuckDBResultSet = x -> {
-        let DuckDBResultSetHandle.DuckDBResultSetHandle(jresults) = results;
+        let jresults = ToJava.toJava(results);
         run {
             f(x)
         } with handler DuckDBResultSet {

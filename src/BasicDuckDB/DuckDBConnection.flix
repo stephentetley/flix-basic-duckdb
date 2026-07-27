@@ -17,7 +17,6 @@
 
 
 pub mod BasicDuckDB.DuckDBConnection {
-    use BasicDuckDB.DuckDBConnection
 
     use EffectExtras.Fail.Fail
     use BasicDuckDB.DuckDBAppender.DuckDBAppender
@@ -41,7 +40,7 @@ pub mod BasicDuckDB.DuckDBConnection {
     pub eff DuckDBConnection {
         // `DuckDBConnectionHandle` should not be used in user code
         // It is a hack until we can run local effects polymorphically
-        def askDuckDBConnectionHandle(): DuckDBConnectionHandle        
+        def askDuckDBConnectionHandle(): DuckDBConnectionHandle
         def createStatement(): StatementHandle
         def closeStatement(stmt: StatementHandle): Unit
         def prepareStatement(sql: String): DuckDBPreparedStatementHandle
@@ -64,10 +63,23 @@ pub mod BasicDuckDB.DuckDBConnection {
     }
 
     pub enum DuckDBConnectionHandle(JDuckDBConnection)
+
+
+    instance ToJava[DuckDBConnectionHandle] {
+        type Out = JDuckDBConnection
+        pub def toJava(x: DuckDBConnectionHandle): JDuckDBConnection =
+            let DuckDBConnectionHandle.DuckDBConnectionHandle(x1) = x;
+            x1
+    }
+
+    instance ToFlix[DuckDBConnectionHandle] {
+        type In = JDuckDBConnection
+        pub def toFlix(x: JDuckDBConnection): DuckDBConnectionHandle = DuckDBConnectionHandle.DuckDBConnectionHandle(x)
+    }
     
     pub def handle(conn: DuckDBConnectionHandle, 
                     f: a -> b \ ef): a -> b \ ef + Fail - DuckDBConnection = x -> {
-        let DuckDBConnectionHandle.DuckDBConnectionHandle(jconn) = conn;
+        let jconn = ToJava.toJava(conn);
         run {
             f(x)
         } with handler DuckDBConnection {
