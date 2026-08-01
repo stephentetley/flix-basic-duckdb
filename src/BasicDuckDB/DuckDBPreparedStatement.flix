@@ -19,6 +19,7 @@
 pub mod BasicDuckDB.DuckDBPreparedStatement {
     
     use EffectExtras.Fail.Fail
+    use BasicDuckDB.PreparedStatement
     use BasicDuckDB.DuckDBResultSet.DuckDBResultSet
     use BasicDuckDB.DuckDBResultSet.DuckDBResultSetHandle
     use BasicDuckDB.RowReader.RowReaderWithAlt
@@ -32,7 +33,7 @@ pub mod BasicDuckDB.DuckDBPreparedStatement {
     pub eff DuckDBPreparedStatement {
         // `askDuckDBPreparedStatementHandle` should not be used in user code
         // It is a hack until we can run local effects polymorphically
-        def askDuckDBPreparedStatementHandle(): DuckDBPreparedStatementHandle
+        def askDuckDBPreparedStatementHandle(): PreparedStatement
         def execute(): Bool
         def addBatch(): Unit
         def executeBatch(): Unit
@@ -52,11 +53,11 @@ pub mod BasicDuckDB.DuckDBPreparedStatement {
         def setString(index: {index = Int32}, s: String): Unit        
     }
 
-    pub enum DuckDBPreparedStatementHandle (JDuckDBPreparedStatement)
+
     
-    pub def handle(stmt: DuckDBPreparedStatementHandle, 
+    pub def handle(stmt: PreparedStatement, 
                     f: a -> b \ ef): a -> b \ ef + Fail - DuckDBPreparedStatement = x -> {
-        let DuckDBPreparedStatementHandle.DuckDBPreparedStatementHandle(jstmt) = stmt;
+        let jstmt = ToJava.toJava(stmt);
         run {
             f(x)
         } with handler DuckDBPreparedStatement {
@@ -207,7 +208,7 @@ pub mod BasicDuckDB.DuckDBPreparedStatement {
         }
     }
 
-    pub def runDuckDBPreparedStatement(stmt: DuckDBPreparedStatementHandle, 
+    pub def runDuckDBPreparedStatement(stmt: PreparedStatement, 
                                         f: Unit -> a \ ef): a \ ef + Fail - DuckDBPreparedStatement =
         handle(stmt, f)() 
 

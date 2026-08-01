@@ -19,10 +19,9 @@
 pub mod BasicDuckDB.DuckDBConnection {
 
     use EffectExtras.Fail.Fail
-    use BasicDuckDB.{Appender, Connection}
+    use BasicDuckDB.{Appender, Connection, PreparedStatement}
     use BasicDuckDB.DuckDBAppender.DuckDBAppender
     use BasicDuckDB.DuckDBPreparedStatement.DuckDBPreparedStatement
-    use BasicDuckDB.DuckDBPreparedStatement.DuckDBPreparedStatementHandle
     use BasicDuckDB.DuckDBResultSet.DuckDBResultSet
     use BasicDuckDB.JDBC.Statement.Statement
     use BasicDuckDB.JDBC.Statement.StatementHandle
@@ -43,8 +42,8 @@ pub mod BasicDuckDB.DuckDBConnection {
         def askDuckDBConnectionHandle(): Connection
         def createStatement(): StatementHandle
         def closeStatement(stmt: StatementHandle): Unit
-        def prepareStatement(sql: String): DuckDBPreparedStatementHandle
-        def closePreparedStatement(stmt: DuckDBPreparedStatementHandle): Unit
+        def prepareStatement(sql: String): PreparedStatement
+        def closePreparedStatement(stmt: PreparedStatement): Unit
         def createAppender(schemaName: String, tableName: String): Appender
         def closeAppender(appender: Appender): Unit
         def nativeSQL(sql: String): String
@@ -107,14 +106,14 @@ pub mod BasicDuckDB.DuckDBConnection {
                 try {
                     let ans = unsafe IO as {ef + Fail - DuckDBConnection} { jconn.prepareStatement(sql) };
                     let ans1 = unchecked_cast(ans as JDuckDBPreparedStatement);
-                    k(DuckDBPreparedStatementHandle.DuckDBPreparedStatementHandle(ans1))
+                    k(ToFlix.toFlix(ans1))
                 } catch {
                     case ex: JSQLException => Fail.report(ex.getMessage())
                 }
 
             def closePreparedStatement(stmt, k) = 
                 try {
-                    let DuckDBPreparedStatementHandle.DuckDBPreparedStatementHandle(jstmt) = stmt;
+                    let jstmt = ToJava.toJava(stmt);
                     unsafe IO as {ef + Fail - DuckDBConnection} { jstmt.close() };
                     k()
                 } catch {
