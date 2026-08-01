@@ -19,6 +19,7 @@
 pub mod BasicDuckDB.DuckDBConnection {
 
     use EffectExtras.Fail.Fail
+    use BasicDuckDB.Connection
     use BasicDuckDB.DuckDBAppender.DuckDBAppender
     use BasicDuckDB.DuckDBAppender.DuckDBAppenderHandle
     use BasicDuckDB.DuckDBPreparedStatement.DuckDBPreparedStatement
@@ -40,7 +41,7 @@ pub mod BasicDuckDB.DuckDBConnection {
     pub eff DuckDBConnection {
         // `DuckDBConnectionHandle` should not be used in user code
         // It is a hack until we can run local effects polymorphically
-        def askDuckDBConnectionHandle(): DuckDBConnectionHandle
+        def askDuckDBConnectionHandle(): Connection
         def createStatement(): StatementHandle
         def closeStatement(stmt: StatementHandle): Unit
         def prepareStatement(sql: String): DuckDBPreparedStatementHandle
@@ -62,22 +63,22 @@ pub mod BasicDuckDB.DuckDBConnection {
         def setTransactionIsolation(level: Int32): Unit
     }
 
-    pub enum DuckDBConnectionHandle(JDuckDBConnection)
+    // pub enum DuckDBConnectionHandle(JDuckDBConnection)
 
 
-    instance ToJava[DuckDBConnectionHandle] {
-        type Out = JDuckDBConnection
-        pub def toJava(x: DuckDBConnectionHandle): JDuckDBConnection =
-            let DuckDBConnectionHandle.DuckDBConnectionHandle(x1) = x;
-            x1
-    }
+    // instance ToJava[DuckDBConnectionHandle] {
+    //     type Out = JDuckDBConnection
+    //     pub def toJava(x: DuckDBConnectionHandle): JDuckDBConnection =
+    //         let DuckDBConnectionHandle.DuckDBConnectionHandle(x1) = x;
+    //         x1
+    // }
 
-    instance ToFlix[DuckDBConnectionHandle] {
-        type In = JDuckDBConnection
-        pub def toFlix(x: JDuckDBConnection): DuckDBConnectionHandle = DuckDBConnectionHandle.DuckDBConnectionHandle(x)
-    }
+    // instance ToFlix[DuckDBConnectionHandle] {
+    //     type In = JDuckDBConnection
+    //     pub def toFlix(x: JDuckDBConnection): DuckDBConnectionHandle = DuckDBConnectionHandle.DuckDBConnectionHandle(x)
+    // }
     
-    pub def handle(conn: DuckDBConnectionHandle, 
+    pub def handle(conn: Connection, 
                     f: a -> b \ ef): a -> b \ ef + Fail - DuckDBConnection = x -> {
         let jconn = ToJava.toJava(conn);
         run {
@@ -248,7 +249,7 @@ pub mod BasicDuckDB.DuckDBConnection {
 
     }
     
-    pub def runDuckDBConnection(conn: DuckDBConnectionHandle, 
+    pub def runDuckDBConnection(conn: Connection, 
                                 f: Unit -> a \ ef): a \ ef + Fail - DuckDBConnection = 
         handle(conn, f)()
 

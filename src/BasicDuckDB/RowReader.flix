@@ -54,16 +54,15 @@ pub mod BasicDuckDB.RowReader {
 
 
     pub def handle(results: DuckDBResultSetHandle, 
-                    f: a -> b \ ef): a -> b \ {ef + Fail - RowReaderWithAlt} = x -> {
+                    f: a -> b \ ef): a -> b \ {ef + Alt - RowReader} = x -> {
         let DuckDBResultSetHandle.DuckDBResultSetHandle(jresults) = results;
-        let result = run {
-            // Interpret a successful run as Ok(_)
-            Ok(f(x))
+        run {
+            f(x)
         } with handler RowReader {
         
             def getStringByIndex(ix, k) = 
                 try {
-                    let ans = unsafe IO as {ef + Fail - RowReaderWithAlt} { jresults.getString(ix + 1) };
+                    let ans = unsafe IO as {ef + Alt - RowReader} { jresults.getString(ix + 1) };
                     if (not Object.isNull(ans))
                         k(ans)
                     else 
@@ -74,7 +73,7 @@ pub mod BasicDuckDB.RowReader {
 
             def getStringByName(name, k) = 
                 try {
-                    let ans = unsafe IO as {ef + Fail - RowReaderWithAlt} { jresults.getString(name) };
+                    let ans = unsafe IO as {ef + Alt - RowReader} { jresults.getString(name) };
                     if (not Object.isNull(ans))
                         k(ans)
                     else 
@@ -85,7 +84,7 @@ pub mod BasicDuckDB.RowReader {
             
             def getBoolByIndex(ix, k) = 
                 try {
-                    let ans = unsafe IO as {ef + Fail - RowReaderWithAlt} { jresults.getBoolean(ix + 1) };
+                    let ans = unsafe IO as {ef + Alt - RowReader} { jresults.getBoolean(ix + 1) };
                     k(ans)
                 } catch {
                     case ex: JSQLException => Alt.failure(ex.getMessage())
@@ -93,7 +92,7 @@ pub mod BasicDuckDB.RowReader {
             
             def getBoolByName(name, k) = 
                 try {
-                    let ans = unsafe IO as {ef + Fail - RowReaderWithAlt} { jresults.getBoolean(name) };
+                    let ans = unsafe IO as {ef + Alt - RowReader} { jresults.getBoolean(name) };
                     k(ans)
                 } catch {
                     case ex: JSQLException => Alt.failure(ex.getMessage())
@@ -102,7 +101,7 @@ pub mod BasicDuckDB.RowReader {
 
             def getInt8ByIndex(ix, k) = 
                 try {
-                    let ans = unsafe IO as {ef + Fail - RowReaderWithAlt} { jresults.getByte(ix + 1) };
+                    let ans = unsafe IO as {ef + Alt - RowReader} { jresults.getByte(ix + 1) };
                     k(ans)
                 } catch {
                     case ex: JSQLException => Alt.failure(ex.getMessage())
@@ -110,7 +109,7 @@ pub mod BasicDuckDB.RowReader {
 
             def getInt8ByName(name, k) = 
                 try {
-                    let ans = unsafe IO as {ef + Fail - RowReaderWithAlt} { jresults.getByte(name) };
+                    let ans = unsafe IO as {ef + Alt - RowReader} { jresults.getByte(name) };
                     k(ans)
                 } catch {
                     case ex: JSQLException => Alt.failure(ex.getMessage())
@@ -118,7 +117,7 @@ pub mod BasicDuckDB.RowReader {
 
             def getInt16ByIndex(ix, k) = 
                 try {
-                    let ans = unsafe IO as {ef + Fail - RowReaderWithAlt} { jresults.getShort(ix + 1) };
+                    let ans = unsafe IO as {ef + Alt - RowReader} { jresults.getShort(ix + 1) };
                     k(ans)
                 } catch {
                     case ex: JSQLException => Alt.failure(ex.getMessage())
@@ -126,7 +125,7 @@ pub mod BasicDuckDB.RowReader {
 
             def getInt16ByName(name, k) = 
                 try {
-                    let ans = unsafe IO as {ef + Fail - RowReaderWithAlt} { jresults.getShort(name) };
+                    let ans = unsafe IO as {ef + Alt - RowReader} { jresults.getShort(name) };
                     k(ans)
                 } catch {
                     case ex: JSQLException => Alt.failure(ex.getMessage())
@@ -134,7 +133,7 @@ pub mod BasicDuckDB.RowReader {
 
             def getInt32ByIndex(ix, k) = 
                 try {
-                    let ans = unsafe IO as {ef + Fail - RowReaderWithAlt} { jresults.getInt(ix + 1) };
+                    let ans = unsafe IO as {ef + Alt - RowReader} { jresults.getInt(ix + 1) };
                     k(ans)
                 } catch {
                     case ex: JSQLException => Alt.failure(ex.getMessage())
@@ -142,7 +141,7 @@ pub mod BasicDuckDB.RowReader {
 
             def getInt32ByName(name, k) = 
                 try {
-                    let ans = unsafe IO as {ef + Fail - RowReaderWithAlt} { jresults.getInt(name) };
+                    let ans = unsafe IO as {ef + Alt - RowReader} { jresults.getInt(name) };
                     k(ans)
                 } catch {
                     case ex: JSQLException => Alt.failure(ex.getMessage())
@@ -150,7 +149,7 @@ pub mod BasicDuckDB.RowReader {
 
             def getInt64ByIndex(ix, k) = 
                 try {
-                    let ans = unsafe IO as {ef + Fail - RowReaderWithAlt} {  jresults.getLong(ix + 1) };
+                    let ans = unsafe IO as {ef + Alt - RowReader} {  jresults.getLong(ix + 1) };
                     k(ans)
                 } catch {
                     case ex: JSQLException => Alt.failure(ex.getMessage())
@@ -158,7 +157,7 @@ pub mod BasicDuckDB.RowReader {
 
             def getInt64ByName(name, k) = 
                 try {
-                    let ans = unsafe IO as {ef + Fail - RowReaderWithAlt} { jresults.getLong(name) };
+                    let ans = unsafe IO as {ef + Alt - RowReader} { jresults.getLong(name) };
                     k(ans)
                 } catch {
                     case ex: JSQLException => Alt.failure(ex.getMessage())
@@ -166,7 +165,7 @@ pub mod BasicDuckDB.RowReader {
 
             def getBigIntByIndex(ix, k) = 
                 try {
-                    let ans = unsafe IO as {ef + Fail - RowReaderWithAlt} { jresults.getHugeint(ix + 1) };
+                    let ans = unsafe IO as {ef + Alt - RowReader} { jresults.getHugeint(ix + 1) };
                     if (not Object.isNull(ans))
                         k(ans)
                     else 
@@ -177,7 +176,7 @@ pub mod BasicDuckDB.RowReader {
 
             def getFloat32ByIndex(ix, k) = 
                 try {
-                    let ans = unsafe IO as {ef + Fail - RowReaderWithAlt} { jresults.getFloat(ix + 1) };
+                    let ans = unsafe IO as {ef + Alt - RowReader} { jresults.getFloat(ix + 1) };
                     k(ans)
                 } catch {
                     case ex: JSQLException => Alt.failure(ex.getMessage())
@@ -185,7 +184,7 @@ pub mod BasicDuckDB.RowReader {
 
             def getFloat32ByName(name, k) = 
                 try {
-                    let ans = unsafe IO as {ef + Fail - RowReaderWithAlt} { jresults.getFloat(name) };
+                    let ans = unsafe IO as {ef + Alt - RowReader} { jresults.getFloat(name) };
                     k(ans)
                 } catch {
                     case ex: JSQLException => Alt.failure(ex.getMessage())
@@ -193,7 +192,7 @@ pub mod BasicDuckDB.RowReader {
 
             def getFloat64ByIndex(ix, k) = 
                 try {
-                    let ans = unsafe IO as {ef + Fail - RowReaderWithAlt} { jresults.getDouble(ix + 1) };
+                    let ans = unsafe IO as {ef + Alt - RowReader} { jresults.getDouble(ix + 1) };
                     k(ans)
                 } catch {
                     case ex: JSQLException => Alt.failure(ex.getMessage())
@@ -201,7 +200,7 @@ pub mod BasicDuckDB.RowReader {
 
             def getFloat64ByName(name, k) = 
                 try {
-                    let ans = unsafe IO as {ef + Fail - RowReaderWithAlt} { jresults.getDouble(name) };
+                    let ans = unsafe IO as {ef + Alt - RowReader} { jresults.getDouble(name) };
                     k(ans)
                 } catch {
                     case ex: JSQLException => Alt.failure(ex.getMessage())
@@ -209,7 +208,7 @@ pub mod BasicDuckDB.RowReader {
 
             def getBigDecimalByIndex(ix, k) = 
                 try {
-                    let ans = unsafe IO as {ef + Fail - RowReaderWithAlt} { jresults.getBigDecimal(ix + 1) };
+                    let ans = unsafe IO as {ef + Alt - RowReader} { jresults.getBigDecimal(ix + 1) };
                     if (not Object.isNull(ans))
                         k(ans)
                     else 
@@ -220,7 +219,7 @@ pub mod BasicDuckDB.RowReader {
 
             def getBigDecimalByName(name, k) = 
                 try {
-                    let ans = unsafe IO as {ef + Fail - RowReaderWithAlt} { jresults.getBigDecimal(name) };
+                    let ans = unsafe IO as {ef + Alt - RowReader} { jresults.getBigDecimal(name) };
                     if (not Object.isNull(ans))
                         k(ans)
                     else 
@@ -231,30 +230,17 @@ pub mod BasicDuckDB.RowReader {
 
             def getStructByIndex(ix, k) = 
                 try {
-                    let ans = unsafe IO as {ef + Fail - RowReaderWithAlt} { jresults.getStruct(ix) };
+                    let ans = unsafe IO as {ef + Alt - RowReader} { jresults.getStruct(ix) };
                     k(StructHandle.StructHandle(ans))
                 } catch {
                     case ex: JSQLException => Alt.failure(ex.getMessage())
                 }
         
-        } with handler Alt {
-
-            def alternative(k) =  match k(true) {
-                case Ok(ans) => Ok(ans)
-                case Err(_) => k(false)
-            }
-
-            def failure(e, _) = Err(e)
-    
-        };
-        match result {
-            case Ok(a)    => a
-            case Err(msg) => Fail.report(msg)
-        }
+        } 
 
     }
 
-    pub def runRowReader(rset: DuckDBResultSetHandle, f: Unit -> a \ ef): a \ (Fail + ef) - RowReaderWithAlt = 
-        handle(rset, f)()
+    pub def runRowReader(rset: DuckDBResultSetHandle, f: Unit -> a \ ef): a \ ef + Fail - RowReaderWithAlt = 
+        run { handle(rset, f)() } with EffectExtras.Alt.runWithFail
 
 }

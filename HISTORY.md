@@ -1,3 +1,7 @@
+### v0.8.0
+   API changes.
+   Effects reworked.
+
 ### v0.7.1
    Updated dependencies.
    

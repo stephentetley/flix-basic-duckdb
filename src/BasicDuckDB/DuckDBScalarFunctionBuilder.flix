@@ -18,8 +18,8 @@
 pub mod BasicDuckDB.DuckDBScalarFunctionBuilder {
     
     use EffectExtras.Fail.Fail
+    use BasicDuckDB.Connection
     use BasicDuckDB.DuckDBFunctions.RegisteredFunction 
-    use BasicDuckDB.DuckDBConnection.DuckDBConnectionHandle
     use BasicDuckDB.DuckDBColumnType.ColumnType
     use BasicDuckDB.DuckDBLogicalType.LogicalType
 
@@ -60,7 +60,7 @@ pub mod BasicDuckDB.DuckDBScalarFunctionBuilder {
 
 
     // Registers the function - doesn't need to return it
-    pub def handle(conn: DuckDBConnectionHandle, 
+    pub def handle(conn: Connection, 
                     f: a -> b \ ef): a -> b \ Fail + ef - DuckDBScalarFunctionBuilder = x -> {
         let builder = unsafe IO as {Fail + ef - DuckDBScalarFunctionBuilder} { JDuckDBFunctions.scalarFunction() };
         let ans = run {
@@ -167,7 +167,7 @@ pub mod BasicDuckDB.DuckDBScalarFunctionBuilder {
                 }
 
         };
-        let DuckDBConnectionHandle.DuckDBConnectionHandle(jconn) = conn;
+        let jconn = ToJava.toJava(conn);
         discard unsafe IO as {Fail + ef - DuckDBScalarFunctionBuilder} { builder.register(jconn) };
         ans
     }
@@ -229,7 +229,7 @@ pub mod BasicDuckDB.DuckDBScalarFunctionBuilder {
 
 
     /// This takes care of registering the function
-    pub def runDuckDBScalarFunctionBuilder(conn: DuckDBConnectionHandle, 
+    pub def runDuckDBScalarFunctionBuilder(conn: Connection, 
                         f: Unit -> a \ ef): a \ Fail + ef - DuckDBScalarFunctionBuilder = 
         handle(conn, f)()
 

@@ -20,7 +20,7 @@ pub mod BasicDuckDB.DuckDBDriver {
     
     use EffectExtras.Fail.Fail
     use BasicDuckDB.DuckDBConnection.DuckDBConnection
-    use BasicDuckDB.DuckDBConnection.DuckDBConnectionHandle
+    use BasicDuckDB.Connection
     use IoError.ErrorKind
     use IoError.IoError
     
@@ -30,8 +30,8 @@ pub mod BasicDuckDB.DuckDBDriver {
     import org.duckdb.{DuckDBConnection => JDuckDBConnection}
 
     pub eff DuckDBDriver {
-        def connect(url: String): DuckDBConnectionHandle
-        def closeConnection(conn: DuckDBConnectionHandle): Unit
+        def connect(url: String): Connection
+        def closeConnection(conn: Connection): Unit
         def acceptsURL(url: String): Bool
         def jdbcCompliant(): Bool
         def getMajorVersion(): Int32
@@ -49,7 +49,7 @@ pub mod BasicDuckDB.DuckDBDriver {
                     let props = new JProperties();
                     let ans = jdriver.connect(url, props);
                     let ans1 = unchecked_cast(ans as JDuckDBConnection);
-                    let ans2 = DuckDBConnectionHandle.DuckDBConnectionHandle(ans1);
+                    let ans2 = ToFlix.toFlix(ans1);
                     k(ans2)
                 } catch {
                     case ex: JSQLException => Fail.report(ex.getMessage())
@@ -57,7 +57,7 @@ pub mod BasicDuckDB.DuckDBDriver {
             
             def closeConnection(conn, k) = 
                 try {
-                    let DuckDBConnectionHandle.DuckDBConnectionHandle(jconn) = conn;
+                    let jconn = ToJava.toJava(conn);
                     jconn.close();
                     k()
                 } catch {
