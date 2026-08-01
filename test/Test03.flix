@@ -34,7 +34,7 @@ pub mod Test03 {
                     0) |> println
             });
             true
-        } with BasicDuckDB.DuckDBDriver.runWithIOAndFail;
+        } with BasicDuckDB.DuckDBDriver.runDuckDBDriver;
         assertEq(expected = Ok(true), answer)
 
 

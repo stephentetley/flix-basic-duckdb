@@ -41,7 +41,7 @@ pub mod BasicDuckDB.Shim.SQLite {
                 BasicDuckDB.DuckDBConnection.execStatement(() -> discard Statement.executeUpdate(sql3));
                 ans
             }) 
-        }  with BasicDuckDB.DuckDBDriver.runWithIOAndFail 
+        }  with BasicDuckDB.DuckDBDriver.runDuckDBDriver 
     
     pub def fold(reader: a -> a \ ef, 
                     s: a, 
@@ -58,7 +58,7 @@ pub mod BasicDuckDB.Shim.SQLite {
                 BasicDuckDB.DuckDBConnection.execStatement(() -> discard Statement.executeUpdate(sql3));
                 ans
             }) 
-        }  with BasicDuckDB.DuckDBDriver.runWithIOAndFail 
+        }  with BasicDuckDB.DuckDBDriver.runDuckDBDriver 
 
 
     pub def loadFacts(reader: Unit -> #{ | r } \ ef, 

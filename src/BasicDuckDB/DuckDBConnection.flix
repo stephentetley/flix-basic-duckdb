@@ -61,21 +61,6 @@ pub mod BasicDuckDB.DuckDBConnection {
         def setTransactionIsolation(level: Int32): Unit
     }
 
-    // pub enum DuckDBConnectionHandle(JDuckDBConnection)
-
-
-    // instance ToJava[DuckDBConnectionHandle] {
-    //     type Out = JDuckDBConnection
-    //     pub def toJava(x: DuckDBConnectionHandle): JDuckDBConnection =
-    //         let DuckDBConnectionHandle.DuckDBConnectionHandle(x1) = x;
-    //         x1
-    // }
-
-    // instance ToFlix[DuckDBConnectionHandle] {
-    //     type In = JDuckDBConnection
-    //     pub def toFlix(x: JDuckDBConnection): DuckDBConnectionHandle = DuckDBConnectionHandle.DuckDBConnectionHandle(x)
-    // }
-    
     pub def handle(conn: Connection, 
                     f: a -> b \ ef): a -> b \ ef + Fail - DuckDBConnection = x -> {
         let jconn = ToJava.toJava(conn);

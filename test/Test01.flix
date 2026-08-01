@@ -19,7 +19,7 @@ pub mod Test01 {
                 let minor = DuckDBDriver.getMinorVersion();
                 println("${major}.${minor}");
                 true
-            } with BasicDuckDB.DuckDBDriver.runWithIOAndFail;
+            } with BasicDuckDB.DuckDBDriver.runDuckDBDriver;
         assertEq(expected = Ok(true), answer)
 
 

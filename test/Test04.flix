@@ -23,7 +23,7 @@ pub mod Test04 {
                     () -> { let i = rowReader(); println("Test04: ${i} ") }) |> println
                 });
                 true
-        } with BasicDuckDB.DuckDBDriver.runWithIOAndFail;
+        } with BasicDuckDB.DuckDBDriver.runDuckDBDriver;
         assertEq(expected = Ok(true), answer)
 
 

@@ -35,7 +35,7 @@ pub mod Test06 {
                                 "SELECT flix_get_ten();",
                                 () -> { let s = rowReaderS(); println("Test06 (ten): ${s} ") }) |> println
                         })
-                    } with BasicDuckDB.DuckDBDriver.runWithIOAndFail 
+                    } with BasicDuckDB.DuckDBDriver.runDuckDBDriver 
             ) yield true;
         assertEq(expected = Ok(true), answer)
 

@@ -37,7 +37,7 @@ pub mod BasicDuckDB.Shim.CSV {
             BasicDuckDB.DuckDBDriver.execDuckDBConnection(url, () -> {
                 BasicDuckDB.DuckDBConnection.forEachQuery(sql, reader)
             }) 
-        } with BasicDuckDB.DuckDBDriver.runWithIOAndFail 
+        } with BasicDuckDB.DuckDBDriver.runDuckDBDriver 
     
     pub def fold(reader: a -> a \ ef, 
                     s: a, 
@@ -49,7 +49,7 @@ pub mod BasicDuckDB.Shim.CSV {
             BasicDuckDB.DuckDBDriver.execDuckDBConnection(url, () -> {
                 BasicDuckDB.DuckDBConnection.foldQuery(sql, reader, s)
             }) 
-        } with BasicDuckDB.DuckDBDriver.runWithIOAndFail 
+        } with BasicDuckDB.DuckDBDriver.runDuckDBDriver 
 
     pub def loadFacts(reader: Unit -> #{ | r } \  ef, 
                         file_name: String, 
@@ -81,7 +81,7 @@ pub mod BasicDuckDB.Shim.CSV {
                     discard Statement.execute(sql)
                 )
             })
-        } with BasicDuckDB.DuckDBDriver.runWithIOAndFail
+        } with BasicDuckDB.DuckDBDriver.runDuckDBDriver
 
 
 }

@@ -35,7 +35,7 @@ pub mod BasicDuckDB.Shim.XLSX {
             BasicDuckDB.DuckDBDriver.execDuckDBConnection(url, () -> {
                 BasicDuckDB.DuckDBConnection.forEachQuery(sql, reader)
             }) 
-        } with BasicDuckDB.DuckDBDriver.runWithIOAndFail 
+        } with BasicDuckDB.DuckDBDriver.runDuckDBDriver 
     
 
     pub def fold(reader: a -> a \ ef, 
@@ -48,7 +48,7 @@ pub mod BasicDuckDB.Shim.XLSX {
             BasicDuckDB.DuckDBDriver.execDuckDBConnection(url, () -> {
                 BasicDuckDB.DuckDBConnection.foldQuery(sql, reader, s)
             }) 
-        }  with BasicDuckDB.DuckDBDriver.runWithIOAndFail 
+        }  with BasicDuckDB.DuckDBDriver.runDuckDBDriver 
 
 
     pub def loadFacts(reader: Unit -> #{ | r } \ ef, 

@@ -100,13 +100,15 @@ pub mod BasicDuckDB.DuckDBDriver {
     }
 
 
-    pub def runWithIO(f: Unit -> a \ ef): a \ {IO + ef + Fail} - DuckDBDriver =
-        handle(f)()
-
-    pub def runWithIOAndFail(f: Unit -> a \ ef): Result[IoError, a] \ {IO + ef} - DuckDBDriver - Fail =
+    pub def runDuckDBDriver(f: Unit -> a \ ef): Result[IoError, a] \ {IO + ef} - DuckDBDriver - Fail =
         run {
              runWithIO(f)
         } with EffectExtras.Fail.runWithResultOfIoError
+
+    pub def runWithIO(f: Unit -> a \ ef): a \ {IO + ef + Fail} - DuckDBDriver =
+        handle(f)()
+
+  
 
     pub def execDuckDBConnection(url: String, 
                                 f: Unit -> a \ ef): a \ {ef + Fail + DuckDBDriver} - DuckDBConnection = 
