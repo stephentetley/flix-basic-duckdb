@@ -1,6 +1,6 @@
 ### v0.8.0
    API changes.
-   Effects reworked.
+   Effects reworked for better nesting.
 
 ### v0.7.1
    Updated dependencies.

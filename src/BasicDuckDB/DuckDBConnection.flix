@@ -19,9 +19,8 @@
 pub mod BasicDuckDB.DuckDBConnection {
 
     use EffectExtras.Fail.Fail
-    use BasicDuckDB.Connection
+    use BasicDuckDB.{Appender, Connection}
     use BasicDuckDB.DuckDBAppender.DuckDBAppender
-    use BasicDuckDB.DuckDBAppender.DuckDBAppenderHandle
     use BasicDuckDB.DuckDBPreparedStatement.DuckDBPreparedStatement
     use BasicDuckDB.DuckDBPreparedStatement.DuckDBPreparedStatementHandle
     use BasicDuckDB.DuckDBResultSet.DuckDBResultSet
@@ -46,8 +45,8 @@ pub mod BasicDuckDB.DuckDBConnection {
         def closeStatement(stmt: StatementHandle): Unit
         def prepareStatement(sql: String): DuckDBPreparedStatementHandle
         def closePreparedStatement(stmt: DuckDBPreparedStatementHandle): Unit
-        def createAppender(schemaName: String, tableName: String): DuckDBAppenderHandle
-        def closeAppender(appender: DuckDBAppenderHandle): Unit
+        def createAppender(schemaName: String, tableName: String): Appender
+        def closeAppender(appender: Appender): Unit
         def nativeSQL(sql: String): String
         def setAutoCommit(autoCommit: Bool): Unit
         def getAutoCommit(): Bool
@@ -126,14 +125,14 @@ pub mod BasicDuckDB.DuckDBConnection {
             def createAppender(schema, table, k) = 
                 try {
                     let ans = unsafe IO as {ef + Fail - DuckDBConnection} { jconn.createAppender(schema, table) };
-                    k(DuckDBAppenderHandle.DuckDBAppenderHandle(ans))
+                    k(ToFlix.toFlix(ans))
                 } catch {
                     case ex: JSQLException => Fail.report(ex.getMessage())
                 }
 
             def closeAppender(appender, k) = 
                 try {
-                    let DuckDBAppenderHandle.DuckDBAppenderHandle(jappender) = appender;
+                    let jappender = ToJava.toJava(appender);
                     unsafe IO as {ef + Fail - DuckDBConnection} { jappender.close() };
                     k()
                 } catch {

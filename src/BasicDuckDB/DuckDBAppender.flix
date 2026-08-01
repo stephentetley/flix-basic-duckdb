@@ -19,7 +19,7 @@
 pub mod BasicDuckDB.DuckDBAppender {
 
     use EffectExtras.Fail.Fail
-    
+    use BasicDuckDB.Appender
 
     import java.sql.SQLException
     import java.lang.Throwable
@@ -29,7 +29,7 @@ pub mod BasicDuckDB.DuckDBAppender {
     pub eff DuckDBAppender {
         // `askDuckDBAppenderHandle` should not be used in user code
         // It is a hack until we can run local effects polymorphically
-        def askDuckDBAppender(): DuckDBAppenderHandle        
+        def askDuckDBAppender(): Appender        
         def beginRow(): Unit
         def endRow(): Unit
         def beginStruct(): Unit
@@ -53,21 +53,8 @@ pub mod BasicDuckDB.DuckDBAppender {
     }
 
 
-    pub enum DuckDBAppenderHandle (JDuckDBAppender)
-    
-    instance ToJava[DuckDBAppenderHandle] {
-        type Out = JDuckDBAppender
-        pub def toJava(x: DuckDBAppenderHandle): JDuckDBAppender =
-            let DuckDBAppenderHandle.DuckDBAppenderHandle(x1) = x;
-            x1
-    }
 
-    instance ToFlix[DuckDBAppenderHandle] {
-        type In = JDuckDBAppender
-        pub def toFlix(x: JDuckDBAppender): DuckDBAppenderHandle = DuckDBAppenderHandle.DuckDBAppenderHandle(x)
-    }
-
-    pub def handle(appender: DuckDBAppenderHandle, 
+    pub def handle(appender: Appender, 
                     f: a -> b \ ef): a -> b \ ef + Fail - DuckDBAppender = x -> {
         let jappender = ToJava.toJava(appender);
         run {
@@ -236,7 +223,7 @@ pub mod BasicDuckDB.DuckDBAppender {
         }
     }
 
-    pub def runDuckDBAppender(appender: DuckDBAppenderHandle, 
+    pub def runDuckDBAppender(appender: Appender, 
                                 f: Unit -> a \ ef):  a \ ef + Fail - DuckDBAppender = 
         handle(appender, f)()
 

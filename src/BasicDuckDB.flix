@@ -18,6 +18,7 @@
 pub mod BasicDuckDB { 
 
     import org.duckdb.{DuckDBConnection => JDuckDBConnection}
+    import org.duckdb.{DuckDBAppender => JDuckDBAppender}
 
     pub enum Connection(JDuckDBConnection)
 
@@ -34,6 +35,18 @@ pub mod BasicDuckDB {
         pub def toFlix(x: JDuckDBConnection): Connection = Connection.Connection(x)
     }
 
+    pub enum Appender (JDuckDBAppender)
+    
+    instance ToJava[Appender] {
+        type Out = JDuckDBAppender
+        pub def toJava(x: Appender): JDuckDBAppender =
+            let Appender.Appender(x1) = x;
+            x1
+    }
 
+    instance ToFlix[Appender] {
+        type In = JDuckDBAppender
+        pub def toFlix(x: JDuckDBAppender): Appender = Appender.Appender(x)
+    }
 
 }
