@@ -21,7 +21,7 @@ pub mod BasicDuckDB.JDBC.Statement {
     
     use EffectExtras.Fail.Fail
     use BasicDuckDB.DuckDBResultSet.DuckDBResultSet
-    use BasicDuckDB.DuckDBResultSet.DuckDBResultSetHandle
+    use BasicDuckDB.ResultSet
     use BasicDuckDB.RowReader.RowReaderWithAlt
 
     import java.sql.{SQLException => JSQLException}
@@ -36,8 +36,8 @@ pub mod BasicDuckDB.JDBC.Statement {
         def execute(sql: String): Bool
         def executeUpdate(sql: String): Int32
         def executeLargeUpdate(sql: String): Int64
-        def executeQuery(sql: String): DuckDBResultSetHandle
-        def closeResultSet(results: DuckDBResultSetHandle): Unit
+        def executeQuery(sql: String): ResultSet
+        def closeResultSet(results: ResultSet): Unit
         // def getResultSet(): ResultSetHandle
         def enquoteLiteral(sql: String): String
         def isClosed(): Bool
@@ -106,14 +106,14 @@ pub mod BasicDuckDB.JDBC.Statement {
                 try {
                     let jdbcResults = unsafe IO as {ef + Fail - Statement} { jstmt.executeQuery(sql) };
                     let results = unchecked_cast(jdbcResults as JDuckDBResultSet);
-                    k(DuckDBResultSetHandle.DuckDBResultSetHandle(results))
+                    k(ToFlix.toFlix(results))
                 } catch {
                     case ex: JSQLException => Fail.report(ex.getMessage())
                 }
 
             def closeResultSet(results, k) = 
                 try {
-                    let DuckDBResultSetHandle.DuckDBResultSetHandle(jresults) = results;
+                    let jresults = ToJava.toJava(results);
                     unsafe IO as {ef + Fail - Statement} { jresults.close() };
                     k()
                 } catch {

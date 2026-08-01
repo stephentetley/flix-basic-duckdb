@@ -19,9 +19,8 @@
 pub mod BasicDuckDB.DuckDBPreparedStatement {
     
     use EffectExtras.Fail.Fail
-    use BasicDuckDB.PreparedStatement
+    use BasicDuckDB.{PreparedStatement, ResultSet}
     use BasicDuckDB.DuckDBResultSet.DuckDBResultSet
-    use BasicDuckDB.DuckDBResultSet.DuckDBResultSetHandle
     use BasicDuckDB.RowReader.RowReaderWithAlt
     
 
@@ -37,8 +36,8 @@ pub mod BasicDuckDB.DuckDBPreparedStatement {
         def execute(): Bool
         def addBatch(): Unit
         def executeBatch(): Unit
-        def executeQuery(): DuckDBResultSetHandle
-        def closeResultSet(results: DuckDBResultSetHandle): Unit
+        def executeQuery(): ResultSet
+        def closeResultSet(results: ResultSet): Unit
         def executeUpdate(): Int32
         def clearParameters(): Unit
         def setNull(index: {index = Int32}, sqlType: Int32): Unit
@@ -93,14 +92,14 @@ pub mod BasicDuckDB.DuckDBPreparedStatement {
                 try {
                     let ans = unsafe IO as { ef + Fail - DuckDBPreparedStatement } { jstmt.executeQuery() };
                     let ans1 = unchecked_cast(ans as JDuckDBResultSet);
-                    k(DuckDBResultSetHandle.DuckDBResultSetHandle(ans1))
+                    k(ToFlix.toFlix(ans1))
                 } catch {
                     case ex: JSQLException => Fail.report(ex.getMessage())
                 }
 
             def closeResultSet(results, k) = 
                 try {
-                    let DuckDBResultSetHandle.DuckDBResultSetHandle(jresults) = results;
+                    let jresults = ToJava.toJava(results);
                     unsafe IO as {ef + Fail - DuckDBPreparedStatement} { jresults.close() };
                     k()
                 } catch {

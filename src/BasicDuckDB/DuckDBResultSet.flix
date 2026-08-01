@@ -20,6 +20,7 @@
 pub mod BasicDuckDB.DuckDBResultSet {
 
     use EffectExtras.Fail.Fail
+    use BasicDuckDB.ResultSet
     use BasicDuckDB.RowReader.RowReaderWithAlt
     use BasicDuckDB.JDBC.ResultSet.{ResultSetHandle}
 
@@ -34,7 +35,7 @@ pub mod BasicDuckDB.DuckDBResultSet {
     pub eff DuckDBResultSet {
         // `askDuckDBResultSetHandle` should not be used in user code
         // It is a hack until we can run local effects polymorphically
-        def askDuckDBResultSetHandle(): DuckDBResultSetHandle
+        def askDuckDBResultSetHandle(): ResultSet
         def next(): Bool
         def wasNull(): Bool
         def findColumn(label: String): Int32
@@ -51,27 +52,15 @@ pub mod BasicDuckDB.DuckDBResultSet {
         def getFetchSize(): Int32
     }
 
-    pub enum DuckDBResultSetHandle(JDuckDBResultSet)
 
-    instance ToJava[DuckDBResultSetHandle] {
-        type Out = JDuckDBResultSet
-        pub def toJava(x: DuckDBResultSetHandle): JDuckDBResultSet =
-            let DuckDBResultSetHandle.DuckDBResultSetHandle(x1) = x;
-            x1
-    }
 
-    instance ToFlix[DuckDBResultSetHandle] {
-        type In = JDuckDBResultSet
-        pub def toFlix(x: JDuckDBResultSet): DuckDBResultSetHandle = DuckDBResultSetHandle.DuckDBResultSetHandle(x)
-    }
-
-    pub def castResultSetHandle(results: ResultSetHandle): DuckDBResultSetHandle = 
+    pub def castResultSetHandle(results: ResultSetHandle): ResultSet = 
         let ResultSetHandle.ResultSetHandle(results1) = results;
         let results2 = unchecked_cast(results1 as JDuckDBResultSet);
-        DuckDBResultSetHandle.DuckDBResultSetHandle(results2)
+        ToFlix.toFlix(results2)
 
         
-    pub def handle(results: DuckDBResultSetHandle, 
+    pub def handle(results: ResultSet, 
                     f: a -> b \ ef): a -> b \ ef + Fail - DuckDBResultSet = x -> {
         let jresults = ToJava.toJava(results);
         run {
@@ -198,7 +187,7 @@ pub mod BasicDuckDB.DuckDBResultSet {
 
 
     
-    pub def runDuckDBResultSet(results: DuckDBResultSetHandle, 
+    pub def runDuckDBResultSet(results: ResultSet, 
                                 f: Unit -> a \ ef): a \ {ef + Fail} - DuckDBResultSet =
         handle(results, f)()
 
