@@ -40,10 +40,10 @@ pub mod BasicDuckDB.Shim.CSV {
             }) 
         } with BasicDuckDB.DuckDBDriver.runDuckDBDriver 
     
-    pub def fold(reader: a -> a \ ef, 
+    pub def fold(reader: ResultSetRow -> a -> a \ ef, 
                     s: a, 
                     file_name: String, 
-                    opts: List[CSVOption]): Result[IoError, a] \ {IO + ef} - DuckDBDriver - Fail - DuckDBConnection - JDBCStatement - DuckDBResultSet - RowReaderWithAlt = 
+                    opts: List[CSVOption]): Result[IoError, a] \ {IO + ef} - DuckDBDriver - Fail - DuckDBConnection - JDBCStatement - DuckDBResultSet = 
         let url = "jdbc:duckdb:";
         let sql = "SELECT * FROM read_csv('${file_name}'${printOptions(opts)});";
         run {
@@ -52,10 +52,10 @@ pub mod BasicDuckDB.Shim.CSV {
             }) 
         } with BasicDuckDB.DuckDBDriver.runDuckDBDriver 
 
-    pub def loadFacts(reader: Unit -> #{ | r } \  ef, 
+    pub def loadFacts(reader: ResultSetRow -> #{ | r } \  ef, 
                         file_name: String, 
-                        opts: List[CSVOption]): Result[IoError, #{ | r }] \ {IO + ef} - Fail - DuckDBDriver - DuckDBConnection - JDBCStatement - DuckDBResultSet - RowReaderWithAlt =  
-        fold(acc -> { let row1 = reader(); acc <+> row1 }, #{}, file_name, opts)
+                        opts: List[CSVOption]): Result[IoError, #{ | r }] \ {IO + ef} - Fail - DuckDBDriver - DuckDBConnection - JDBCStatement - DuckDBResultSet =  
+        fold((row, acc) -> { let ans = reader(row); acc <+> ans }, #{}, file_name, opts)
 
 
     pub def exportCSV(tableSpec: {create_table = String, schema_name = String, table_name = String},

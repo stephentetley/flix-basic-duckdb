@@ -271,7 +271,7 @@ pub mod BasicDuckDB.DuckDBConnection {
         execStatement(_ -> BasicDuckDB.JDBCStatement.scalarQuery(sql, f))
 
     // cf. ```f: (<row>, a) -> a``` but <row> is implicit
-    pub def foldQuery(sql: String, f: a -> a \ ef, s: a): a \ {ef + Fail + DuckDBConnection} - RowReaderWithAlt - JDBCStatement - DuckDBResultSet  = 
+    pub def foldQuery(sql: String, f: ResultSetRow -> a -> a \ ef, s: a): a \ ef + Fail + DuckDBConnection - JDBCStatement - DuckDBResultSet  = 
         execStatement(_ -> BasicDuckDB.JDBCStatement.foldQuery(sql, f, s))
 
 

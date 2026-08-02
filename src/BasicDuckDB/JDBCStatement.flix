@@ -164,9 +164,9 @@ pub mod BasicDuckDB.JDBCStatement {
         JDBCStatement.closeResultSet(results);
         ans
 
-    pub def foldQuery(sql: String, f: s -> s \ ef, st: s): s \ {ef + Fail + JDBCStatement} - DuckDBResultSet - RowReaderWithAlt = 
+    pub def foldQuery(sql: String, f: ResultSetRow -> s -> s \ ef, st: s): s \ ef + Fail + JDBCStatement - DuckDBResultSet = 
         let results = JDBCStatement.executeQuery(sql);
-        let ans = BasicDuckDB.DuckDBResultSet.runDuckDBResultSet(results, _ -> BasicDuckDB.DuckDBResultSet.fold(f, st));
+        let ans = BasicDuckDB.DuckDBResultSet.fold(f, st, results);
         JDBCStatement.closeResultSet(results);
         ans
 

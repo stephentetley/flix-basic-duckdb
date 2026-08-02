@@ -223,9 +223,9 @@ pub mod BasicDuckDB.DuckDBPreparedStatement {
         DuckDBPreparedStatement.closeResultSet(results);
         ans
 
-    pub def foldQuery(f: s -> s \ ef, st: s): s \ {ef + Fail + DuckDBPreparedStatement} - DuckDBResultSet - RowReaderWithAlt = 
+    pub def foldQuery(f: ResultSetRow -> s -> s \ ef, st: s): s \ ef + Fail + DuckDBPreparedStatement - DuckDBResultSet = 
         let results = DuckDBPreparedStatement.executeQuery();
-        let ans = BasicDuckDB.DuckDBResultSet.runDuckDBResultSet(results, _ -> BasicDuckDB.DuckDBResultSet.fold(f, st));
+        let ans = BasicDuckDB.DuckDBResultSet.fold(f, st, results);
         DuckDBPreparedStatement.closeResultSet(results);
         ans
 

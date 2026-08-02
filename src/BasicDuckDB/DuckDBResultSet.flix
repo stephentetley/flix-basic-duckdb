@@ -223,17 +223,15 @@ pub mod BasicDuckDB.DuckDBResultSet {
         runDuckDBResultSet(results, loop)
 
     // fold
-    pub def fold(f: s -> s \ ef, st: s): s \ {ef + Fail + DuckDBResultSet} - RowReaderWithAlt =
-        def loop(acc, fk, sk) = {
+    pub def fold(f: ResultSetRow -> s -> s \ ef, st: s, results: ResultSet): s \ ef + Fail - DuckDBResultSet =
+        def loop(acc) = {
             let more = DuckDBResultSet.next();
             if (more) {
-                let rowAnswer = EffectExtras.Fail.runWithResult(_ -> execReadRow(_ -> f(acc)));
-                match rowAnswer {
-                    case Ok(acc1) => loop(acc1, fk, sk)
-                    case Err(err) => fk(err)
-                }
-            } else sk(acc)
+                let row = DuckDBResultSet.getResultSetRow();
+                let acc1 = f(row, acc);
+                loop(acc1)
+            } else acc
         };
-        loop(st, e -> Fail.report(e), a -> a)
+        runDuckDBResultSet(results, _ -> loop(st))
 
 }

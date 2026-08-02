@@ -2,7 +2,10 @@
 
 
 pub mod Test03 {
+    
     use Assert.{assertEq}
+    use EffectExtras.Fail.Fail
+    use BasicDuckDB.{ResultSetRow}
     use BasicDuckDB.DuckDBDriver
     use BasicDuckDB.DuckDBConnection.DuckDBConnection
     use BasicDuckDB.DuckDBPreparedStatement
@@ -30,7 +33,7 @@ pub mod Test03 {
                             List#{("DuckDB", 2019), ("SQLite", 2000)}));
                 BasicDuckDB.DuckDBConnection.foldQuery(
                     "SELECT * FROM facts.databases;",
-                    acc -> { let i = rowReader(); Int32.max(acc, i) }, 
+                    (row, acc) -> { let i = rowReader(row); Int32.max(acc, i) }, 
                     0) |> println
             });
             true
@@ -38,8 +41,10 @@ pub mod Test03 {
         assertEq(expected = Ok(true), answer)
 
 
-    def rowReader(): Int32 \ RowReaderWithAlt = 
-        EffectExtras.Alt.withDefault(_ -> RowReader.getInt32ByName("year"), 1970)
+    def rowReader(row: ResultSetRow): Int32 \ Fail = 
+        BasicDuckDB.RowReader.runRowReader(row, _ -> {
+            EffectExtras.Alt.withDefault(_ -> RowReader.getInt32ByName("year"), 1970)
+        })
     
     def appender(name: String, year: Int32): Unit \ DuckDBAppender = {
         DuckDBAppender.beginRow();
