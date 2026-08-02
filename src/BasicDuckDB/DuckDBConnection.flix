@@ -235,6 +235,8 @@ pub mod BasicDuckDB.DuckDBConnection {
                                 f: Unit -> a \ ef): a \ ef + Fail - DuckDBConnection = 
         handle(conn, f)()
 
+
+    // new attempt to make nesting nore palatable...
     pub def runDuckDBConnection1(url: String, f: Unit -> a \ ef): a \ ef + Fail + DuckDBDriver - DuckDBConnection = 
         let conn = DuckDBDriver.connect(url);
         let ans = handle(conn, f)();

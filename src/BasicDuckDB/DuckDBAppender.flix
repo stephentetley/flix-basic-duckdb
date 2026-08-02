@@ -20,6 +20,7 @@ pub mod BasicDuckDB.DuckDBAppender {
 
     use EffectExtras.Fail.Fail
     use BasicDuckDB.Appender
+    use BasicDuckDB.DuckDBConnection
 
     import java.sql.SQLException
     import java.lang.Throwable
@@ -227,6 +228,14 @@ pub mod BasicDuckDB.DuckDBAppender {
                                 f: Unit -> a \ ef):  a \ ef + Fail - DuckDBAppender = 
         handle(appender, f)()
 
+    pub def runDuckDBAppender1(schema: String, 
+                                table: String, 
+                                f: Unit -> a \ ef):  a \ ef + Fail + DuckDBConnection - DuckDBAppender = 
+        
+        let appender = DuckDBConnection.createAppender(schema, table);
+        let ans = handle(appender, f)();
+        DuckDBConnection.closeAppender(appender);
+        ans 
 
     pub def execDuckDBAppender(f: Unit -> a \ ef): a \ ef + Fail + DuckDBAppender = 
         let handle = DuckDBAppender.askDuckDBAppender();

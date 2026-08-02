@@ -18,6 +18,7 @@
 
 
 pub mod BasicDuckDB.JDBCStatement {
+    use BasicDuckDB.DuckDBConnection
     use BasicDuckDB.JDBCStatement
     use BasicDuckDB.JDBC.ResultSet
     
@@ -149,6 +150,12 @@ pub mod BasicDuckDB.JDBCStatement {
 
     pub def runJDBCStatement(stmt: Statement, f: Unit -> a \ ef): a \ {ef + Fail} - JDBCStatement = 
         handle(stmt, f)()
+
+    pub def runJDBCStatement1(f: Unit -> a \ ef): a \ {ef + Fail + DuckDBConnection} - JDBCStatement = 
+        let stmt = DuckDBConnection.createStatement();
+        let ans = handle(stmt, f)();
+        DuckDBConnection.closeStatement(stmt);
+        ans
 
     pub def scalarQuery(sql: String, 
                             f: ResultSetRow -> a \ ef): a \ ef + Fail + JDBCStatement - DuckDBResultSet = 
