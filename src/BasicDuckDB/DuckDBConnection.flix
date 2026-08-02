@@ -24,7 +24,6 @@ pub mod BasicDuckDB.DuckDBConnection {
     use BasicDuckDB.DuckDBPreparedStatement.DuckDBPreparedStatement
     use BasicDuckDB.DuckDBResultSet.DuckDBResultSet
     use BasicDuckDB.JDBCStatement
-    // use BasicDuckDB.RowReader.RowReaderWithAlt
     use BasicDuckDB.DuckDBScalarFunctionBuilder.DuckDBScalarFunctionBuilder
 
     import java.sql.{Connection => JConnection}

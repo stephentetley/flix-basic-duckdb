@@ -29,9 +29,6 @@ pub mod BasicDuckDB.DuckDBPreparedStatement {
     
 
     pub eff DuckDBPreparedStatement {
-        // `askDuckDBPreparedStatementHandle` should not be used in user code
-        // It is a hack until we can run local effects polymorphically
-        def askDuckDBPreparedStatementHandle(): PreparedStatement
         def execute(): Bool
         def addBatch(): Unit
         def executeBatch(): Unit
@@ -59,9 +56,6 @@ pub mod BasicDuckDB.DuckDBPreparedStatement {
         run {
             f(x)
         } with handler DuckDBPreparedStatement {
-                    
-            def askDuckDBPreparedStatementHandle(k) = k(stmt)
-
 
             def execute(k) = 
                 try {

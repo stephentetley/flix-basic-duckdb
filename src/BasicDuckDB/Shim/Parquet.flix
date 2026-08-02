@@ -35,8 +35,10 @@ pub mod BasicDuckDB.Shim.Parquet {
         let url = "jdbc:duckdb:";
         let sql = "SELECT * FROM read_parquet('${file_name}'${printOptions(opts)});";
         run {
-            BasicDuckDB.DuckDBDriver.execDuckDBConnection(url, () -> {
-                BasicDuckDB.DuckDBConnection.forEachQuery(sql, reader)
+            BasicDuckDB.DuckDBDriver.execDuckDBConnection(url, conn -> {
+                BasicDuckDB.DuckDBConnection.runDuckDBConnection(conn, () -> {
+                    BasicDuckDB.DuckDBConnection.forEachQuery(sql, reader)
+                })
             }) 
         } with BasicDuckDB.DuckDBDriver.runDuckDBDriver 
     
@@ -47,8 +49,10 @@ pub mod BasicDuckDB.Shim.Parquet {
         let url = "jdbc:duckdb:";
         let sql = "SELECT * FROM read_parquet('${file_name}')${printOptions(opts)};";
         run {
-            BasicDuckDB.DuckDBDriver.execDuckDBConnection(url, () -> {
-                BasicDuckDB.DuckDBConnection.foldQuery(sql, reader, s)
+            BasicDuckDB.DuckDBDriver.execDuckDBConnection(url, conn -> {
+                BasicDuckDB.DuckDBConnection.runDuckDBConnection(conn, () -> {
+                    BasicDuckDB.DuckDBConnection.foldQuery(sql, reader, s)
+                })
             }) 
         } with BasicDuckDB.DuckDBDriver.runDuckDBDriver 
 
@@ -70,18 +74,20 @@ pub mod BasicDuckDB.Shim.Parquet {
         };
         let sql = "COPY ${tableSpec#schema_name}.${tableSpec#table_name} TO '${file_name}'${opts1};";
         run {
-            BasicDuckDB.DuckDBDriver.execInMemoryDuckDBConnection(() -> {
-                BasicDuckDB.DuckDBConnection.execStatement(() -> 
-                    discard JDBCStatement.execute(tableSpec#create_table)
-                );
-                BasicDuckDB.DuckDBConnection.execDuckDBAppender(
-                    tableSpec#schema_name, 
-                    tableSpec#table_name, 
-                    () -> foreach (item <- t) appender(item) 
-                );
-                BasicDuckDB.DuckDBConnection.execStatement(() -> 
-                    discard JDBCStatement.execute(sql)
-                )
+            BasicDuckDB.DuckDBDriver.execInMemoryDuckDBConnection(conn -> {
+                BasicDuckDB.DuckDBConnection.runDuckDBConnection(conn, () -> {
+                    BasicDuckDB.DuckDBConnection.execStatement(() -> 
+                        discard JDBCStatement.execute(tableSpec#create_table)
+                    );
+                    BasicDuckDB.DuckDBConnection.execDuckDBAppender(
+                        tableSpec#schema_name, 
+                        tableSpec#table_name, 
+                        () -> foreach (item <- t) appender(item) 
+                    );
+                    BasicDuckDB.DuckDBConnection.execStatement(() -> 
+                        discard JDBCStatement.execute(sql)
+                    )
+                })
             })
         } with BasicDuckDB.DuckDBDriver.runDuckDBDriver
 

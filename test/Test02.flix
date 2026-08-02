@@ -24,19 +24,21 @@ pub mod Test02 {
     @Test
     def test01(): Unit \ Assert + IO  =
         let answer:Result[IoError, Bool] = run {
-            BasicDuckDB.DuckDBDriver.execInMemoryDuckDBConnection(() -> {
-                BasicDuckDB.DuckDBConnection.execStatement(() -> {
-                    let a1 = JDBCStatement.execute("CREATE SCHEMA IF NOT EXISTS facts;CREATE TABLE IF NOT EXISTS facts.databases (name VARCHAR NOT NULL, year INTEGER, PRIMARY KEY(name));");
-                    println("Tables created: ${a1}")
-                });
-                BasicDuckDB.DuckDBConnection.execDuckDBAppender("facts", "databases", 
-                    () -> List.forEach(xy -> { let (x, y) = xy; appender(x, y) }, 
-                                        List#{("DuckDB", 2019), ("SQLite", 2000)})
-                );
-                BasicDuckDB.DuckDBConnection.forEachQuery("SELECT * FROM facts.databases;",
-                                                            row -> BasicDuckDB.RowReader.runRowReader(row, rowReader)
-                                                            );
-                true
+            BasicDuckDB.DuckDBDriver.execInMemoryDuckDBConnection(conn -> {
+                BasicDuckDB.DuckDBConnection.runDuckDBConnection(conn, () -> {
+                    BasicDuckDB.DuckDBConnection.execStatement(() -> {
+                        let a1 = JDBCStatement.execute("CREATE SCHEMA IF NOT EXISTS facts;CREATE TABLE IF NOT EXISTS facts.databases (name VARCHAR NOT NULL, year INTEGER, PRIMARY KEY(name));");
+                        println("Tables created: ${a1}")
+                    });
+                    BasicDuckDB.DuckDBConnection.execDuckDBAppender("facts", "databases", 
+                        () -> List.forEach(xy -> { let (x, y) = xy; appender(x, y) }, 
+                                            List#{("DuckDB", 2019), ("SQLite", 2000)})
+                    );
+                    BasicDuckDB.DuckDBConnection.forEachQuery("SELECT * FROM facts.databases;",
+                                                                row -> BasicDuckDB.RowReader.runRowReader(row, rowReader)
+                                                                );
+                    true
+                })
             })
         } with BasicDuckDB.DuckDBDriver.runDuckDBDriver;            
         Assert.assertEq(expected = Ok(true), answer)

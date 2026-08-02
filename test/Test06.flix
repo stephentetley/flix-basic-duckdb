@@ -21,19 +21,21 @@ pub mod Test06 {
             forM (
                 url <- Ok("jdbc:duckdb:");
                 _   <- run { 
-                        BasicDuckDB.DuckDBDriver.execDuckDBConnection(url, () -> {
-                            BasicDuckDB.DuckDBConnection.execDuckDBScalarFunctionBuilder(buildFun1);
-                            BasicDuckDB.DuckDBConnection.execDuckDBScalarFunctionBuilder(buildFun2);
-                            BasicDuckDB.DuckDBConnection.execDuckDBScalarFunctionBuilder(buildFun3);
-                            BasicDuckDB.DuckDBConnection.forEachQuery(
-                                "SELECT flix_add_one(42);", 
-                                row -> { let i = rowReaderI(row); println("Test06: ${i} ") }) |> println;
-                            BasicDuckDB.DuckDBConnection.forEachQuery(
-                                "SELECT flix_add_n(42, 100);",
-                                row -> { let i = rowReaderI(row); println("Test06: ${i} ") }) |> println;
-                            BasicDuckDB.DuckDBConnection.forEachQuery(
-                                "SELECT flix_get_ten();",
-                                row -> { let s = rowReaderS(row); println("Test06 (ten): ${s} ") }) |> println
+                        BasicDuckDB.DuckDBDriver.execDuckDBConnection(url, conn -> {
+                            BasicDuckDB.DuckDBConnection.runDuckDBConnection(conn, _ -> {
+                                BasicDuckDB.DuckDBConnection.execDuckDBScalarFunctionBuilder(buildFun1);
+                                BasicDuckDB.DuckDBConnection.execDuckDBScalarFunctionBuilder(buildFun2);
+                                BasicDuckDB.DuckDBConnection.execDuckDBScalarFunctionBuilder(buildFun3);
+                                BasicDuckDB.DuckDBConnection.forEachQuery(
+                                    "SELECT flix_add_one(42);", 
+                                    row -> { let i = rowReaderI(row); println("Test06: ${i} ") }) |> println;
+                                BasicDuckDB.DuckDBConnection.forEachQuery(
+                                    "SELECT flix_add_n(42, 100);",
+                                    row -> { let i = rowReaderI(row); println("Test06: ${i} ") }) |> println;
+                                BasicDuckDB.DuckDBConnection.forEachQuery(
+                                    "SELECT flix_get_ten();",
+                                    row -> { let s = rowReaderS(row); println("Test06 (ten): ${s} ") }) |> println
+                            })
                         })
                     } with BasicDuckDB.DuckDBDriver.runDuckDBDriver 
             ) yield true;

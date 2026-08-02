@@ -33,11 +33,13 @@ pub mod BasicDuckDB.Shim.SQLite {
         let sql2 = "SELECT * FROM temp_sqlite_db.${table_name#table_name};";
         let sql3 = "USE memory; DETACH temp_sqlite_db;";
         run {
-            BasicDuckDB.DuckDBDriver.execDuckDBConnection(url, () -> {
-                BasicDuckDB.DuckDBConnection.execStatement(() -> discard JDBCStatement.executeUpdate(sql1));
-                let ans = BasicDuckDB.DuckDBConnection.forEachQuery(sql2, reader);
-                BasicDuckDB.DuckDBConnection.execStatement(() -> discard JDBCStatement.executeUpdate(sql3));
-                ans
+            BasicDuckDB.DuckDBDriver.execDuckDBConnection(url, conn -> {
+                BasicDuckDB.DuckDBConnection.runDuckDBConnection(conn, () -> {
+                    BasicDuckDB.DuckDBConnection.execStatement(() -> discard JDBCStatement.executeUpdate(sql1));
+                    let ans = BasicDuckDB.DuckDBConnection.forEachQuery(sql2, reader);
+                    BasicDuckDB.DuckDBConnection.execStatement(() -> discard JDBCStatement.executeUpdate(sql3));
+                    ans
+                })
             }) 
         }  with BasicDuckDB.DuckDBDriver.runDuckDBDriver 
     
@@ -50,11 +52,13 @@ pub mod BasicDuckDB.Shim.SQLite {
         let sql2 = "SELECT * FROM temp_sqlite_db.${table_name#table_name};";
         let sql3 = "USE memory; DETACH temp_sqlite_db;";
         run {
-            BasicDuckDB.DuckDBDriver.execDuckDBConnection(url, () -> {
-                BasicDuckDB.DuckDBConnection.execStatement(() -> discard JDBCStatement.executeUpdate(sql1));
-                let ans = BasicDuckDB.DuckDBConnection.foldQuery(sql2, reader, s);
-                BasicDuckDB.DuckDBConnection.execStatement(() -> discard JDBCStatement.executeUpdate(sql3));
-                ans
+            BasicDuckDB.DuckDBDriver.execDuckDBConnection(url, conn -> {
+                BasicDuckDB.DuckDBConnection.runDuckDBConnection(conn, () -> {
+                    BasicDuckDB.DuckDBConnection.execStatement(() -> discard JDBCStatement.executeUpdate(sql1));
+                    let ans = BasicDuckDB.DuckDBConnection.foldQuery(sql2, reader, s);
+                    BasicDuckDB.DuckDBConnection.execStatement(() -> discard JDBCStatement.executeUpdate(sql3));
+                    ans
+                })
             }) 
         }  with BasicDuckDB.DuckDBDriver.runDuckDBDriver 
 

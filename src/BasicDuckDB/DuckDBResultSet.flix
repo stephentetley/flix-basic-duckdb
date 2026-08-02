@@ -35,9 +35,6 @@ pub mod BasicDuckDB.DuckDBResultSet {
     
 
     pub eff DuckDBResultSet {
-        // `askDuckDBResultSetHandle` should not be used in user code
-        // It is a hack until we can run local effects polymorphically
-        def askDuckDBResultSetHandle(): ResultSet
         def next(): Bool
         def getResultSetRow(): ResultSetRow
         def wasNull(): Bool
@@ -64,9 +61,6 @@ pub mod BasicDuckDB.DuckDBResultSet {
             f(x)
         } with handler DuckDBResultSet {
         
-            def askDuckDBResultSetHandle(k) = k(results)
-
-
             def next(k) = 
                 try {
                     let ans = unsafe IO as {ef + Fail - DuckDBResultSet} { jresults.next() };

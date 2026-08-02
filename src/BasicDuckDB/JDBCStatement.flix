@@ -39,7 +39,6 @@ pub mod BasicDuckDB.JDBCStatement {
         def executeLargeUpdate(sql: String): Int64
         def executeQuery(sql: String): ResultSet
         def closeResultSet(results: ResultSet): Unit
-        // def getResultSet(): ResultSetHandle
         def enquoteLiteral(sql: String): String
         def isClosed(): Bool
         def isCloseOnCompletion(): Bool
