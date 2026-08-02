@@ -23,7 +23,7 @@ pub mod BasicDuckDB.JDBCStatement {
     
     use EffectExtras.Fail.Fail
     use BasicDuckDB.DuckDBResultSet.DuckDBResultSet
-    use BasicDuckDB.{ResultSet, ResultSetRow, Statement}
+    use BasicDuckDB.{RunWithResource, ResultSet, ResultSetRow, Statement}
 
     import java.sql.{SQLException => JSQLException}
     import java.sql.{Statement => JStatement}
@@ -43,6 +43,8 @@ pub mod BasicDuckDB.JDBCStatement {
         def isClosed(): Bool
         def isCloseOnCompletion(): Bool
     }
+
+
 
     
     pub def handle(stmt: Statement, 

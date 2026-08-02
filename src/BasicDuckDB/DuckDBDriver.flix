@@ -105,11 +105,18 @@ pub mod BasicDuckDB.DuckDBDriver {
             handle(f)()
         } with EffectExtras.Fail.runWithResultOfIoError
 
-
+    // Connection only supports three ops - make, run and close 
     pub def execDuckDBConnection(url: String, 
                                 f: Connection -> a \ ef): a \ ef + DuckDBDriver = 
         let conn = DuckDBDriver.connect(url);
         let ans = f(conn);
+        DuckDBDriver.closeConnection(conn);
+        ans
+
+    pub def execDuckDBConnection1(url: String, 
+                                f: Unit -> a \ ef + DuckDBConnection): a \ ef + DuckDBDriver + Fail - DuckDBConnection = 
+        let conn = DuckDBDriver.connect(url);
+        let ans = BasicDuckDB.DuckDBConnection.runDuckDBConnection(conn, f);
         DuckDBDriver.closeConnection(conn);
         ans
 

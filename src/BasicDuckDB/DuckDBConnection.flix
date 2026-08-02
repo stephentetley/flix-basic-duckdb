@@ -20,6 +20,7 @@ pub mod BasicDuckDB.DuckDBConnection {
 
     use EffectExtras.Fail.Fail
     use BasicDuckDB.{Appender, Connection, PreparedStatement, Statement, ResultSetRow}
+    use BasicDuckDB.DuckDBDriver
     use BasicDuckDB.DuckDBAppender.DuckDBAppender
     use BasicDuckDB.DuckDBPreparedStatement.DuckDBPreparedStatement
     use BasicDuckDB.DuckDBResultSet.DuckDBResultSet
@@ -234,10 +235,22 @@ pub mod BasicDuckDB.DuckDBConnection {
                                 f: Unit -> a \ ef): a \ ef + Fail - DuckDBConnection = 
         handle(conn, f)()
 
+    pub def runDuckDBConnection1(url: String, f: Unit -> a \ ef): a \ ef + Fail + DuckDBDriver - DuckDBConnection = 
+        let conn = DuckDBDriver.connect(url);
+        let ans = handle(conn, f)();
+        DuckDBDriver.closeConnection(conn);
+        ans
+
     
     pub def execStatement(f: Statement -> a \ ef): a \ {ef + DuckDBConnection}  = 
         let stmt = DuckDBConnection.createStatement();
         let ans = f(stmt);
+        DuckDBConnection.closeStatement(stmt);
+        ans
+    
+    pub def execStatement1(f: Unit -> a \ ef + JDBCStatement): a \ ef + Fail + DuckDBConnection - JDBCStatement  = 
+        let stmt = DuckDBConnection.createStatement();
+        let ans = BasicDuckDB.JDBCStatement.runJDBCStatement(stmt, f);
         DuckDBConnection.closeStatement(stmt);
         ans
 

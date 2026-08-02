@@ -16,12 +16,22 @@
 
 
 pub mod BasicDuckDB { 
+    
+    use EffectExtras.Fail.Fail
 
     import org.duckdb.{DuckDBConnection => JDuckDBConnection}
     import org.duckdb.{DuckDBAppender => JDuckDBAppender}
     import org.duckdb.{DuckDBPreparedStatement => JDuckDBPreparedStatement}
     import java.sql.{Statement => JStatement}
     import org.duckdb.{DuckDBResultSet => JDuckDBResultSet}
+
+    pub trait RunWithResource[t] {
+        type Aef[t]: Eff
+        pub def runWithResource(resource: t, f: Unit -> a \ ef): a \ ef + Fail - RunWithResource.Aef[t]  
+    }
+    
+
+
 
 
     pub enum Connection(JDuckDBConnection)
@@ -38,6 +48,13 @@ pub mod BasicDuckDB {
         type In = JDuckDBConnection
         pub def toFlix(x: JDuckDBConnection): Connection = Connection.Connection(x)
     }
+
+    instance RunWithResource[Connection] {
+        type Aef[Connection] = DuckDBConnection 
+        pub def runWithResource(conn: Connection, f: Unit -> a \ ef): a \ ef + Fail - DuckDBConnection = 
+            BasicDuckDB.DuckDBConnection.runDuckDBConnection(conn, f)
+    }
+
 
     pub enum Appender (JDuckDBAppender)
     
@@ -82,6 +99,11 @@ pub mod BasicDuckDB {
         pub def toFlix(x: JStatement): Statement = Statement.Statement(x)
     }
 
+    instance RunWithResource[Statement] {
+        type Aef[Statement] = JDBCStatement 
+        pub def runWithResource(stmt: Statement, f: Unit -> a \ ef): a \ ef + Fail - JDBCStatement = 
+            BasicDuckDB.JDBCStatement.runJDBCStatement(stmt, f)
+    }
 
     pub enum ResultSet(JDuckDBResultSet)
 
