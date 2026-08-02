@@ -202,10 +202,6 @@ pub mod BasicDuckDB.DuckDBResultSet {
             reader()
         } with BasicDuckDB.RowReader.runRowReader(row)
 
-    // pub def resultSetRowIterator(rc: Region[r], results: ResultSet): Iterator[ResultSetRow, r, r] \ r = 
-    //     Iterator.unfold(rc, () -> {
-
-    //     })
 
 
     // Note - doesn't close resultset even though it will be exhausted
@@ -234,4 +230,12 @@ pub mod BasicDuckDB.DuckDBResultSet {
         };
         runDuckDBResultSet(results, _ -> loop(st))
 
+    pub def firstResult(f: ResultSetRow -> a \ ef, results: ResultSet): a \ ef + Fail - DuckDBResultSet = 
+        runDuckDBResultSet(results, _ -> {
+            let more = DuckDBResultSet.next();
+            if (more) {
+                let row = DuckDBResultSet.getResultSetRow();
+                f(row)
+            } else Fail.report("firstResult - empty resultset")
+        })
 }

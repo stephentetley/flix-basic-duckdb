@@ -7,9 +7,10 @@
 
 
 pub mod Test04 {
+    use BasicDuckDB.ResultSetRow
     use Assert.{assertEq}
 
-    use EffectExtras.Alt.Alt
+    use EffectExtras.Fail.Fail
     use BasicDuckDB.DuckDBDriver
     use BasicDuckDB.DuckDBConnection
     use BasicDuckDB.RowReader.RowReader
@@ -20,15 +21,17 @@ pub mod Test04 {
             BasicDuckDB.DuckDBDriver.execInMemoryDuckDBConnection(() -> {
                 BasicDuckDB.DuckDBConnection.scalarQuery(
                     "SELECT 42;",
-                    () -> { let i = rowReader(); println("Test04: ${i} ") }) |> println
+                    row -> { let i = rowReader(row); println("Test04: ${i} ") }) |> println
                 });
                 true
         } with BasicDuckDB.DuckDBDriver.runDuckDBDriver;
         assertEq(expected = Ok(true), answer)
 
 
-    def rowReader(): Int32 \ RowReader + Alt = 
-        EffectExtras.Alt.withDefault(_ -> RowReader.getInt32ByIndex(0), 0)
+    def rowReader(row: ResultSetRow): Int32 \ Fail = 
+        BasicDuckDB.RowReader.runRowReader(row, _ -> {
+            EffectExtras.Alt.withDefault(_ -> RowReader.getInt32ByIndex(0), 0)
+        })
 
 }
 

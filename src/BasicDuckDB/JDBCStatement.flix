@@ -151,9 +151,9 @@ pub mod BasicDuckDB.JDBCStatement {
         handle(stmt, f)()
 
     pub def scalarQuery(sql: String, 
-                            f: Unit -> a \ ef): a \ {ef + Fail + JDBCStatement} - DuckDBResultSet - RowReaderWithAlt = 
+                            f: ResultSetRow -> a \ ef): a \ ef + Fail + JDBCStatement - DuckDBResultSet = 
         let results = JDBCStatement.executeQuery(sql);
-        let ans = BasicDuckDB.DuckDBResultSet.runDuckDBResultSet(results, _ -> BasicDuckDB.DuckDBResultSet.execReadRow(f));
+        let ans = BasicDuckDB.DuckDBResultSet.firstResult(f, results);
         JDBCStatement.closeResultSet(results);
         ans
 

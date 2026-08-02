@@ -24,7 +24,7 @@ pub mod BasicDuckDB.DuckDBConnection {
     use BasicDuckDB.DuckDBPreparedStatement.DuckDBPreparedStatement
     use BasicDuckDB.DuckDBResultSet.DuckDBResultSet
     use BasicDuckDB.JDBCStatement
-    use BasicDuckDB.RowReader.RowReaderWithAlt
+    // use BasicDuckDB.RowReader.RowReaderWithAlt
     use BasicDuckDB.DuckDBScalarFunctionBuilder.DuckDBScalarFunctionBuilder
 
     import java.sql.{Connection => JConnection}
@@ -267,7 +267,7 @@ pub mod BasicDuckDB.DuckDBConnection {
         let conn = DuckDBConnection.askDuckDBConnectionHandle();
         BasicDuckDB.DuckDBScalarFunctionBuilder.runDuckDBScalarFunctionBuilder(conn, f)
         
-    pub def scalarQuery(sql: String, f: Unit -> a \ ef): a \ {ef + Fail + DuckDBConnection} - RowReaderWithAlt - JDBCStatement - DuckDBResultSet  = 
+    pub def scalarQuery(sql: String, f: ResultSetRow -> a \ ef): a \ {ef + Fail + DuckDBConnection} - JDBCStatement - DuckDBResultSet  = 
         execStatement(_ -> BasicDuckDB.JDBCStatement.scalarQuery(sql, f))
 
     // cf. ```f: (<row>, a) -> a``` but <row> is implicit
