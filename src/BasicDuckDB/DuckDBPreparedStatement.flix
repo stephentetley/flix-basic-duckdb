@@ -21,7 +21,6 @@ pub mod BasicDuckDB.DuckDBPreparedStatement {
     use EffectExtras.Fail.Fail
     use BasicDuckDB.{PreparedStatement, ResultSet, ResultSetRow}
     use BasicDuckDB.DuckDBResultSet.DuckDBResultSet
-    use BasicDuckDB.RowReader.RowReaderWithAlt
     
 
     import java.sql.{SQLException => JSQLException}
@@ -211,9 +210,9 @@ pub mod BasicDuckDB.DuckDBPreparedStatement {
                                         f: Unit -> a \ ef): a \ ef + Fail - DuckDBPreparedStatement =
         handle(stmt, f)() 
 
-    pub def scalarQuery(f: Unit -> a \ ef): a \ {ef + Fail + DuckDBPreparedStatement} - DuckDBResultSet - RowReaderWithAlt = 
+    pub def scalarQuery(f: ResultSetRow -> a \ ef): a \ {ef + Fail + DuckDBPreparedStatement} - DuckDBResultSet = 
         let results = DuckDBPreparedStatement.executeQuery();
-        let ans = BasicDuckDB.DuckDBResultSet.runDuckDBResultSet(results, _ -> BasicDuckDB.DuckDBResultSet.execReadRow(f));
+        let ans = BasicDuckDB.DuckDBResultSet.firstResult(f, results);
         DuckDBPreparedStatement.closeResultSet(results);
         ans
 

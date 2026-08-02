@@ -49,7 +49,7 @@ pub mod BasicDuckDB.RowReader {
         def getStructByIndex(ix: Int32): StructHandle
     }
 
-    pub type alias RowReaderWithAlt = RowReader + Alt
+    // pub type alias RowReaderWithAlt = RowReader + Alt
 
 
 

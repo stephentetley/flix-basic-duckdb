@@ -24,7 +24,6 @@ pub mod BasicDuckDB.JDBCStatement {
     use EffectExtras.Fail.Fail
     use BasicDuckDB.DuckDBResultSet.DuckDBResultSet
     use BasicDuckDB.{ResultSet, ResultSetRow, Statement}
-    use BasicDuckDB.RowReader.RowReaderWithAlt
 
     import java.sql.{SQLException => JSQLException}
     import java.sql.{Statement => JStatement}

@@ -18,11 +18,12 @@
 
 
 pub mod BasicDuckDB.DuckDBResultSet {
+    use BasicDuckDB.RowReader
     
 
     use EffectExtras.Fail.Fail
+    use EffectExtras.Alt.Alt
     use BasicDuckDB.{ResultSet, ResultSetRow}
-    use BasicDuckDB.RowReader.RowReaderWithAlt
     use BasicDuckDB.JDBC.ResultSet.{ResultSetHandle}
 
 
@@ -54,12 +55,6 @@ pub mod BasicDuckDB.DuckDBResultSet {
         def getFetchSize(): Int32
     }
 
-
-
-    pub def castResultSetHandle(results: ResultSetHandle): ResultSet = 
-        let ResultSetHandle.ResultSetHandle(results1) = results;
-        let results2 = unchecked_cast(results1 as JDuckDBResultSet);
-        ToFlix.toFlix(results2)
 
         
     pub def handle(results: ResultSet, 
@@ -196,7 +191,7 @@ pub mod BasicDuckDB.DuckDBResultSet {
         handle(results, f)()
 
 
-    pub def execReadRow(reader: Unit -> a \ ef): a \ {ef + Fail + DuckDBResultSet} - RowReaderWithAlt = 
+    pub def execReadRow(reader: Unit -> a \ ef): a \ ef + Fail + DuckDBResultSet - RowReader - Alt = 
         let row = DuckDBResultSet.getResultSetRow();
         run {
             reader()
