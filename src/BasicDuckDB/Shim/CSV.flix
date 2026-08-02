@@ -31,29 +31,23 @@ pub mod BasicDuckDB.Shim.CSV {
     pub def forEach(reader: ResultSetRow -> Unit \ ef, 
                     file_name: String, 
                     opts: List[CSVOption]): Result[IoError, Unit] \ {IO + ef} - DuckDBDriver - Fail - DuckDBConnection - JDBCStatement - DuckDBResultSet = 
-        let url = "jdbc:duckdb:";
         let sql = "SELECT * FROM read_csv('${file_name}'${printOptions(opts)});";
         run {
-            BasicDuckDB.DuckDBDriver.execDuckDBConnection(url, conn -> {
-                BasicDuckDB.DuckDBConnection.runDuckDBConnection(conn, () -> {
-                    BasicDuckDB.DuckDBConnection.forEachQuery(sql, reader)
-                })
-            }) 
-        } with BasicDuckDB.DuckDBDriver.runDuckDBDriver 
+            BasicDuckDB.JDBCStatement.forEachQuery(sql, reader)
+        } with BasicDuckDB.JDBCStatement.runJDBCStatement1
+          with BasicDuckDB.DuckDBConnection.runInMemoryDuckDBConnection
+          with BasicDuckDB.DuckDBDriver.runDuckDBDriver 
     
     pub def fold(reader: ResultSetRow -> a -> a \ ef, 
                     s: a, 
                     file_name: String, 
                     opts: List[CSVOption]): Result[IoError, a] \ {IO + ef} - DuckDBDriver - Fail - DuckDBConnection - JDBCStatement - DuckDBResultSet = 
-        let url = "jdbc:duckdb:";
         let sql = "SELECT * FROM read_csv('${file_name}'${printOptions(opts)});";
         run {
-            BasicDuckDB.DuckDBDriver.execDuckDBConnection(url, conn -> {
-                BasicDuckDB.DuckDBConnection.runDuckDBConnection(conn, () -> {
-                    BasicDuckDB.DuckDBConnection.foldQuery(sql, reader, s)
-                })
-            }) 
-        } with BasicDuckDB.DuckDBDriver.runDuckDBDriver 
+            BasicDuckDB.JDBCStatement.foldQuery(sql, reader, s)
+        } with BasicDuckDB.JDBCStatement.runJDBCStatement1
+          with BasicDuckDB.DuckDBConnection.runInMemoryDuckDBConnection
+          with BasicDuckDB.DuckDBDriver.runDuckDBDriver 
 
     pub def loadFacts(reader: ResultSetRow -> #{ | r } \  ef, 
                         file_name: String, 
@@ -65,33 +59,23 @@ pub mod BasicDuckDB.Shim.CSV {
                         file_name: String,
                         opts: List[CSVOption], 
                         appender: a -> Unit \ ef,
-                        t: t): Result[IoError, Unit] \ {ef + IO + ForEach.Aef[t]} - Fail - DuckDBDriver - DuckDBConnection - DuckDBAppender with ForEach[t]  where ForEach.Elm[t] ~ a = 
+                        t: t): Result[IoError, Unit] \ {ef + IO + ForEach.Aef[t]} - Fail - DuckDBDriver - DuckDBConnection - JDBCStatement - DuckDBAppender with ForEach[t]  where ForEach.Elm[t] ~ a = 
         let opts1 = match opts {
             case Nil => ""
             case _   => " (${printOptions(opts)})"
         };
         let sql = "COPY ${tableSpec#schema_name}.${tableSpec#table_name} TO '${file_name}'${opts1};";
         run {
-            BasicDuckDB.DuckDBDriver.execInMemoryDuckDBConnection(conn -> {
-                BasicDuckDB.DuckDBConnection.runDuckDBConnection(conn, () -> {
-                    BasicDuckDB.DuckDBConnection.execStatement(stmt -> {
-                        BasicDuckDB.JDBCStatement.runJDBCStatement(stmt, () -> {
-                            discard JDBCStatement.execute(tableSpec#create_table)
-                        })
-                    });
-                    BasicDuckDB.DuckDBConnection.execDuckDBAppender(
-                        tableSpec#schema_name, 
-                        tableSpec#table_name, 
-                        () -> foreach (item <- t) appender(item) 
-                    );
-                    BasicDuckDB.DuckDBConnection.execStatement(stmt -> {
-                        BasicDuckDB.JDBCStatement.runJDBCStatement(stmt, () -> {
-                            discard JDBCStatement.execute(sql)
-                        })
-                    })
-                })
-            })
-        } with BasicDuckDB.DuckDBDriver.runDuckDBDriver
+            discard JDBCStatement.execute(tableSpec#create_table);
+            BasicDuckDB.DuckDBConnection.execDuckDBAppender(
+                tableSpec#schema_name, 
+                tableSpec#table_name, 
+                () -> foreach (item <- t) appender(item) 
+            );
+            discard JDBCStatement.execute(sql)
+        } with BasicDuckDB.JDBCStatement.runJDBCStatement1
+          with BasicDuckDB.DuckDBConnection.runInMemoryDuckDBConnection
+          with BasicDuckDB.DuckDBDriver.runDuckDBDriver
 
 
 }

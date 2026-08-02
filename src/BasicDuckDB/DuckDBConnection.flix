@@ -232,7 +232,7 @@ pub mod BasicDuckDB.DuckDBConnection {
     }
     
 
-    
+
     pub def runDuckDBConnection(conn: Connection, 
                                 f: Unit -> a \ ef): a \ ef + Fail - DuckDBConnection = 
         handle(conn, f)()
@@ -245,18 +245,20 @@ pub mod BasicDuckDB.DuckDBConnection {
         DuckDBDriver.closeConnection(conn);
         ans
 
-    
-    pub def execStatement(f: Statement -> a \ ef): a \ {ef + DuckDBConnection}  = 
-        let stmt = DuckDBConnection.createStatement();
-        let ans = f(stmt);
-        DuckDBConnection.closeStatement(stmt);
-        ans
-    
-    pub def execStatement1(f: Unit -> a \ ef + JDBCStatement): a \ ef + Fail + DuckDBConnection - JDBCStatement  = 
-        let stmt = DuckDBConnection.createStatement();
-        let ans = BasicDuckDB.JDBCStatement.runJDBCStatement(stmt, f);
-        DuckDBConnection.closeStatement(stmt);
-        ans
+        
+    pub def runInMemoryDuckDBConnection(f: Unit -> a \ ef): a \ ef + Fail + DuckDBDriver - DuckDBConnection = 
+        runDuckDBConnection1("jdbc:duckdb:", f)
+
+    pub def runFileBackedDuckDBConnection(filePath: String, 
+                                            f: Unit -> a \ ef): a \ ef + Fail + DuckDBDriver - DuckDBConnection =
+        runDuckDBConnection1("jdbc:duckdb:${filePath}", f)
+
+    // pub def execStatement(f: Statement -> a \ ef): a \ {ef + DuckDBConnection}  = 
+    //     let stmt = DuckDBConnection.createStatement();
+    //     let ans = f(stmt);
+    //     DuckDBConnection.closeStatement(stmt);
+    //     ans
+
 
     pub def execDuckDBPreparedStatement(sql: String, 
                                         f: Unit -> a \ ef): a \ {ef + Fail + DuckDBConnection} - DuckDBPreparedStatement = 
@@ -281,29 +283,6 @@ pub mod BasicDuckDB.DuckDBConnection {
         let conn = DuckDBConnection.askDuckDBConnectionHandle();
         BasicDuckDB.DuckDBScalarFunctionBuilder.runDuckDBScalarFunctionBuilder(conn, f)
         
-    pub def scalarQuery(sql: String, f: ResultSetRow -> a \ ef): a \ {ef + Fail + DuckDBConnection} - JDBCStatement - DuckDBResultSet  = 
-        execStatement(stmt -> {
-            BasicDuckDB.JDBCStatement.runJDBCStatement(stmt, () -> {
-                BasicDuckDB.JDBCStatement.scalarQuery(sql, f)
-            })
-        })
-
-    // cf. ```f: (<row>, a) -> a``` but <row> is implicit
-    pub def foldQuery(sql: String, f: ResultSetRow -> a -> a \ ef, s: a): a \ ef + Fail + DuckDBConnection - JDBCStatement - DuckDBResultSet  = 
-        execStatement(stmt -> {
-            BasicDuckDB.JDBCStatement.runJDBCStatement(stmt, () -> {
-                BasicDuckDB.JDBCStatement.foldQuery(sql, f, s)
-            })
-        })
-
-
-    pub def forEachQuery(sql: String, f: ResultSetRow -> Unit \ ef): Unit \ ef + Fail + DuckDBConnection - JDBCStatement - DuckDBResultSet = 
-        execStatement(stmt -> {
-            BasicDuckDB.JDBCStatement.runJDBCStatement(stmt, () -> {
-                BasicDuckDB.JDBCStatement.forEachQuery(sql, f)
-            })
-        })
-
     
 
 }

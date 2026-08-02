@@ -30,12 +30,12 @@ pub mod Test02 {
                 List.forEach(xy -> { let (x, y) = xy; appender(x, y) }, 
                                     List#{("DuckDB", 2019), ("SQLite", 2000)})
             } with BasicDuckDB.DuckDBAppender.runDuckDBAppender1("facts", "databases");
-            BasicDuckDB.DuckDBConnection.forEachQuery("SELECT * FROM facts.databases;",
+            BasicDuckDB.JDBCStatement.forEachQuery("SELECT * FROM facts.databases;",
                                                         row -> BasicDuckDB.RowReader.runRowReader(row, rowReader)
                                                         );
             true
         } with BasicDuckDB.JDBCStatement.runJDBCStatement1
-          with BasicDuckDB.DuckDBConnection.runDuckDBConnection1("jdbc:duckdb:")
+          with BasicDuckDB.DuckDBConnection.runInMemoryDuckDBConnection
           with BasicDuckDB.DuckDBDriver.runDuckDBDriver;
         Assert.assertEq(expected = Ok(true), answer)
         

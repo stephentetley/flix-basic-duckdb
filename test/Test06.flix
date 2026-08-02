@@ -17,28 +17,23 @@ pub mod Test06 {
 
     @Test
     def test01(): Unit \ {Assert + IO} =
-        let answer = 
-            forM (
-                url <- Ok("jdbc:duckdb:");
-                _   <- run { 
-                        BasicDuckDB.DuckDBDriver.execDuckDBConnection(url, conn -> {
-                            BasicDuckDB.DuckDBConnection.runDuckDBConnection(conn, _ -> {
-                                BasicDuckDB.DuckDBConnection.execDuckDBScalarFunctionBuilder(buildFun1);
-                                BasicDuckDB.DuckDBConnection.execDuckDBScalarFunctionBuilder(buildFun2);
-                                BasicDuckDB.DuckDBConnection.execDuckDBScalarFunctionBuilder(buildFun3);
-                                BasicDuckDB.DuckDBConnection.forEachQuery(
-                                    "SELECT flix_add_one(42);", 
-                                    row -> { let i = rowReaderI(row); println("Test06: ${i} ") }) |> println;
-                                BasicDuckDB.DuckDBConnection.forEachQuery(
-                                    "SELECT flix_add_n(42, 100);",
-                                    row -> { let i = rowReaderI(row); println("Test06: ${i} ") }) |> println;
-                                BasicDuckDB.DuckDBConnection.forEachQuery(
-                                    "SELECT flix_get_ten();",
-                                    row -> { let s = rowReaderS(row); println("Test06 (ten): ${s} ") }) |> println
-                            })
-                        })
-                    } with BasicDuckDB.DuckDBDriver.runDuckDBDriver 
-            ) yield true;
+        let answer = run { 
+            BasicDuckDB.DuckDBConnection.execDuckDBScalarFunctionBuilder(buildFun1);
+            BasicDuckDB.DuckDBConnection.execDuckDBScalarFunctionBuilder(buildFun2);
+            BasicDuckDB.DuckDBConnection.execDuckDBScalarFunctionBuilder(buildFun3);
+            BasicDuckDB.JDBCStatement.forEachQuery(
+                    "SELECT flix_add_one(42);", 
+                    row -> { let i = rowReaderI(row); println("Test06: ${i} ") }) |> println;
+            BasicDuckDB.JDBCStatement.forEachQuery(
+                    "SELECT flix_add_n(42, 100);",
+                    row -> { let i = rowReaderI(row); println("Test06: ${i} ") }) |> println;
+            BasicDuckDB.JDBCStatement.forEachQuery(
+                    "SELECT flix_get_ten();",
+                    row -> { let s = rowReaderS(row); println("Test06 (ten): ${s} ") }) |> println;
+            true
+        } with BasicDuckDB.JDBCStatement.runJDBCStatement1
+          with BasicDuckDB.DuckDBConnection.runInMemoryDuckDBConnection
+          with BasicDuckDB.DuckDBDriver.runDuckDBDriver;
         assertEq(expected = Ok(true), answer)
 
 

@@ -1,5 +1,5 @@
 ### v0.8.0
-   API changes.
+   Major API changes.
    Effects reworked for better nesting.
 
 ### v0.7.1

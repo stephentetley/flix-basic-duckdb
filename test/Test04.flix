@@ -18,15 +18,14 @@ pub mod Test04 {
     @Test
     def test01(): Unit \ {Assert + IO} =
         let answer = run { 
-            BasicDuckDB.DuckDBDriver.execInMemoryDuckDBConnection(conn -> {
-                BasicDuckDB.DuckDBConnection.runDuckDBConnection(conn, () -> {
-                    BasicDuckDB.DuckDBConnection.scalarQuery(
-                        "SELECT 42;",
-                        row -> { let i = rowReader(row); println("Test04: ${i} ") }) |> println
-                    })
-                });
+            BasicDuckDB.JDBCStatement.scalarQuery(
+                "SELECT 42;",
+                row -> { let i = rowReader(row); println("Test04: ${i} ") }
+            ) |> println;
             true
-        } with BasicDuckDB.DuckDBDriver.runDuckDBDriver;
+        } with BasicDuckDB.JDBCStatement.runJDBCStatement1
+          with BasicDuckDB.DuckDBConnection.runInMemoryDuckDBConnection
+          with BasicDuckDB.DuckDBDriver.runDuckDBDriver;
         assertEq(expected = Ok(true), answer)
 
 

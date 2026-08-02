@@ -31,27 +31,22 @@ pub mod BasicDuckDB.Shim.XLSX {
                     opts: List[XLSXOption]): Result[IoError, Unit] \ IO + ef - DuckDBConnection - Fail - DuckDBDriver - DuckDBResultSet - JDBCStatement = 
         let sql = "SELECT * FROM read_xlsx('${file_name}'${printOptions(opts)});";
         run {
-            BasicDuckDB.DuckDBDriver.execInMemoryDuckDBConnection(conn -> {
-                BasicDuckDB.DuckDBConnection.runDuckDBConnection(conn, () -> {
-                    BasicDuckDB.DuckDBConnection.forEachQuery(sql, reader)
-                }) 
-            })
-        } with BasicDuckDB.DuckDBDriver.runDuckDBDriver
+            BasicDuckDB.JDBCStatement.forEachQuery(sql, reader)
+        } with BasicDuckDB.JDBCStatement.runJDBCStatement1
+          with BasicDuckDB.DuckDBConnection.runInMemoryDuckDBConnection
+          with BasicDuckDB.DuckDBDriver.runDuckDBDriver
     
 
     pub def fold(reader: ResultSetRow -> a -> a \ ef, 
                     s: a, 
                     file_name: String, 
                     opts: List[XLSXOption]): Result[IoError, a] \ IO + ef - DuckDBConnection - Fail - DuckDBDriver - DuckDBResultSet - JDBCStatement = 
-        let url = "jdbc:duckdb:";
         let sql = "SELECT * FROM read_xlsx('${file_name}')${printOptions(opts)};";
         run {
-            BasicDuckDB.DuckDBDriver.execDuckDBConnection(url, conn -> {
-                BasicDuckDB.DuckDBConnection.runDuckDBConnection(conn, () -> {
-                    BasicDuckDB.DuckDBConnection.foldQuery(sql, reader, s)
-                }) 
-            })
-        }  with BasicDuckDB.DuckDBDriver.runDuckDBDriver 
+            BasicDuckDB.JDBCStatement.foldQuery(sql, reader, s)
+        } with BasicDuckDB.JDBCStatement.runJDBCStatement1
+          with BasicDuckDB.DuckDBConnection.runInMemoryDuckDBConnection
+          with BasicDuckDB.DuckDBDriver.runDuckDBDriver 
 
 
     pub def loadFacts(reader: ResultSetRow -> #{ | r } \ ef, 

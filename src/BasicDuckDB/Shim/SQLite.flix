@@ -28,47 +28,33 @@ pub mod BasicDuckDB.Shim.SQLite {
     pub def forEach(reader: ResultSetRow -> Unit \ ef, 
                     file_name: String, 
                     table_name: {table_name = String}): Result[IoError, Unit] \ {IO + ef} - DuckDBDriver - Fail - DuckDBConnection - JDBCStatement - DuckDBResultSet  = 
-        let url = "jdbc:duckdb:";
         let sql1 = "ATTACH '${file_name}' AS temp_sqlite_db (TYPE sqlite); USE temp_sqlite_db;";
         let sql2 = "SELECT * FROM temp_sqlite_db.${table_name#table_name};";
         let sql3 = "USE memory; DETACH temp_sqlite_db;";
         run {
-            BasicDuckDB.DuckDBDriver.execDuckDBConnection(url, conn -> {
-                BasicDuckDB.DuckDBConnection.runDuckDBConnection(conn, () -> {
-                    BasicDuckDB.DuckDBConnection.execStatement(stmt -> 
-                        discard BasicDuckDB.JDBCStatement.runJDBCStatement(stmt, () -> JDBCStatement.executeUpdate(sql1))
-                    );
-                    let ans = BasicDuckDB.DuckDBConnection.forEachQuery(sql2, reader);
-                    BasicDuckDB.DuckDBConnection.execStatement(stmt -> 
-                        BasicDuckDB.JDBCStatement.runJDBCStatement(stmt, () -> discard JDBCStatement.executeUpdate(sql3))
-                    );
-                    ans
-                })
-            }) 
-        }  with BasicDuckDB.DuckDBDriver.runDuckDBDriver 
+            discard JDBCStatement.executeUpdate(sql1);
+            let ans = BasicDuckDB.JDBCStatement.forEachQuery(sql2, reader);
+            discard JDBCStatement.executeUpdate(sql3);
+            ans
+        } with BasicDuckDB.JDBCStatement.runJDBCStatement1
+          with BasicDuckDB.DuckDBConnection.runInMemoryDuckDBConnection
+          with BasicDuckDB.DuckDBDriver.runDuckDBDriver 
     
     pub def fold(reader: ResultSetRow -> a -> a \ ef, 
                     s: a, 
                     file_name: String, 
                     table_name: {table_name = String}): Result[IoError, a] \ {IO + ef} - DuckDBDriver - Fail - DuckDBConnection - JDBCStatement - DuckDBResultSet = 
-        let url = "jdbc:duckdb:";
         let sql1 = "ATTACH '${file_name}' AS temp_sqlite_db (TYPE sqlite); USE temp_sqlite_db;";
         let sql2 = "SELECT * FROM temp_sqlite_db.${table_name#table_name};";
         let sql3 = "USE memory; DETACH temp_sqlite_db;";
         run {
-            BasicDuckDB.DuckDBDriver.execDuckDBConnection(url, conn -> {
-                BasicDuckDB.DuckDBConnection.runDuckDBConnection(conn, () -> {
-                    BasicDuckDB.DuckDBConnection.execStatement(stmt -> 
-                        discard BasicDuckDB.JDBCStatement.runJDBCStatement(stmt, () -> JDBCStatement.executeUpdate(sql1))
-                    );
-                    let ans = BasicDuckDB.DuckDBConnection.foldQuery(sql2, reader, s);
-                    BasicDuckDB.DuckDBConnection.execStatement(stmt -> 
-                        discard BasicDuckDB.JDBCStatement.runJDBCStatement(stmt, () ->  JDBCStatement.executeUpdate(sql3))
-                    );
-                    ans
-                })
-            }) 
-        }  with BasicDuckDB.DuckDBDriver.runDuckDBDriver 
+            discard JDBCStatement.executeUpdate(sql1);
+            let ans = BasicDuckDB.JDBCStatement.foldQuery(sql2, reader, s);
+            discard JDBCStatement.executeUpdate(sql3);
+            ans
+        } with BasicDuckDB.JDBCStatement.runJDBCStatement1
+          with BasicDuckDB.DuckDBConnection.runInMemoryDuckDBConnection
+          with BasicDuckDB.DuckDBDriver.runDuckDBDriver 
 
 
     pub def loadFacts(reader: ResultSetRow -> #{ | r } \ ef, 
