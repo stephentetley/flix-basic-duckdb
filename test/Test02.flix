@@ -26,9 +26,11 @@ pub mod Test02 {
         let answer:Result[IoError, Bool] = run {
             BasicDuckDB.DuckDBDriver.execInMemoryDuckDBConnection(conn -> {
                 BasicDuckDB.DuckDBConnection.runDuckDBConnection(conn, () -> {
-                    BasicDuckDB.DuckDBConnection.execStatement(() -> {
-                        let a1 = JDBCStatement.execute("CREATE SCHEMA IF NOT EXISTS facts;CREATE TABLE IF NOT EXISTS facts.databases (name VARCHAR NOT NULL, year INTEGER, PRIMARY KEY(name));");
-                        println("Tables created: ${a1}")
+                    BasicDuckDB.DuckDBConnection.execStatement(stmt -> {
+                        BasicDuckDB.JDBCStatement.runJDBCStatement(stmt, () -> {
+                            let a1 = JDBCStatement.execute("CREATE SCHEMA IF NOT EXISTS facts;CREATE TABLE IF NOT EXISTS facts.databases (name VARCHAR NOT NULL, year INTEGER, PRIMARY KEY(name));");
+                            println("Tables created: ${a1}")
+                        })
                     });
                     BasicDuckDB.DuckDBConnection.execDuckDBAppender("facts", "databases", 
                         () -> List.forEach(xy -> { let (x, y) = xy; appender(x, y) }, 

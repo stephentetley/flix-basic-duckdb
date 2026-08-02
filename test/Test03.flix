@@ -23,9 +23,11 @@ pub mod Test03 {
         let answer = run {
             BasicDuckDB.DuckDBDriver.execInMemoryDuckDBConnection(conn -> {
                 BasicDuckDB.DuckDBConnection.runDuckDBConnection(conn, () -> {
-                    BasicDuckDB.DuckDBConnection.execStatement(() -> {
-                        discard JDBCStatement.executeUpdate("CREATE SCHEMA IF NOT EXISTS facts;");
-                        discard JDBCStatement.executeUpdate("CREATE TABLE IF NOT EXISTS facts.databases (name VARCHAR NOT NULL, year INTEGER, PRIMARY KEY(name));")
+                    BasicDuckDB.DuckDBConnection.execStatement(stmt -> {
+                        BasicDuckDB.JDBCStatement.runJDBCStatement(stmt, () -> {
+                            discard JDBCStatement.executeUpdate("CREATE SCHEMA IF NOT EXISTS facts;");
+                            discard JDBCStatement.executeUpdate("CREATE TABLE IF NOT EXISTS facts.databases (name VARCHAR NOT NULL, year INTEGER, PRIMARY KEY(name));")
+                        })
                     });
                     BasicDuckDB.DuckDBConnection.execDuckDBAppender("facts", 
                         "databases", 

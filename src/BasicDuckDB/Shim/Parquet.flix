@@ -76,17 +76,21 @@ pub mod BasicDuckDB.Shim.Parquet {
         run {
             BasicDuckDB.DuckDBDriver.execInMemoryDuckDBConnection(conn -> {
                 BasicDuckDB.DuckDBConnection.runDuckDBConnection(conn, () -> {
-                    BasicDuckDB.DuckDBConnection.execStatement(() -> 
-                        discard JDBCStatement.execute(tableSpec#create_table)
-                    );
+                    BasicDuckDB.DuckDBConnection.execStatement(stmt -> {
+                        BasicDuckDB.JDBCStatement.runJDBCStatement(stmt, () -> {
+                            discard JDBCStatement.execute(tableSpec#create_table)
+                        })
+                    });
                     BasicDuckDB.DuckDBConnection.execDuckDBAppender(
                         tableSpec#schema_name, 
                         tableSpec#table_name, 
                         () -> foreach (item <- t) appender(item) 
                     );
-                    BasicDuckDB.DuckDBConnection.execStatement(() -> 
-                        discard JDBCStatement.execute(sql)
-                    )
+                    BasicDuckDB.DuckDBConnection.execStatement(stmt -> {
+                        BasicDuckDB.JDBCStatement.runJDBCStatement(stmt, () -> {
+                            discard JDBCStatement.execute(sql)
+                        })
+                    })
                 })
             })
         } with BasicDuckDB.DuckDBDriver.runDuckDBDriver

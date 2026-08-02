@@ -35,9 +35,13 @@ pub mod BasicDuckDB.Shim.SQLite {
         run {
             BasicDuckDB.DuckDBDriver.execDuckDBConnection(url, conn -> {
                 BasicDuckDB.DuckDBConnection.runDuckDBConnection(conn, () -> {
-                    BasicDuckDB.DuckDBConnection.execStatement(() -> discard JDBCStatement.executeUpdate(sql1));
+                    BasicDuckDB.DuckDBConnection.execStatement(stmt -> 
+                        discard BasicDuckDB.JDBCStatement.runJDBCStatement(stmt, () -> JDBCStatement.executeUpdate(sql1))
+                    );
                     let ans = BasicDuckDB.DuckDBConnection.forEachQuery(sql2, reader);
-                    BasicDuckDB.DuckDBConnection.execStatement(() -> discard JDBCStatement.executeUpdate(sql3));
+                    BasicDuckDB.DuckDBConnection.execStatement(stmt -> 
+                        BasicDuckDB.JDBCStatement.runJDBCStatement(stmt, () -> discard JDBCStatement.executeUpdate(sql3))
+                    );
                     ans
                 })
             }) 
@@ -54,9 +58,13 @@ pub mod BasicDuckDB.Shim.SQLite {
         run {
             BasicDuckDB.DuckDBDriver.execDuckDBConnection(url, conn -> {
                 BasicDuckDB.DuckDBConnection.runDuckDBConnection(conn, () -> {
-                    BasicDuckDB.DuckDBConnection.execStatement(() -> discard JDBCStatement.executeUpdate(sql1));
+                    BasicDuckDB.DuckDBConnection.execStatement(stmt -> 
+                        discard BasicDuckDB.JDBCStatement.runJDBCStatement(stmt, () -> JDBCStatement.executeUpdate(sql1))
+                    );
                     let ans = BasicDuckDB.DuckDBConnection.foldQuery(sql2, reader, s);
-                    BasicDuckDB.DuckDBConnection.execStatement(() -> discard JDBCStatement.executeUpdate(sql3));
+                    BasicDuckDB.DuckDBConnection.execStatement(stmt -> 
+                        discard BasicDuckDB.JDBCStatement.runJDBCStatement(stmt, () ->  JDBCStatement.executeUpdate(sql3))
+                    );
                     ans
                 })
             }) 
