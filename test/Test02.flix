@@ -13,7 +13,7 @@ pub mod Test02 {
     use Fs.FileWrite
     use Fs.WriteFile
     
-    use BasicDuckDB.{DuckDBDriver, RunWithResource}
+    use BasicDuckDB.{DuckDBDriver}
     use BasicDuckDB.DuckDBConnection.DuckDBConnection
     use BasicDuckDB.DuckDBPreparedStatement
     use BasicDuckDB.DuckDBAppender.DuckDBAppender

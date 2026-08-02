@@ -113,12 +113,7 @@ pub mod BasicDuckDB.DuckDBDriver {
         DuckDBDriver.closeConnection(conn);
         ans
 
-    pub def execDuckDBConnection1(url: String, 
-                                f: Unit -> a \ ef + DuckDBConnection): a \ ef + DuckDBDriver + Fail - DuckDBConnection = 
-        let conn = DuckDBDriver.connect(url);
-        let ans = BasicDuckDB.DuckDBConnection.runDuckDBConnection(conn, f);
-        DuckDBDriver.closeConnection(conn);
-        ans
+
 
         
     pub def execInMemoryDuckDBConnection(f: Connection -> a \ ef): a \ ef + DuckDBDriver = 

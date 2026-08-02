@@ -231,6 +231,8 @@ pub mod BasicDuckDB.DuckDBConnection {
 
     }
     
+
+    
     pub def runDuckDBConnection(conn: Connection, 
                                 f: Unit -> a \ ef): a \ ef + Fail - DuckDBConnection = 
         handle(conn, f)()
