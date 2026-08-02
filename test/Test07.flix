@@ -7,7 +7,6 @@ pub mod Test07 {
     use BasicDuckDB.DuckDBAppender.DuckDBAppender
     use BasicDuckDB.RowReader.RowReaderWithAlt
     use BasicDuckDB.RowReader.RowReader
-    use BasicDuckDB.JDBC.Statement.Statement
     
     def makeTableSpec(): {create_table = String, schema_name = String, table_name = String} = 
         {create_table = "CREATE OR REPLACE TABLE main.t1(database VARCHAR, year INTEGER);", 

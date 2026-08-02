@@ -12,7 +12,6 @@ pub mod Test05 {
     use BasicDuckDB.RowReader.RowReader
 
 
-    use BasicDuckDB.JDBC.Statement.{Statement}
 
     @Test
     def test01(): Unit \ {Assert + IO} =

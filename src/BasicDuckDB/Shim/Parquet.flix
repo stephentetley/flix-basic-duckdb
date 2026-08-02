@@ -21,9 +21,9 @@ pub mod BasicDuckDB.Shim.Parquet {
     use BasicDuckDB.DuckDBDriver.DuckDBDriver
     use BasicDuckDB.DuckDBConnection.DuckDBConnection
     use BasicDuckDB.DuckDBResultSet.DuckDBResultSet
+    use BasicDuckDB.JDBCStatement.JDBCStatement
     use BasicDuckDB.RowReader.RowReaderWithAlt
     use BasicDuckDB.DuckDBAppender.DuckDBAppender
-    use BasicDuckDB.JDBC.Statement.Statement
     use BasicDuckDB.Shim.ParquetOption.ParquetOption
     use BasicDuckDB.Shim.Internal.Utils.{printOptions}
     
@@ -31,7 +31,7 @@ pub mod BasicDuckDB.Shim.Parquet {
 
     pub def forEach(reader: Unit -> Unit \ ef, 
                     file_name: String, 
-                    opts: List[ParquetOption]): Result[IoError, Unit] \ {IO + ef} - DuckDBDriver - Fail - DuckDBConnection - Statement - DuckDBResultSet - RowReaderWithAlt = 
+                    opts: List[ParquetOption]): Result[IoError, Unit] \ {IO + ef} - DuckDBDriver - Fail - DuckDBConnection - JDBCStatement - DuckDBResultSet - RowReaderWithAlt = 
         let url = "jdbc:duckdb:";
         let sql = "SELECT * FROM read_parquet('${file_name}'${printOptions(opts)});";
         run {
@@ -43,7 +43,7 @@ pub mod BasicDuckDB.Shim.Parquet {
     pub def fold(reader: a -> a \ ef, 
                     s: a, 
                     file_name: String, 
-                    opts: List[ParquetOption]): Result[IoError, a] \ {IO + ef} - DuckDBDriver - Fail - DuckDBConnection - Statement - DuckDBResultSet - RowReaderWithAlt = 
+                    opts: List[ParquetOption]): Result[IoError, a] \ {IO + ef} - DuckDBDriver - Fail - DuckDBConnection - JDBCStatement - DuckDBResultSet - RowReaderWithAlt = 
         let url = "jdbc:duckdb:";
         let sql = "SELECT * FROM read_parquet('${file_name}')${printOptions(opts)};";
         run {
@@ -55,7 +55,7 @@ pub mod BasicDuckDB.Shim.Parquet {
 
     pub def loadFacts(reader: Unit -> #{ | r } \ ef, 
                         file_name: String, 
-                        opts: List[ParquetOption]): Result[IoError, #{ | r }] \ {IO + ef} - DuckDBDriver - Fail - DuckDBConnection - Statement - DuckDBResultSet - RowReaderWithAlt = 
+                        opts: List[ParquetOption]): Result[IoError, #{ | r }] \ {IO + ef} - DuckDBDriver - Fail - DuckDBConnection - JDBCStatement - DuckDBResultSet - RowReaderWithAlt = 
         fold(acc -> { let row1 = reader(); acc <+> row1 }, #{}, file_name, opts)
 
 
@@ -72,7 +72,7 @@ pub def exportParquet(tableSpec: {create_table = String, schema_name = String, t
         run {
             BasicDuckDB.DuckDBDriver.execInMemoryDuckDBConnection(() -> {
                 BasicDuckDB.DuckDBConnection.execStatement(() -> 
-                    discard Statement.execute(tableSpec#create_table)
+                    discard JDBCStatement.execute(tableSpec#create_table)
                 );
                 BasicDuckDB.DuckDBConnection.execDuckDBAppender(
                     tableSpec#schema_name, 
@@ -80,7 +80,7 @@ pub def exportParquet(tableSpec: {create_table = String, schema_name = String, t
                     () -> foreach (item <- t) appender(item) 
                 );
                 BasicDuckDB.DuckDBConnection.execStatement(() -> 
-                    discard Statement.execute(sql)
+                    discard JDBCStatement.execute(sql)
                 )
             })
         } with BasicDuckDB.DuckDBDriver.runDuckDBDriver

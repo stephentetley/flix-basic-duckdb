@@ -22,15 +22,15 @@ pub mod BasicDuckDB.Shim.CSV {
     use BasicDuckDB.DuckDBAppender.DuckDBAppender
     use BasicDuckDB.DuckDBConnection.{DuckDBConnection}
     use BasicDuckDB.DuckDBResultSet.{DuckDBResultSet}
+    use BasicDuckDB.JDBCStatement.{JDBCStatement}
     use BasicDuckDB.RowReader.RowReaderWithAlt
-    use BasicDuckDB.JDBC.Statement.{Statement}
     use BasicDuckDB.Shim.CSVOption.CSVOption
     use BasicDuckDB.Shim.Internal.Utils.{printOptions}
     
 
     pub def forEach(reader: Unit -> Unit \ ef, 
                     file_name: String, 
-                    opts: List[CSVOption]): Result[IoError, Unit] \ {IO + ef} - DuckDBDriver - Fail - DuckDBConnection - Statement - DuckDBResultSet - RowReaderWithAlt = 
+                    opts: List[CSVOption]): Result[IoError, Unit] \ {IO + ef} - DuckDBDriver - Fail - DuckDBConnection - JDBCStatement - DuckDBResultSet - RowReaderWithAlt = 
         let url = "jdbc:duckdb:";
         let sql = "SELECT * FROM read_csv('${file_name}'${printOptions(opts)});";
         run {
@@ -42,7 +42,7 @@ pub mod BasicDuckDB.Shim.CSV {
     pub def fold(reader: a -> a \ ef, 
                     s: a, 
                     file_name: String, 
-                    opts: List[CSVOption]): Result[IoError, a] \ {IO + ef} - DuckDBDriver - Fail - DuckDBConnection - Statement - DuckDBResultSet - RowReaderWithAlt = 
+                    opts: List[CSVOption]): Result[IoError, a] \ {IO + ef} - DuckDBDriver - Fail - DuckDBConnection - JDBCStatement - DuckDBResultSet - RowReaderWithAlt = 
         let url = "jdbc:duckdb:";
         let sql = "SELECT * FROM read_csv('${file_name}'${printOptions(opts)});";
         run {
@@ -53,7 +53,7 @@ pub mod BasicDuckDB.Shim.CSV {
 
     pub def loadFacts(reader: Unit -> #{ | r } \  ef, 
                         file_name: String, 
-                        opts: List[CSVOption]): Result[IoError, #{ | r }] \ {IO + ef} - Fail - DuckDBDriver - DuckDBConnection - Statement - DuckDBResultSet - RowReaderWithAlt =  
+                        opts: List[CSVOption]): Result[IoError, #{ | r }] \ {IO + ef} - Fail - DuckDBDriver - DuckDBConnection - JDBCStatement - DuckDBResultSet - RowReaderWithAlt =  
         fold(acc -> { let row1 = reader(); acc <+> row1 }, #{}, file_name, opts)
 
 
@@ -70,7 +70,7 @@ pub mod BasicDuckDB.Shim.CSV {
         run {
             BasicDuckDB.DuckDBDriver.execInMemoryDuckDBConnection(() -> {
                 BasicDuckDB.DuckDBConnection.execStatement(() -> 
-                    discard Statement.execute(tableSpec#create_table)
+                    discard JDBCStatement.execute(tableSpec#create_table)
                 );
                 BasicDuckDB.DuckDBConnection.execDuckDBAppender(
                     tableSpec#schema_name, 
@@ -78,7 +78,7 @@ pub mod BasicDuckDB.Shim.CSV {
                     () -> foreach (item <- t) appender(item) 
                 );
                 BasicDuckDB.DuckDBConnection.execStatement(() -> 
-                    discard Statement.execute(sql)
+                    discard JDBCStatement.execute(sql)
                 )
             })
         } with BasicDuckDB.DuckDBDriver.runDuckDBDriver

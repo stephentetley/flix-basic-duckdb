@@ -17,11 +17,11 @@
 
 
 
-pub mod BasicDuckDB.JDBC.Statement {
+pub mod BasicDuckDB.JDBCStatement {
     
     use EffectExtras.Fail.Fail
     use BasicDuckDB.DuckDBResultSet.DuckDBResultSet
-    use BasicDuckDB.ResultSet
+    use BasicDuckDB.{ResultSet, Statement}
     use BasicDuckDB.RowReader.RowReaderWithAlt
 
     import java.sql.{SQLException => JSQLException}
@@ -29,7 +29,7 @@ pub mod BasicDuckDB.JDBC.Statement {
     import org.duckdb.{DuckDBResultSet => JDuckDBResultSet}
 
 
-    pub eff Statement {
+    pub eff JDBCStatement {
         def getMaxRows(): Int32
         def setMaxRows(maxRows: Int32): Unit
         def cancel(): Unit
@@ -44,19 +44,18 @@ pub mod BasicDuckDB.JDBC.Statement {
         def isCloseOnCompletion(): Bool
     }
 
-    pub enum StatementHandle (JStatement)
     
-    pub def handle(stmt: StatementHandle, 
-                    f: a -> b \ ef): a -> b \ {ef + Fail} - Statement = x -> {
-        let StatementHandle.StatementHandle(jstmt) = stmt; 
+    pub def handle(stmt: Statement, 
+                    f: a -> b \ ef): a -> b \ {ef + Fail} - JDBCStatement = x -> {
+        let jstmt = ToJava.toJava(stmt); 
         run {
             f(x)
-        } with handler Statement {
+        } with handler JDBCStatement {
         
 
             def getMaxRows(k) = 
                 try {
-                    let ans = unsafe IO as {ef + Fail - Statement} { jstmt.getMaxRows() };
+                    let ans = unsafe IO as {ef + Fail - JDBCStatement} { jstmt.getMaxRows() };
                     k(ans)
                 } catch {
                     case ex: JSQLException => Fail.report(ex.getMessage())
@@ -64,7 +63,7 @@ pub mod BasicDuckDB.JDBC.Statement {
 
             def setMaxRows(maxRows, k) = 
                 try {
-                    unsafe IO as {ef + Fail - Statement} { jstmt.setMaxRows(maxRows) };
+                    unsafe IO as {ef + Fail - JDBCStatement} { jstmt.setMaxRows(maxRows) };
                     k()
                 } catch {
                     case ex: JSQLException => Fail.report(ex.getMessage())
@@ -72,7 +71,7 @@ pub mod BasicDuckDB.JDBC.Statement {
 
             def cancel(k) = 
                 try {
-                    unsafe IO as {ef + Fail - Statement} { jstmt.cancel() };
+                    unsafe IO as {ef + Fail - JDBCStatement} { jstmt.cancel() };
                     k()
                 } catch {
                     case ex: JSQLException => Fail.report(ex.getMessage())
@@ -80,7 +79,7 @@ pub mod BasicDuckDB.JDBC.Statement {
             
             def execute(sql, k) = 
                 try {
-                    let ans = unsafe IO as {ef + Fail - Statement} { jstmt.execute(sql) };
+                    let ans = unsafe IO as {ef + Fail - JDBCStatement} { jstmt.execute(sql) };
                     k(ans)
                 } catch {
                     case ex: JSQLException => Fail.report(ex.getMessage())
@@ -88,7 +87,7 @@ pub mod BasicDuckDB.JDBC.Statement {
             
             def executeUpdate(sql, k) = 
                 try {
-                    let ans = unsafe IO as {ef + Fail - Statement} { jstmt.executeUpdate(sql) };
+                    let ans = unsafe IO as {ef + Fail - JDBCStatement} { jstmt.executeUpdate(sql) };
                     k(ans)
                 } catch {
                     case ex: JSQLException => Fail.report(ex.getMessage())
@@ -96,7 +95,7 @@ pub mod BasicDuckDB.JDBC.Statement {
             
             def executeLargeUpdate(sql, k) = 
                 try {
-                    let ans = unsafe IO as {ef + Fail - Statement} { jstmt.executeLargeUpdate(sql) };
+                    let ans = unsafe IO as {ef + Fail - JDBCStatement} { jstmt.executeLargeUpdate(sql) };
                     k(ans)
                 } catch {
                     case ex: JSQLException => Fail.report(ex.getMessage())
@@ -104,7 +103,7 @@ pub mod BasicDuckDB.JDBC.Statement {
             
             def executeQuery(sql, k) = 
                 try {
-                    let jdbcResults = unsafe IO as {ef + Fail - Statement} { jstmt.executeQuery(sql) };
+                    let jdbcResults = unsafe IO as {ef + Fail - JDBCStatement} { jstmt.executeQuery(sql) };
                     let results = unchecked_cast(jdbcResults as JDuckDBResultSet);
                     k(ToFlix.toFlix(results))
                 } catch {
@@ -114,7 +113,7 @@ pub mod BasicDuckDB.JDBC.Statement {
             def closeResultSet(results, k) = 
                 try {
                     let jresults = ToJava.toJava(results);
-                    unsafe IO as {ef + Fail - Statement} { jresults.close() };
+                    unsafe IO as {ef + Fail - JDBCStatement} { jresults.close() };
                     k()
                 } catch {
                     case ex: JSQLException => Fail.report(ex.getMessage())
@@ -122,7 +121,7 @@ pub mod BasicDuckDB.JDBC.Statement {
 
             def enquoteLiteral(sql, k) = 
                 try {
-                    let ans = unsafe IO as {ef + Fail - Statement} { jstmt.enquoteLiteral(sql) };
+                    let ans = unsafe IO as {ef + Fail - JDBCStatement} { jstmt.enquoteLiteral(sql) };
                     k(ans)
                 } catch {
                     case ex: JSQLException => Fail.report(ex.getMessage())
@@ -130,7 +129,7 @@ pub mod BasicDuckDB.JDBC.Statement {
 
             def isClosed(k) = 
                 try {
-                    let ans = unsafe IO as {ef + Fail - Statement} { jstmt.isClosed() };
+                    let ans = unsafe IO as {ef + Fail - JDBCStatement} { jstmt.isClosed() };
                     k(ans)
                 } catch {
                     case ex: JSQLException => Fail.report(ex.getMessage())
@@ -138,7 +137,7 @@ pub mod BasicDuckDB.JDBC.Statement {
 
             def isCloseOnCompletion(k) = 
                 try {
-                    let ans = unsafe IO as {ef + Fail - Statement} { jstmt.isCloseOnCompletion() };
+                    let ans = unsafe IO as {ef + Fail - JDBCStatement} { jstmt.isCloseOnCompletion() };
                     k(ans)
                 } catch {
                     case ex: JSQLException => Fail.report(ex.getMessage())
@@ -146,27 +145,27 @@ pub mod BasicDuckDB.JDBC.Statement {
         }
     }
 
-    pub def runStatement(stmt: StatementHandle, f: Unit -> a \ ef): a \ {ef + Fail} - Statement = 
+    pub def runStatement(stmt: Statement, f: Unit -> a \ ef): a \ {ef + Fail} - JDBCStatement = 
         handle(stmt, f)()
 
     pub def scalarQuery(sql: String, 
-                            f: Unit -> a \ ef): a \ {ef + Fail + Statement} - DuckDBResultSet - RowReaderWithAlt = 
-        let results = Statement.executeQuery(sql);
+                            f: Unit -> a \ ef): a \ {ef + Fail + JDBCStatement} - DuckDBResultSet - RowReaderWithAlt = 
+        let results = JDBCStatement.executeQuery(sql);
         let ans = BasicDuckDB.DuckDBResultSet.runDuckDBResultSet(results, _ -> BasicDuckDB.DuckDBResultSet.execReadRow(f));
-        Statement.closeResultSet(results);
+        JDBCStatement.closeResultSet(results);
         ans
 
     pub def forEachQuery(sql: String, 
-                            f: Unit -> Unit \ ef): Unit \ {ef + Fail + Statement} - DuckDBResultSet - RowReaderWithAlt = 
-        let results = Statement.executeQuery(sql);
+                            f: Unit -> Unit \ ef): Unit \ {ef + Fail + JDBCStatement} - DuckDBResultSet - RowReaderWithAlt = 
+        let results = JDBCStatement.executeQuery(sql);
         let ans = BasicDuckDB.DuckDBResultSet.runDuckDBResultSet(results, _ -> BasicDuckDB.DuckDBResultSet.forEach(f));
-        Statement.closeResultSet(results);
+        JDBCStatement.closeResultSet(results);
         ans
 
-    pub def foldQuery(sql: String, f: s -> s \ ef, st: s): s \ {ef + Fail + Statement} - DuckDBResultSet - RowReaderWithAlt = 
-        let results = Statement.executeQuery(sql);
+    pub def foldQuery(sql: String, f: s -> s \ ef, st: s): s \ {ef + Fail + JDBCStatement} - DuckDBResultSet - RowReaderWithAlt = 
+        let results = JDBCStatement.executeQuery(sql);
         let ans = BasicDuckDB.DuckDBResultSet.runDuckDBResultSet(results, _ -> BasicDuckDB.DuckDBResultSet.fold(f, st));
-        Statement.closeResultSet(results);
+        JDBCStatement.closeResultSet(results);
         ans
 
 }

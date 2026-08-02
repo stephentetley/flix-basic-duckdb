@@ -19,12 +19,11 @@
 pub mod BasicDuckDB.DuckDBConnection {
 
     use EffectExtras.Fail.Fail
-    use BasicDuckDB.{Appender, Connection, PreparedStatement}
+    use BasicDuckDB.{Appender, Connection, PreparedStatement, Statement}
     use BasicDuckDB.DuckDBAppender.DuckDBAppender
     use BasicDuckDB.DuckDBPreparedStatement.DuckDBPreparedStatement
     use BasicDuckDB.DuckDBResultSet.DuckDBResultSet
-    use BasicDuckDB.JDBC.Statement.Statement
-    use BasicDuckDB.JDBC.Statement.StatementHandle
+    use BasicDuckDB.JDBCStatement
     use BasicDuckDB.RowReader.RowReaderWithAlt
     use BasicDuckDB.DuckDBScalarFunctionBuilder.DuckDBScalarFunctionBuilder
 
@@ -40,8 +39,8 @@ pub mod BasicDuckDB.DuckDBConnection {
         // `DuckDBConnectionHandle` should not be used in user code
         // It is a hack until we can run local effects polymorphically
         def askDuckDBConnectionHandle(): Connection
-        def createStatement(): StatementHandle
-        def closeStatement(stmt: StatementHandle): Unit
+        def createStatement(): Statement
+        def closeStatement(stmt: Statement): Unit
         def prepareStatement(sql: String): PreparedStatement
         def closePreparedStatement(stmt: PreparedStatement): Unit
         def createAppender(schemaName: String, tableName: String): Appender
@@ -73,14 +72,14 @@ pub mod BasicDuckDB.DuckDBConnection {
             def createStatement(k) = 
                 try {
                     let ans = unsafe IO as {ef + Fail - DuckDBConnection} { jconn.createStatement() };
-                    k(StatementHandle.StatementHandle(ans))
+                    k(ToFlix.toFlix(ans))
                 } catch {
                     case ex: JSQLException => Fail.report(ex.getMessage())
                 }
                 
             def closeStatement(stmt, k) = 
                 try {
-                    let StatementHandle.StatementHandle(jstmt) = stmt;
+                    let jstmt = ToJava.toJava(stmt);
                     unsafe IO as {ef + Fail - DuckDBConnection} { jstmt.close() };
                     k()
                 } catch {
@@ -237,11 +236,11 @@ pub mod BasicDuckDB.DuckDBConnection {
         handle(conn, f)()
 
     
-    pub def execStatement(f: Unit -> a \ ef): a \ {ef + Fail + DuckDBConnection} - Statement = 
+    pub def execStatement(f: Unit -> a \ ef): a \ {ef + Fail + DuckDBConnection} - JDBCStatement = 
         let stmt = DuckDBConnection.createStatement();
         let ans = run { 
             f() 
-        } with BasicDuckDB.JDBC.Statement.runStatement(stmt);
+        } with BasicDuckDB.JDBCStatement.runStatement(stmt);
         DuckDBConnection.closeStatement(stmt);
         ans
 
@@ -268,16 +267,16 @@ pub mod BasicDuckDB.DuckDBConnection {
         let conn = DuckDBConnection.askDuckDBConnectionHandle();
         BasicDuckDB.DuckDBScalarFunctionBuilder.runDuckDBScalarFunctionBuilder(conn, f)
         
-    pub def scalarQuery(sql: String, f: Unit -> a \ ef): a \ {ef + Fail + DuckDBConnection} - RowReaderWithAlt - Statement - DuckDBResultSet  = 
-        execStatement(_ -> BasicDuckDB.JDBC.Statement.scalarQuery(sql, f))
+    pub def scalarQuery(sql: String, f: Unit -> a \ ef): a \ {ef + Fail + DuckDBConnection} - RowReaderWithAlt - JDBCStatement - DuckDBResultSet  = 
+        execStatement(_ -> BasicDuckDB.JDBCStatement.scalarQuery(sql, f))
 
     // cf. ```f: (<row>, a) -> a``` but <row> is implicit
-    pub def foldQuery(sql: String, f: a -> a \ ef, s: a): a \ {ef + Fail + DuckDBConnection} - RowReaderWithAlt - Statement - DuckDBResultSet  = 
-        execStatement(_ -> BasicDuckDB.JDBC.Statement.foldQuery(sql, f, s))
+    pub def foldQuery(sql: String, f: a -> a \ ef, s: a): a \ {ef + Fail + DuckDBConnection} - RowReaderWithAlt - JDBCStatement - DuckDBResultSet  = 
+        execStatement(_ -> BasicDuckDB.JDBCStatement.foldQuery(sql, f, s))
 
 
-    pub def forEachQuery(sql: String, f: Unit -> Unit \ ef): Unit \ {ef + Fail + DuckDBConnection} - RowReaderWithAlt - Statement - DuckDBResultSet  = 
-        execStatement(_ -> BasicDuckDB.JDBC.Statement.forEachQuery(sql, f))
+    pub def forEachQuery(sql: String, f: Unit -> Unit \ ef): Unit \ {ef + Fail + DuckDBConnection} - RowReaderWithAlt - JDBCStatement - DuckDBResultSet  = 
+        execStatement(_ -> BasicDuckDB.JDBCStatement.forEachQuery(sql, f))
 
     
 

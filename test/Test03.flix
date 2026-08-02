@@ -7,9 +7,9 @@ pub mod Test03 {
     use BasicDuckDB.DuckDBConnection.DuckDBConnection
     use BasicDuckDB.DuckDBPreparedStatement
     use BasicDuckDB.DuckDBAppender.DuckDBAppender
+    use BasicDuckDB.JDBCStatement.JDBCStatement
     use BasicDuckDB.RowReader.RowReaderWithAlt
     use BasicDuckDB.RowReader.RowReader
-    use BasicDuckDB.JDBC.Statement.Statement
     
     use Fs.FileWrite
     use Fs.WriteFile
@@ -21,8 +21,8 @@ pub mod Test03 {
         let answer = run {
             BasicDuckDB.DuckDBDriver.execInMemoryDuckDBConnection(() -> {
                 BasicDuckDB.DuckDBConnection.execStatement(() -> {
-                    discard Statement.executeUpdate("CREATE SCHEMA IF NOT EXISTS facts;");
-                    discard Statement.executeUpdate("CREATE TABLE IF NOT EXISTS facts.databases (name VARCHAR NOT NULL, year INTEGER, PRIMARY KEY(name));")
+                    discard JDBCStatement.executeUpdate("CREATE SCHEMA IF NOT EXISTS facts;");
+                    discard JDBCStatement.executeUpdate("CREATE TABLE IF NOT EXISTS facts.databases (name VARCHAR NOT NULL, year INTEGER, PRIMARY KEY(name));")
                 });
                 BasicDuckDB.DuckDBConnection.execDuckDBAppender("facts", 
                     "databases", 

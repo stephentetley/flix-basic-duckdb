@@ -17,16 +17,17 @@ pub mod Test02 {
     use BasicDuckDB.DuckDBConnection.DuckDBConnection
     use BasicDuckDB.DuckDBPreparedStatement
     use BasicDuckDB.DuckDBAppender.DuckDBAppender
+    use BasicDuckDB.JDBCStatement.JDBCStatement
     use BasicDuckDB.RowReader.RowReaderWithAlt
     use BasicDuckDB.RowReader.RowReader
-    use BasicDuckDB.JDBC.Statement.Statement
+    
 
     @Test
     def test01(): Unit \ {Assert + IO} =
         let answer:Result[IoError, Bool] = run {
             BasicDuckDB.DuckDBDriver.execInMemoryDuckDBConnection(() -> {
                 BasicDuckDB.DuckDBConnection.execStatement(() -> {
-                    let a1 = Statement.execute("CREATE SCHEMA IF NOT EXISTS facts;CREATE TABLE IF NOT EXISTS facts.databases (name VARCHAR NOT NULL, year INTEGER, PRIMARY KEY(name));");
+                    let a1 = JDBCStatement.execute("CREATE SCHEMA IF NOT EXISTS facts;CREATE TABLE IF NOT EXISTS facts.databases (name VARCHAR NOT NULL, year INTEGER, PRIMARY KEY(name));");
                     println("Tables created: ${a1}")
                 });
                 BasicDuckDB.DuckDBConnection.execDuckDBAppender("facts", "databases", 

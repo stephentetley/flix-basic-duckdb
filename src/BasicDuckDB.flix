@@ -20,6 +20,7 @@ pub mod BasicDuckDB {
     import org.duckdb.{DuckDBConnection => JDuckDBConnection}
     import org.duckdb.{DuckDBAppender => JDuckDBAppender}
     import org.duckdb.{DuckDBPreparedStatement => JDuckDBPreparedStatement}
+    import java.sql.{Statement => JStatement}
     import org.duckdb.{DuckDBResultSet => JDuckDBResultSet}
 
 
@@ -67,6 +68,21 @@ pub mod BasicDuckDB {
         pub def toFlix(x: JDuckDBPreparedStatement): PreparedStatement = PreparedStatement.PreparedStatement(x)
     }
 
+    pub enum Statement(JStatement)
+
+    instance ToJava[Statement] {
+        type Out = JStatement
+        pub def toJava(x: Statement): JStatement =
+            let Statement.Statement(x1) = x;
+            x1
+    }
+
+    instance ToFlix[Statement] {
+        type In = JStatement
+        pub def toFlix(x: JStatement): Statement = Statement.Statement(x)
+    }
+
+
     pub enum ResultSet(JDuckDBResultSet)
 
     instance ToJava[ResultSet] {
@@ -80,5 +96,8 @@ pub mod BasicDuckDB {
         type In = JDuckDBResultSet
         pub def toFlix(x: JDuckDBResultSet): ResultSet = ResultSet.ResultSet(x)
     }
+
+
+    
 
 }
