@@ -67,11 +67,9 @@ pub mod BasicDuckDB.Shim.CSV {
         let sql = "COPY ${tableSpec#schema_name}.${tableSpec#table_name} TO '${file_name}'${opts1};";
         run {
             discard JDBCStatement.execute(tableSpec#create_table);
-            BasicDuckDB.DuckDBConnection.execDuckDBAppender(
-                tableSpec#schema_name, 
-                tableSpec#table_name, 
-                () -> foreach (item <- t) appender(item) 
-            );
+            run {
+                foreach (item <- t) appender(item) 
+            } with BasicDuckDB.DuckDBAppender.runDuckDBAppender1(tableSpec#schema_name, tableSpec#table_name);
             discard JDBCStatement.execute(sql)
         } with BasicDuckDB.JDBCStatement.runJDBCStatement1
           with BasicDuckDB.DuckDBConnection.runInMemoryDuckDBConnection

@@ -260,23 +260,15 @@ pub mod BasicDuckDB.DuckDBConnection {
     //     ans
 
 
-    pub def execDuckDBPreparedStatement(sql: String, 
-                                        f: Unit -> a \ ef): a \ {ef + Fail + DuckDBConnection} - DuckDBPreparedStatement = 
-        let stmt = DuckDBConnection.prepareStatement(sql);
-        let ans = run {
-            f()
-        } with BasicDuckDB.DuckDBPreparedStatement.runDuckDBPreparedStatement(stmt);
-        DuckDBConnection.closePreparedStatement(stmt);
-        ans
+    // pub def execDuckDBPreparedStatement(sql: String, 
+    //                                     f: Unit -> a \ ef): a \ {ef + Fail + DuckDBConnection} - DuckDBPreparedStatement = 
+    //     let stmt = DuckDBConnection.prepareStatement(sql);
+    //     let ans = run {
+    //         f()
+    //     } with BasicDuckDB.DuckDBPreparedStatement.runDuckDBPreparedStatement(stmt);
+    //     DuckDBConnection.closePreparedStatement(stmt);
+    //     ans
 
-
-    pub def execDuckDBAppender(schema: String, 
-                                table: String, 
-                                f: Unit -> a \ ef): a \ {ef + Fail + DuckDBConnection} - DuckDBAppender = 
-        let app = DuckDBConnection.createAppender(schema, table);
-        let ans = BasicDuckDB.DuckDBAppender.runDuckDBAppender(app, f);
-        DuckDBConnection.closeAppender(app);
-        ans 
 
     
     pub def execDuckDBScalarFunctionBuilder(f: Unit -> a \ ef): a \ {ef + Fail + DuckDBConnection} - DuckDBScalarFunctionBuilder= 

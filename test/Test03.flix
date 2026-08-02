@@ -23,10 +23,10 @@ pub mod Test03 {
         let answer = run {
             discard JDBCStatement.executeUpdate("CREATE SCHEMA IF NOT EXISTS facts;");
             discard JDBCStatement.executeUpdate("CREATE TABLE IF NOT EXISTS facts.databases (name VARCHAR NOT NULL, year INTEGER, PRIMARY KEY(name));");
-            BasicDuckDB.DuckDBConnection.execDuckDBAppender("facts", 
-                        "databases", 
-                        () -> List.forEach(xy -> { let (x, y) = xy; appender(x, y) }, 
-                                List#{("DuckDB", 2019), ("SQLite", 2000)}));
+            run { 
+                List.forEach(xy -> { let (x, y) = xy; appender(x, y) }, 
+                                List#{("DuckDB", 2019), ("SQLite", 2000)})
+            } with BasicDuckDB.DuckDBAppender.runDuckDBAppender1("facts", "databases");
             BasicDuckDB.JDBCStatement.foldQuery(
                         "SELECT * FROM facts.databases;",
                         (row, acc) -> { let i = rowReader(row); Int32.max(acc, i) }, 
