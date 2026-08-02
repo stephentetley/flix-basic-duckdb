@@ -24,7 +24,6 @@ pub mod BasicDuckDB.Shim.CSV {
     use BasicDuckDB.DuckDBConnection.{DuckDBConnection}
     use BasicDuckDB.DuckDBResultSet.{DuckDBResultSet}
     use BasicDuckDB.JDBCStatement.{JDBCStatement}
-    use BasicDuckDB.RowReader.RowReaderWithAlt
     use BasicDuckDB.Shim.CSVOption.CSVOption
     use BasicDuckDB.Shim.Internal.Utils.{printOptions}
     

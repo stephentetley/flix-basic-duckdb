@@ -240,7 +240,7 @@ pub mod BasicDuckDB.RowReader {
 
     }
 
-    pub def runRowReader(row: ResultSetRow, f: Unit -> a \ ef): a \ ef + Fail - RowReaderWithAlt = 
+    pub def runRowReader(row: ResultSetRow, f: Unit -> a \ ef): a \ ef + Fail - RowReader - Alt = 
         run { handle(row, f)() } with EffectExtras.Alt.runWithFail
 
 }

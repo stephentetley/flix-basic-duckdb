@@ -16,16 +16,13 @@
 
 
 pub mod BasicDuckDB.Shim.SQLite {
-    
-
-    
+     
     use EffectExtras.Fail.Fail
     use BasicDuckDB.{ResultSetRow}
     use BasicDuckDB.DuckDBDriver.DuckDBDriver
     use BasicDuckDB.DuckDBConnection.DuckDBConnection
     use BasicDuckDB.DuckDBResultSet.DuckDBResultSet
     use BasicDuckDB.JDBCStatement.JDBCStatement
-    use BasicDuckDB.RowReader.RowReaderWithAlt
 
     
     pub def forEach(reader: ResultSetRow -> Unit \ ef, 

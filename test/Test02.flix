@@ -18,7 +18,6 @@ pub mod Test02 {
     use BasicDuckDB.DuckDBPreparedStatement
     use BasicDuckDB.DuckDBAppender.DuckDBAppender
     use BasicDuckDB.JDBCStatement.JDBCStatement
-    use BasicDuckDB.RowReader.RowReaderWithAlt
     use BasicDuckDB.RowReader.RowReader
     
 
@@ -51,11 +50,11 @@ pub mod Test02 {
     }
 
 
-    def rowReader(): Unit \ RowReaderWithAlt + IO = checked_ecast({
+    def rowReader(): Unit \ RowReader + IO = {
         let name = RowReader.getStringByName("name");
         let year = RowReader.getInt32ByName("year");
         println("Test02 - Database: ${name}, Year: ${year}")
-    })
+    }
 
 }
 

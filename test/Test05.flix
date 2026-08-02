@@ -11,7 +11,6 @@ pub mod Test05 {
     use Assert.{assertEq}
     use EffectExtras.Fail.Fail
     use BasicDuckDB.{ResultSetRow}
-    use BasicDuckDB.RowReader.RowReaderWithAlt
     use BasicDuckDB.RowReader.RowReader
 
 

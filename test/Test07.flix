@@ -5,7 +5,6 @@ pub mod Test07 {
     use BasicDuckDB.DuckDBConnection.DuckDBConnection
     use BasicDuckDB.DuckDBPreparedStatement
     use BasicDuckDB.DuckDBAppender.DuckDBAppender
-    use BasicDuckDB.RowReader.RowReaderWithAlt
     use BasicDuckDB.RowReader.RowReader
     
     def makeTableSpec(): {create_table = String, schema_name = String, table_name = String} = 

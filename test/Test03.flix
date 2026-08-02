@@ -11,7 +11,6 @@ pub mod Test03 {
     use BasicDuckDB.DuckDBPreparedStatement
     use BasicDuckDB.DuckDBAppender.DuckDBAppender
     use BasicDuckDB.JDBCStatement.JDBCStatement
-    use BasicDuckDB.RowReader.RowReaderWithAlt
     use BasicDuckDB.RowReader.RowReader
     
     use Fs.FileWrite

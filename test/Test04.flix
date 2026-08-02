@@ -9,9 +9,9 @@
 pub mod Test04 {
     use Assert.{assertEq}
 
+    use EffectExtras.Alt.Alt
     use BasicDuckDB.DuckDBDriver
     use BasicDuckDB.DuckDBConnection
-    use BasicDuckDB.RowReader.RowReaderWithAlt
     use BasicDuckDB.RowReader.RowReader
 
     @Test
@@ -27,7 +27,7 @@ pub mod Test04 {
         assertEq(expected = Ok(true), answer)
 
 
-    def rowReader(): Int32 \ RowReaderWithAlt = 
+    def rowReader(): Int32 \ RowReader + Alt = 
         EffectExtras.Alt.withDefault(_ -> RowReader.getInt32ByIndex(0), 0)
 
 }

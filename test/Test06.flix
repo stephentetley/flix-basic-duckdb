@@ -8,7 +8,6 @@ pub mod Test06 {
     use BasicDuckDB.{ResultSetRow}
     use BasicDuckDB.DuckDBDriver
     use BasicDuckDB.DuckDBConnection
-    use BasicDuckDB.RowReader.RowReaderWithAlt
     use BasicDuckDB.RowReader.RowReader
     use BasicDuckDB.DuckDBScalarFunctionBuilder.DuckDBScalarFunctionBuilder
     use BasicDuckDB.DuckDBColumnType.ColumnType

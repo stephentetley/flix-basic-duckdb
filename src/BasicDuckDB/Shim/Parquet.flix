@@ -23,7 +23,6 @@ pub mod BasicDuckDB.Shim.Parquet {
     use BasicDuckDB.DuckDBConnection.DuckDBConnection
     use BasicDuckDB.DuckDBResultSet.DuckDBResultSet
     use BasicDuckDB.JDBCStatement.JDBCStatement
-    use BasicDuckDB.RowReader.RowReaderWithAlt
     use BasicDuckDB.DuckDBAppender.DuckDBAppender
     use BasicDuckDB.Shim.ParquetOption.ParquetOption
     use BasicDuckDB.Shim.Internal.Utils.{printOptions}
