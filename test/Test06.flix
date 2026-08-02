@@ -4,6 +4,8 @@
 pub mod Test06 {
     use Assert.{assertEq}
 
+    use EffectExtras.Fail.Fail
+    use BasicDuckDB.{ResultSetRow}
     use BasicDuckDB.DuckDBDriver
     use BasicDuckDB.DuckDBConnection
     use BasicDuckDB.RowReader.RowReaderWithAlt
@@ -26,24 +28,28 @@ pub mod Test06 {
                             BasicDuckDB.DuckDBConnection.execDuckDBScalarFunctionBuilder(buildFun3);
                             BasicDuckDB.DuckDBConnection.forEachQuery(
                                 "SELECT flix_add_one(42);", 
-                                () -> { let i = rowReader(); println("Test06: ${i} ") }) |> println;
+                                row -> { let i = rowReaderI(row); println("Test06: ${i} ") }) |> println;
                             BasicDuckDB.DuckDBConnection.forEachQuery(
                                 "SELECT flix_add_n(42, 100);",
-                                () -> { let i = rowReader(); println("Test06: ${i} ") }) |> println;
+                                row -> { let i = rowReaderI(row); println("Test06: ${i} ") }) |> println;
                             BasicDuckDB.DuckDBConnection.forEachQuery(
                                 "SELECT flix_get_ten();",
-                                () -> { let s = rowReaderS(); println("Test06 (ten): ${s} ") }) |> println
+                                row -> { let s = rowReaderS(row); println("Test06 (ten): ${s} ") }) |> println
                         })
                     } with BasicDuckDB.DuckDBDriver.runDuckDBDriver 
             ) yield true;
         assertEq(expected = Ok(true), answer)
 
 
-    def rowReader(): Int32 \ RowReaderWithAlt = 
-        EffectExtras.Alt.withDefault(_ -> RowReader.getInt32ByIndex(0), 0)
+    def rowReaderI(row: ResultSetRow): Int32 \ Fail = 
+        BasicDuckDB.RowReader.runRowReader(row, _ -> {
+            EffectExtras.Alt.withDefault(_ -> RowReader.getInt32ByIndex(0), 0)
+        })
 
-    def rowReaderS(): String \ RowReaderWithAlt = 
-        EffectExtras.Alt.withDefault(_ -> RowReader.getStringByIndex(0), "")
+    def rowReaderS(row: ResultSetRow): String  \ Fail = 
+        BasicDuckDB.RowReader.runRowReader(row, _ -> {
+            EffectExtras.Alt.withDefault(_ -> RowReader.getStringByIndex(0), "")
+        })
 
 
     def buildFun1(): Unit \ DuckDBScalarFunctionBuilder = {

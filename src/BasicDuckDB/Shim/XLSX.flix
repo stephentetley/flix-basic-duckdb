@@ -18,6 +18,7 @@
 pub mod BasicDuckDB.Shim.XLSX {
 
     use EffectExtras.Fail.Fail
+    use BasicDuckDB.{ResultSetRow}
     use BasicDuckDB.DuckDBDriver.{DuckDBDriver}
     use BasicDuckDB.DuckDBConnection.{DuckDBConnection}
     use BasicDuckDB.DuckDBResultSet.{DuckDBResultSet}
@@ -26,9 +27,9 @@ pub mod BasicDuckDB.Shim.XLSX {
     use BasicDuckDB.Shim.XLSXOption.XLSXOption
     use BasicDuckDB.Shim.Internal.Utils.{printOptions}
     
-    pub def forEach(reader: Unit -> Unit \ ef, 
+    pub def forEachRow(reader: ResultSetRow -> Unit \ ef, 
                     file_name: String, 
-                    opts: List[XLSXOption]): Result[IoError, Unit] \ {IO + ef} - DuckDBDriver - Fail - DuckDBConnection - JDBCStatement - DuckDBResultSet - RowReaderWithAlt = 
+                    opts: List[XLSXOption]): Result[IoError, Unit] \ IO + ef - DuckDBConnection - Fail - DuckDBDriver - DuckDBResultSet - JDBCStatement = 
         let url = "jdbc:duckdb:";
         let sql = "SELECT * FROM read_xlsx('${file_name}'${printOptions(opts)});";
         run {
@@ -41,7 +42,7 @@ pub mod BasicDuckDB.Shim.XLSX {
     pub def fold(reader: a -> a \ ef, 
                     s: a, 
                     file_name: String, 
-                    opts: List[XLSXOption]): Result[IoError, a] \ {IO + ef} - DuckDBDriver - Fail - DuckDBConnection - JDBCStatement - DuckDBResultSet - RowReaderWithAlt = 
+                    opts: List[XLSXOption]): Result[IoError, a] \ IO + ef - DuckDBConnection - Fail - DuckDBDriver - DuckDBResultSet - JDBCStatement - RowReaderWithAlt = 
         let url = "jdbc:duckdb:";
         let sql = "SELECT * FROM read_xlsx('${file_name}')${printOptions(opts)};";
         run {

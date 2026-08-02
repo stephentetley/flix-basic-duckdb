@@ -7,7 +7,10 @@
 
 
 pub mod Test05 {
+    
     use Assert.{assertEq}
+    use EffectExtras.Fail.Fail
+    use BasicDuckDB.{ResultSetRow}
     use BasicDuckDB.RowReader.RowReaderWithAlt
     use BasicDuckDB.RowReader.RowReader
 
@@ -20,12 +23,13 @@ pub mod Test05 {
                         table_name="country");
         assertEq(expected = Ok(), answer)
 
-    def rowReader(): Unit \ RowReaderWithAlt + IO = {
-        let country = RowReader.getStringByIndex(0);
-        let capital = RowReader.getStringByIndex(1);
-        let pop = EffectExtras.Alt.withDefault(() -> RowReader.getFloat64ByIndex(2), 0.0f64);
-        println("Test05.test01 ${country}, capital city: ${capital}, population in millions: ${pop}")
-    }
+    def rowReader(row: ResultSetRow): Unit \ IO + Fail = 
+        BasicDuckDB.RowReader.runRowReader(row, _ -> {
+            let country = RowReader.getStringByIndex(0);
+            let capital = RowReader.getStringByIndex(1);
+            let pop = EffectExtras.Alt.withDefault(() -> RowReader.getFloat64ByIndex(2), 0.0f64);
+            println("Test05.test01 ${country}, capital city: ${capital}, population in millions: ${pop}")
+        })
 
 }
 

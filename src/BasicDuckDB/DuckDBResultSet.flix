@@ -18,9 +18,10 @@
 
 
 pub mod BasicDuckDB.DuckDBResultSet {
+    
 
     use EffectExtras.Fail.Fail
-    use BasicDuckDB.ResultSet
+    use BasicDuckDB.{ResultSet, ResultSetRow}
     use BasicDuckDB.RowReader.RowReaderWithAlt
     use BasicDuckDB.JDBC.ResultSet.{ResultSetHandle}
 
@@ -37,6 +38,7 @@ pub mod BasicDuckDB.DuckDBResultSet {
         // It is a hack until we can run local effects polymorphically
         def askDuckDBResultSetHandle(): ResultSet
         def next(): Bool
+        def getResultSetRow(): ResultSetRow
         def wasNull(): Bool
         def findColumn(label: String): Int32
         def isBeforeFirst(): Bool
@@ -78,6 +80,8 @@ pub mod BasicDuckDB.DuckDBResultSet {
                     case ex: JSQLException => Fail.report(ex.getMessage())
                 }
             
+            def getResultSetRow(k) = k(ToFlix.toFlix(jresults))
+
             def wasNull(k) = 
                 try {
                     let ans = unsafe IO as {ef + Fail - DuckDBResultSet} { jresults.wasNull() };
@@ -193,24 +197,30 @@ pub mod BasicDuckDB.DuckDBResultSet {
 
 
     pub def execReadRow(reader: Unit -> a \ ef): a \ {ef + Fail + DuckDBResultSet} - RowReaderWithAlt = 
-        let row = DuckDBResultSet.askDuckDBResultSetHandle();
+        let row = DuckDBResultSet.getResultSetRow();
         run {
             reader()
         } with BasicDuckDB.RowReader.runRowReader(row)
 
+    // pub def resultSetRowIterator(rc: Region[r], results: ResultSet): Iterator[ResultSetRow, r, r] \ r = 
+    //     Iterator.unfold(rc, () -> {
+
+    //     })
+
+
     // Note - doesn't close resultset even though it will be exhausted
-    pub def forEach(f: Unit -> Unit \ ef): Unit \ {ef + Fail + DuckDBResultSet} - RowReaderWithAlt =
-        def loop(fk, sk) = {
+    // TODO - there is no failure detection so we can't short circuit...
+    pub def forEachRow(f: ResultSetRow -> Unit \ ef, results: ResultSet): Unit \ ef + Fail - DuckDBResultSet =
+        @Tailrec
+        def loop() = {
             let more = DuckDBResultSet.next();
             if (more) {
-                let rowAnswer = EffectExtras.Fail.runWithResult(_ -> execReadRow(f));
-                match rowAnswer {
-                    case Ok()     => loop(fk, sk)
-                    case Err(err) => fk(err)
-                }
-            } else sk()
+                let row = DuckDBResultSet.getResultSetRow();
+                f(row);
+                loop()
+            } else ()
         };
-        loop(e -> Fail.report(e), a -> a)
+        runDuckDBResultSet(results, loop)
 
     // fold
     pub def fold(f: s -> s \ ef, st: s): s \ {ef + Fail + DuckDBResultSet} - RowReaderWithAlt =

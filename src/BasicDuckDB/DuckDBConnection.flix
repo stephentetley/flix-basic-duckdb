@@ -19,7 +19,7 @@
 pub mod BasicDuckDB.DuckDBConnection {
 
     use EffectExtras.Fail.Fail
-    use BasicDuckDB.{Appender, Connection, PreparedStatement, Statement}
+    use BasicDuckDB.{Appender, Connection, PreparedStatement, Statement, ResultSetRow}
     use BasicDuckDB.DuckDBAppender.DuckDBAppender
     use BasicDuckDB.DuckDBPreparedStatement.DuckDBPreparedStatement
     use BasicDuckDB.DuckDBResultSet.DuckDBResultSet
@@ -240,7 +240,7 @@ pub mod BasicDuckDB.DuckDBConnection {
         let stmt = DuckDBConnection.createStatement();
         let ans = run { 
             f() 
-        } with BasicDuckDB.JDBCStatement.runStatement(stmt);
+        } with BasicDuckDB.JDBCStatement.runJDBCStatement(stmt);
         DuckDBConnection.closeStatement(stmt);
         ans
 
@@ -275,7 +275,7 @@ pub mod BasicDuckDB.DuckDBConnection {
         execStatement(_ -> BasicDuckDB.JDBCStatement.foldQuery(sql, f, s))
 
 
-    pub def forEachQuery(sql: String, f: Unit -> Unit \ ef): Unit \ {ef + Fail + DuckDBConnection} - RowReaderWithAlt - JDBCStatement - DuckDBResultSet  = 
+    pub def forEachQuery(sql: String, f: ResultSetRow -> Unit \ ef): Unit \ ef + Fail + DuckDBConnection - JDBCStatement - DuckDBResultSet = 
         execStatement(_ -> BasicDuckDB.JDBCStatement.forEachQuery(sql, f))
 
     

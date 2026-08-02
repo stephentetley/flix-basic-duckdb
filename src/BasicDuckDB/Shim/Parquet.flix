@@ -18,6 +18,7 @@
 pub mod BasicDuckDB.Shim.Parquet {
 
     use EffectExtras.Fail.Fail
+    use BasicDuckDB.{ResultSetRow}
     use BasicDuckDB.DuckDBDriver.DuckDBDriver
     use BasicDuckDB.DuckDBConnection.DuckDBConnection
     use BasicDuckDB.DuckDBResultSet.DuckDBResultSet
@@ -29,9 +30,9 @@ pub mod BasicDuckDB.Shim.Parquet {
     
     // TODO multiple files... Output...
 
-    pub def forEach(reader: Unit -> Unit \ ef, 
+    pub def forEach(reader: ResultSetRow -> Unit \ ef, 
                     file_name: String, 
-                    opts: List[ParquetOption]): Result[IoError, Unit] \ {IO + ef} - DuckDBDriver - Fail - DuckDBConnection - JDBCStatement - DuckDBResultSet - RowReaderWithAlt = 
+                    opts: List[ParquetOption]): Result[IoError, Unit] \ {IO + ef} - DuckDBDriver - Fail - DuckDBConnection - JDBCStatement - DuckDBResultSet  = 
         let url = "jdbc:duckdb:";
         let sql = "SELECT * FROM read_parquet('${file_name}'${printOptions(opts)});";
         run {
@@ -59,7 +60,7 @@ pub mod BasicDuckDB.Shim.Parquet {
         fold(acc -> { let row1 = reader(); acc <+> row1 }, #{}, file_name, opts)
 
 
-pub def exportParquet(tableSpec: {create_table = String, schema_name = String, table_name = String},
+    pub def exportParquet(tableSpec: {create_table = String, schema_name = String, table_name = String},
                         file_name: String,
                         opts: List[ParquetOption], 
                         appender: a -> Unit \ ef,

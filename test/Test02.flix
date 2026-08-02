@@ -23,7 +23,7 @@ pub mod Test02 {
     
 
     @Test
-    def test01(): Unit \ {Assert + IO} =
+    def test01(): Unit \ Assert + IO  =
         let answer:Result[IoError, Bool] = run {
             BasicDuckDB.DuckDBDriver.execInMemoryDuckDBConnection(() -> {
                 BasicDuckDB.DuckDBConnection.execStatement(() -> {
@@ -35,7 +35,7 @@ pub mod Test02 {
                                         List#{("DuckDB", 2019), ("SQLite", 2000)})
                 );
                 BasicDuckDB.DuckDBConnection.forEachQuery("SELECT * FROM facts.databases;",
-                                                            _ -> rowReader()
+                                                            row -> BasicDuckDB.RowReader.runRowReader(row, rowReader)
                                                             );
                 true
             })

@@ -19,7 +19,7 @@ pub mod BasicDuckDB.RowReader {
 
     use EffectExtras.Alt.Alt
     use EffectExtras.Fail.Fail
-    use BasicDuckDB.ResultSet
+    use BasicDuckDB.ResultSetRow
     use BasicDuckDB.JDBC.Struct.StructHandle
 
 
@@ -53,7 +53,7 @@ pub mod BasicDuckDB.RowReader {
 
 
 
-    pub def handle(results: ResultSet, 
+    pub def handle(results: ResultSetRow, 
                     f: a -> b \ ef): a -> b \ {ef + Alt - RowReader} = x -> {
         let jresults = ToJava.toJava(results);
         run {
@@ -240,7 +240,7 @@ pub mod BasicDuckDB.RowReader {
 
     }
 
-    pub def runRowReader(rset: ResultSet, f: Unit -> a \ ef): a \ ef + Fail - RowReaderWithAlt = 
-        run { handle(rset, f)() } with EffectExtras.Alt.runWithFail
+    pub def runRowReader(row: ResultSetRow, f: Unit -> a \ ef): a \ ef + Fail - RowReaderWithAlt = 
+        run { handle(row, f)() } with EffectExtras.Alt.runWithFail
 
 }

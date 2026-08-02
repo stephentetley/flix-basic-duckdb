@@ -19,7 +19,7 @@
 pub mod BasicDuckDB.DuckDBPreparedStatement {
     
     use EffectExtras.Fail.Fail
-    use BasicDuckDB.{PreparedStatement, ResultSet}
+    use BasicDuckDB.{PreparedStatement, ResultSet, ResultSetRow}
     use BasicDuckDB.DuckDBResultSet.DuckDBResultSet
     use BasicDuckDB.RowReader.RowReaderWithAlt
     
@@ -217,9 +217,9 @@ pub mod BasicDuckDB.DuckDBPreparedStatement {
         DuckDBPreparedStatement.closeResultSet(results);
         ans
 
-    pub def forEachQuery(f: Unit -> Unit \ ef): Unit \ {ef + Fail + DuckDBPreparedStatement} - DuckDBResultSet - RowReaderWithAlt = 
+    pub def forEachQuery(f: ResultSetRow -> Unit \ ef): Unit \ ef + Fail + DuckDBPreparedStatement - DuckDBResultSet = 
         let results = DuckDBPreparedStatement.executeQuery();
-        let ans = BasicDuckDB.DuckDBResultSet.runDuckDBResultSet(results, _ -> BasicDuckDB.DuckDBResultSet.forEach(f));
+        let ans = BasicDuckDB.DuckDBResultSet.forEachRow(f, results);
         DuckDBPreparedStatement.closeResultSet(results);
         ans
 

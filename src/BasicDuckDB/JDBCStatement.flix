@@ -18,10 +18,12 @@
 
 
 pub mod BasicDuckDB.JDBCStatement {
+    use BasicDuckDB.JDBCStatement
+    use BasicDuckDB.JDBC.ResultSet
     
     use EffectExtras.Fail.Fail
     use BasicDuckDB.DuckDBResultSet.DuckDBResultSet
-    use BasicDuckDB.{ResultSet, Statement}
+    use BasicDuckDB.{ResultSet, ResultSetRow, Statement}
     use BasicDuckDB.RowReader.RowReaderWithAlt
 
     import java.sql.{SQLException => JSQLException}
@@ -145,7 +147,7 @@ pub mod BasicDuckDB.JDBCStatement {
         }
     }
 
-    pub def runStatement(stmt: Statement, f: Unit -> a \ ef): a \ {ef + Fail} - JDBCStatement = 
+    pub def runJDBCStatement(stmt: Statement, f: Unit -> a \ ef): a \ {ef + Fail} - JDBCStatement = 
         handle(stmt, f)()
 
     pub def scalarQuery(sql: String, 
@@ -156,9 +158,9 @@ pub mod BasicDuckDB.JDBCStatement {
         ans
 
     pub def forEachQuery(sql: String, 
-                            f: Unit -> Unit \ ef): Unit \ {ef + Fail + JDBCStatement} - DuckDBResultSet - RowReaderWithAlt = 
+                            f: ResultSetRow -> Unit \ ef): Unit \ ef + Fail + JDBCStatement - DuckDBResultSet = 
         let results = JDBCStatement.executeQuery(sql);
-        let ans = BasicDuckDB.DuckDBResultSet.runDuckDBResultSet(results, _ -> BasicDuckDB.DuckDBResultSet.forEach(f));
+        let ans = BasicDuckDB.DuckDBResultSet.forEachRow(f, results);
         JDBCStatement.closeResultSet(results);
         ans
 

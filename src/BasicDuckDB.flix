@@ -97,6 +97,19 @@ pub mod BasicDuckDB {
         pub def toFlix(x: JDuckDBResultSet): ResultSet = ResultSet.ResultSet(x)
     }
 
+    pub enum ResultSetRow(JDuckDBResultSet)
+
+    instance ToJava[ResultSetRow] {
+        type Out = JDuckDBResultSet
+        pub def toJava(x: ResultSetRow): JDuckDBResultSet =
+            let ResultSetRow.ResultSetRow(x1) = x;
+            x1
+    }
+
+    instance ToFlix[ResultSetRow] {
+        type In = JDuckDBResultSet
+        pub def toFlix(x: JDuckDBResultSet): ResultSetRow = ResultSetRow.ResultSetRow(x)
+    }
 
     
 

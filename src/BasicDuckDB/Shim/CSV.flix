@@ -18,6 +18,7 @@
 pub mod BasicDuckDB.Shim.CSV {
 
     use EffectExtras.Fail.Fail
+    use BasicDuckDB.{ResultSetRow}
     use BasicDuckDB.DuckDBDriver.{DuckDBDriver}
     use BasicDuckDB.DuckDBAppender.DuckDBAppender
     use BasicDuckDB.DuckDBConnection.{DuckDBConnection}
@@ -28,9 +29,9 @@ pub mod BasicDuckDB.Shim.CSV {
     use BasicDuckDB.Shim.Internal.Utils.{printOptions}
     
 
-    pub def forEach(reader: Unit -> Unit \ ef, 
+    pub def forEach(reader: ResultSetRow -> Unit \ ef, 
                     file_name: String, 
-                    opts: List[CSVOption]): Result[IoError, Unit] \ {IO + ef} - DuckDBDriver - Fail - DuckDBConnection - JDBCStatement - DuckDBResultSet - RowReaderWithAlt = 
+                    opts: List[CSVOption]): Result[IoError, Unit] \ {IO + ef} - DuckDBDriver - Fail - DuckDBConnection - JDBCStatement - DuckDBResultSet = 
         let url = "jdbc:duckdb:";
         let sql = "SELECT * FROM read_csv('${file_name}'${printOptions(opts)});";
         run {

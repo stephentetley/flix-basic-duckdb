@@ -20,6 +20,7 @@ pub mod BasicDuckDB.Shim.SQLite {
 
     
     use EffectExtras.Fail.Fail
+    use BasicDuckDB.{ResultSetRow}
     use BasicDuckDB.DuckDBDriver.DuckDBDriver
     use BasicDuckDB.DuckDBConnection.DuckDBConnection
     use BasicDuckDB.DuckDBResultSet.DuckDBResultSet
@@ -27,9 +28,9 @@ pub mod BasicDuckDB.Shim.SQLite {
     use BasicDuckDB.RowReader.RowReaderWithAlt
 
     
-    pub def forEach(reader: Unit -> Unit \ ef, 
+    pub def forEach(reader: ResultSetRow -> Unit \ ef, 
                     file_name: String, 
-                    table_name: {table_name = String}): Result[IoError, Unit] \ {IO + ef} - DuckDBDriver - Fail - DuckDBConnection - JDBCStatement - DuckDBResultSet - RowReaderWithAlt = 
+                    table_name: {table_name = String}): Result[IoError, Unit] \ {IO + ef} - DuckDBDriver - Fail - DuckDBConnection - JDBCStatement - DuckDBResultSet  = 
         let url = "jdbc:duckdb:";
         let sql1 = "ATTACH '${file_name}' AS temp_sqlite_db (TYPE sqlite); USE temp_sqlite_db;";
         let sql2 = "SELECT * FROM temp_sqlite_db.${table_name#table_name};";
